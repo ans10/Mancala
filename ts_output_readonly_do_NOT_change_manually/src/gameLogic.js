@@ -6,17 +6,19 @@ var log = gamingPlatform.log;
 var dragAndDropService = gamingPlatform.dragAndDropService;
 var gameLogic;
 (function (gameLogic) {
-    gameLogic.ROWS = 3;
-    gameLogic.COLS = 3;
+    gameLogic.ROWS = 2;
+    gameLogic.COLS = 7;
     /** Returns the initial TicTacToe board, which is a ROWSxCOLS matrix containing ''. */
     function getInitialBoard() {
         var board = [];
         for (var i = 0; i < gameLogic.ROWS; i++) {
             board[i] = [];
             for (var j = 0; j < gameLogic.COLS; j++) {
-                board[i][j] = '';
+                board[i][j] = 4;
             }
         }
+        board[0][0] = 0;
+        board[1][6] = 0;
         return board;
     }
     gameLogic.getInitialBoard = getInitialBoard;
@@ -32,16 +34,11 @@ var gameLogic;
      *      ['O', 'X', 'X']]
      */
     function isTie(board) {
-        for (var i = 0; i < gameLogic.ROWS; i++) {
-            for (var j = 0; j < gameLogic.COLS; j++) {
-                if (board[i][j] === '') {
-                    // If there is an empty cell then we do not have a tie.
-                    return false;
-                }
-            }
+        if (board[0][0] === board[1][6]) {
+            return true;
         }
         // No empty cells, so we have a tie!
-        return true;
+        return false;
     }
     /**
      * Return the winner (either 'X' or 'O') or '' if there is no winner.
@@ -52,66 +49,121 @@ var gameLogic;
      *      ['X', '', '']]
      */
     function getWinner(board) {
-        var boardString = '';
-        for (var i = 0; i < gameLogic.ROWS; i++) {
-            for (var j = 0; j < gameLogic.COLS; j++) {
-                var cell = board[i][j];
-                boardString += cell === '' ? ' ' : cell;
+        if (board[0][0] > board[1][6]) {
+            return 0;
+        }
+        else if (board[0][0] === board[1][6]) {
+            return -1;
+        }
+        else {
+            return 1;
+        }
+    }
+    function isEndState(board) {
+        for (var j = 1; j < gameLogic.COLS; j++) {
+            if (board[0][j] !== 0) {
+                return false;
             }
         }
-        var win_patterns = [
-            'XXX......',
-            '...XXX...',
-            '......XXX',
-            'X..X..X..',
-            '.X..X..X.',
-            '..X..X..X',
-            'X...X...X',
-            '..X.X.X..'
-        ];
-        for (var _i = 0, win_patterns_1 = win_patterns; _i < win_patterns_1.length; _i++) {
-            var win_pattern = win_patterns_1[_i];
-            var x_regexp = new RegExp(win_pattern);
-            var o_regexp = new RegExp(win_pattern.replace(/X/g, 'O'));
-            if (x_regexp.test(boardString)) {
-                return 'X';
-            }
-            if (o_regexp.test(boardString)) {
-                return 'O';
+        for (var j = 0; j < gameLogic.COLS - 1; j++) {
+            if (board[1][j] !== 0) {
+                return false;
             }
         }
-        return '';
+        return true;
+    }
+    function updateBoard(board, row, col) {
+        var boardAfterMove = angular.copy(board);
+        var updatedState = null;
+        var i;
+        var j;
+        i = row;
+        j = col;
+        var val;
+        val = boardAfterMove[i][j];
+        boardAfterMove[i][j] = 0;
+        while (val > 0) {
+            if (i === 0) {
+                j--;
+                if (row === 0 && j < 0) {
+                    i = i + 1;
+                    j = 0;
+                }
+                else if (row === 1 && j < 1) {
+                    i = i + 1;
+                    j = 0;
+                }
+                boardAfterMove[i][j] += 1;
+            }
+            else {
+                j++;
+                if (row === 0 && j > 5) {
+                    i = i - 1;
+                    j = 6;
+                }
+                else if (row === 1 && j > 6) {
+                    i = i - 1;
+                    j = 6;
+                }
+                boardAfterMove[i][j] = boardAfterMove[i][j] + 1;
+            }
+            val--;
+        }
+        // empty hole on last chance handled
+        if (boardAfterMove[i][j] === 1 && row === i &&
+            !((i === 0 && j === 0) || (i === 1 && j === 6))) {
+            boardAfterMove[i][j] = 0;
+            if (i === 0) {
+                boardAfterMove[0][0] += boardAfterMove[1 - i][j - 1] + 1;
+                boardAfterMove[1 - i][j - 1] = 0;
+            }
+            if (i === 1) {
+                boardAfterMove[1][6] += boardAfterMove[1 - i][j + 1] + 1;
+                boardAfterMove[1 - i][j + 1] = 0;
+            }
+        }
+        updatedState = { board: boardAfterMove, lastupdatedrow: i, lastupdatedcolumn: j };
+        return updatedState;
+    }
+    function nextTurn(turnIndex, row, col) {
+        if ((row === 0 && col === 0) || (row === 1 && col === 6)) {
+            return turnIndex;
+        }
+        else {
+            return 1 - turnIndex;
+        }
     }
     /**
      * Returns the move that should be performed when player
-     * with index turnIndexBeforeMove makes a move in cell row X col.
+     * with index BeforeMove makes a move in cell row X col.
      */
     function createMove(stateBeforeMove, row, col, turnIndexBeforeMove) {
         if (!stateBeforeMove) {
             stateBeforeMove = getInitialState();
         }
         var board = stateBeforeMove.board;
-        if (board[row][col] !== '') {
+        if (board[row][col] === 0 || (row === 0 && col === 0) || (row === 1 && col === 6) ||
+            row !== turnIndexBeforeMove) {
             throw new Error("One can only make a move in an empty position!");
         }
-        if (getWinner(board) !== '' || isTie(board)) {
-            throw new Error("Can only make a move if the game is not over!");
-        }
-        var boardAfterMove = angular.copy(board);
-        boardAfterMove[row][col] = turnIndexBeforeMove === 0 ? 'X' : 'O';
-        var winner = getWinner(boardAfterMove);
+        var updatedState = updateBoard(board, row, col);
+        var boardAfterMove = updatedState.board;
         var endMatchScores;
         var turnIndex;
-        if (winner !== '' || isTie(boardAfterMove)) {
-            // Game over.
+        if (isEndState(boardAfterMove)) {
+            //Game over
+            var winner = getWinner(boardAfterMove);
             turnIndex = -1;
-            endMatchScores = winner === 'X' ? [1, 0] : winner === 'O' ? [0, 1] : [0, 0];
+            endMatchScores = winner === 0 ? [1, 0] : winner === 1 ? [0, 1] : [0, 0];
         }
         else {
-            // Game continues. Now it's the opponent's turn (the turn switches from 0 to 1 and 1 to 0).
-            turnIndex = 1 - turnIndexBeforeMove;
+            //Game continues
+            turnIndex = nextTurn(turnIndexBeforeMove, updatedState.lastupdatedrow, updatedState.lastupdatedcolumn);
             endMatchScores = null;
         }
+        /*if (getWinner(board) !== '' || isTie(board)) {
+          throw new Error("Can only make a move if the game is not over!");
+        }*/
         var delta = { row: row, col: col };
         var state = { delta: delta, board: boardAfterMove };
         return {

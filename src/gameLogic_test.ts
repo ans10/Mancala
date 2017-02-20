@@ -7,7 +7,7 @@ describe("In TicTacToe", function() {
   let O_WIN_SCORES = [0, 1];
   let TIE_SCORES = [0, 0];
 
-    
+
   function expectException(
       turnIndexBeforeMove: number,
       boardBeforeMove: Board,
@@ -49,89 +49,73 @@ describe("In TicTacToe", function() {
     let expectedMove:IMove = {
         turnIndex: X_TURN,
         endMatchScores: NO_ONE_WINS,
-        state: {board: 
-          [['', '', ''],
-          ['', '', ''],
-          ['', '', '']], delta: null}
+        state: {board:
+          [[0,4,4,4,4,4,4],
+          [4,4,4,4,4,4,0]], delta: null}
       };
     expect(angular.equals(move, expectedMove)).toBe(true);
   });
-  
-  it("placing X in 0x0 from initial state", function() {
-    expectMove(X_TURN, null, 0, 0,
-      [['X', '', ''],
-       ['', '', ''],
-       ['', '', '']], O_TURN, NO_ONE_WINS);
+
+  it("picking 0,4 position from initial state", function () {
+      expectMove(X_TURN, [[0, 4, 4, 4, 4, 4, 4], [4, 4, 4, 4, 4, 4, 0]], 0, 4, [[1, 5, 5, 5, 0, 4, 4],
+          [4, 4, 4, 4, 4, 4, 0]], X_TURN, NO_ONE_WINS);
+  });
+  it("picking 0,5 after 0,4 picked from initial state", function () {
+      expectMove(X_TURN, [[1, 5, 5, 5, 0, 4, 4],
+          [4, 4, 4, 4, 4, 4, 0]], 0, 5, [[1, 6, 6, 6, 1, 0, 4],
+          [4, 4, 4, 4, 4, 4, 0]], O_TURN, NO_ONE_WINS);
+  });
+  it("trying to pick opponent's stone", function () {
+      expectException(X_TURN, [[1, 5, 5, 5, 0, 4, 4],
+          [4, 4, 4, 4, 4, 4, 0]], 1, 4);
+  });
+  it("trying to pick pit same team", function () {
+      expectException(X_TURN, [[1, 5, 5, 5, 0, 4, 4],
+          [4, 4, 4, 4, 4, 4, 0]], 0, 0);
+  });
+  it("trying to pick pit opponent team", function () {
+      expectException(X_TURN, [[1, 5, 5, 5, 0, 4, 4],
+          [4, 4, 4, 4, 4, 4, 0]], 1, 6);
+  });
+  it("can't pick from empty hole", function () {
+      expectException(O_TURN, [[1, 5, 5, 5, 0, 4, 4],
+          [4, 4, 4, 4, 0, 4, 0]], 1, 4);
+  });
+  it("picking 1,2 with same player's turn again", function () {
+      expectMove(O_TURN, [[1, 5, 5, 5, 0, 4, 4],
+          [4, 4, 4, 4, 4, 4, 0]], 1, 2, [[1, 5, 5, 5, 0, 4, 4],
+          [4, 4, 0, 5, 5, 5, 1]], O_TURN, NO_ONE_WINS);
+  });
+  it("last stone on empty hole", function () {
+      expectMove(X_TURN, [[1, 0, 5, 2, 0, 4, 4],
+          [4, 4, 4, 4, 4, 4, 0]], 0, 3, [[6, 0, 6, 0, 0, 4, 4],
+          [0, 4, 4, 4, 4, 4, 0]], O_TURN, NO_ONE_WINS);
+  });
+  it("normal case ", function () {
+      expectMove(O_TURN, [[1, 0, 5, 2, 0, 4, 4],
+          [4, 4, 4, 4, 4, 4, 0]], 1, 5, [[1, 0, 5, 2, 1, 5, 5],
+          [4, 4, 4, 4, 4, 0, 1]], X_TURN, NO_ONE_WINS);
+  });
+  it("the game ties when there are no more empty cells", function () {
+      expectMove(O_TURN, [[1, 0, 5, 2, 0, 4, 4],
+          [4, 4, 11, 4, 4, 4, 0]], 1, 2, [[1, 1, 6, 3, 1, 5, 5],
+          [5, 4, 0, 5, 5, 5, 1]], X_TURN, NO_ONE_WINS);
+  });
+  it("no tie", function () {
+      expectMove(O_TURN, [[12, 0, 5, 2, 0, 4, 4],
+          [4, 4, 11, 4, 1, 1, 12]], 1, 4, [[12, 0, 5, 2, 0, 4, 4],
+          [4, 4, 11, 4, 0, 2, 12]], X_TURN, NO_ONE_WINS);
+  });
+  it("tie", function () {
+      expectMove(O_TURN, [[24, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 1, 23]], 1, 5, [[24, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 24]], NO_ONE_TURN, TIE_SCORES);
+  });
+  it("X wins", function () {
+      expectMove(O_TURN, [[14, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 1, 23]], 1, 5, [[14, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 24]], NO_ONE_TURN, O_WIN_SCORES);
   });
 
-  it("placing O in 0x1 after X placed X in 0x0", function() {
-    expectMove(O_TURN,
-      [['X', '', ''],
-       ['', '', ''],
-       ['', '', '']], 0, 1,
-      [['X', 'O', ''],
-       ['', '', ''],
-       ['', '', '']], X_TURN, NO_ONE_WINS);
-  });
 
-  it("placing an O in a non-empty position is illegal", function() {
-    expectException(O_TURN,
-      [['X', '', ''],
-       ['', '', ''],
-       ['', '', '']], 0, 0);
-  });
-
-  it("cannot move after the game is over", function() {
-    expectException(O_TURN,
-      [['X', 'O', ''],
-       ['X', 'O', ''],
-       ['X', '', '']], 2, 1);
-  });
-
-  it("placing O in 2x1", function() {
-    expectMove(O_TURN,
-      [['O', 'X', ''],
-       ['X', 'O', ''],
-       ['X', '', '']], 2, 1,
-      [['O', 'X', ''],
-       ['X', 'O', ''],
-       ['X', 'O', '']], X_TURN, NO_ONE_WINS);
-  });
-
-  it("X wins by placing X in 2x0", function() {
-    expectMove(X_TURN,
-      [['X', 'O', ''],
-       ['X', 'O', ''],
-       ['', '', '']], 2, 0,
-      [['X', 'O', ''],
-       ['X', 'O', ''],
-       ['X', '', '']], NO_ONE_TURN, X_WIN_SCORES);
-  });
-
-  it("O wins by placing O in 1x1", function() {
-    expectMove(O_TURN,
-      [['X', 'X', 'O'],
-       ['X', '', ''],
-       ['O', '', '']], 1, 1,
-      [['X', 'X', 'O'],
-       ['X', 'O', ''],
-       ['O', '', '']], NO_ONE_TURN, O_WIN_SCORES);
-  });
-
-  it("the game ties when there are no more empty cells", function() {
-    expectMove(X_TURN,
-      [['X', 'O', 'X'],
-       ['X', 'O', 'O'],
-       ['O', 'X', '']], 2, 2,
-      [['X', 'O', 'X'],
-       ['X', 'O', 'O'],
-       ['O', 'X', 'X']], NO_ONE_TURN, TIE_SCORES);
-  });
-
-  it("placing X outside the board (in 0x3) is illegal", function() {
-    expectException(X_TURN,
-      [['', '', ''],
-       ['', '', ''],
-       ['', '', '']], 0, 3);
-  });
 });

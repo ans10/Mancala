@@ -72,7 +72,7 @@ module game {
       opacity: "" + opacity,
     };
   }
-  
+
   function getProposalsBoard(playerIdToProposal: IProposals): number[][] {
     let proposals: number[][] = [];
     for (let i = 0; i < gameLogic.ROWS; i++) {
@@ -146,7 +146,7 @@ module game {
       return;
     }
     didMakeMove = true;
-    
+
     if (!proposals) {
       gameService.makeMove(move, null);
     } else {
@@ -208,19 +208,20 @@ module game {
   }
 
   export function shouldShowImage(row: number, col: number): boolean {
-    return state.board[row][col] !== "" || isProposal(row, col);
+    //return state.board[row][col] !== "" || isProposal(row, col);
+    return isProposal(row, col);
   }
 
-  function isPiece(row: number, col: number, turnIndex: number, pieceKind: string): boolean {
+  function isPiece(row: number, col: number, turnIndex: number, pieceKind: number): boolean {
     return state.board[row][col] === pieceKind || (isProposal(row, col) && currentUpdateUI.turnIndex == turnIndex);
   }
-  
+
   export function isPieceX(row: number, col: number): boolean {
-    return isPiece(row, col, 0, 'X');
+    return isPiece(row, col, 0, 1);
   }
 
   export function isPieceO(row: number, col: number): boolean {
-    return isPiece(row, col, 1, 'O');
+    return isPiece(row, col, 1, 0);
   }
 
   export function shouldSlowlyAppear(row: number, col: number): boolean {
