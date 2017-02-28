@@ -175,6 +175,25 @@ h1 {
   position: relative;
   background: radial-gradient(circle at 50% 120%, #fed5d7, #fb898d 10%, #e0080f 80%, #480205 100%);
 }
+.candy_green {
+  /*display: inline-block;*/
+  width: 20%;
+  height: 20%;
+  margin: 0;
+  border-radius: 50%;
+  position: relative;
+  background: radial-gradient(circle at 50% 120%, #c8F526, #bce937 10%, #a2c93a 80%, #a2c257 100%);
+}
+.candy_orange {
+  /*display: inline-block;*/
+  width: 20%;
+  height: 20%;
+  margin: 0;
+  border-radius: 50%;
+  position: relative;
+  background: radial-gradient(circle at 50% 120%, #f87531, #ff6103 10%, #ffa824 80%, #ffc469 100%);
+}
+
 /*
 button {
 	cursor: pointer;
