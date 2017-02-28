@@ -121,7 +121,7 @@ h1 {
 }
 
 .store, .pit {
-	margin: 10px;
+	margin: 20px;
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -157,7 +157,25 @@ h1 {
 .store.player-one, .player-one .pit {
 	color: #0074D9;
 }
-
+.candy_blue {
+  /*display: inline-block;*/
+  width: 20%;
+  height: 20%;
+  margin: 0;
+  border-radius: 50%;
+  position: relative;
+  background: radial-gradient(circle at 50% 120%, #81e8f6, #76deef 10%, #055194 80%, #062745 100%);
+}
+.candy_red {
+  /*display: inline-block;*/
+  width: 20%;
+  height: 20%;
+  margin: 0;
+  border-radius: 50%;
+  position: relative;
+  background: radial-gradient(circle at 50% 120%, #fed5d7, #fb898d 10%, #e0080f 80%, #480205 100%);
+}
+/*
 button {
 	cursor: pointer;
 	padding: 7px 13px;
@@ -170,5 +188,5 @@ button {
 	&:hover {
 		background: #fafafa;
 		color: #23282d;
-	}
+	}*/
 }
