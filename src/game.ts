@@ -17,17 +17,21 @@ module game {
   export let didMakeMove: boolean = false; // You can only make one move per updateUI
   export let animationEndedTimeout: ng.IPromise<any> = null;
   export let state: IState = null;
+  export let currentCount: number = 0;
+  export let isEndState: boolean = false;
+  let winner: number = -1; //-1 indicates match is drawn
   // For community games.
   export let proposals: number[][] = null;
   export let yourPlayerInfo: IPlayerInfo = null;
 
   export function init($rootScope_: angular.IScope, $timeout_: angular.ITimeoutService) {
+
     $rootScope = $rootScope_;
     $timeout = $timeout_;
     registerServiceWorker();
     translate.setTranslations(getTranslations());
     translate.setLanguage('en');
-    resizeGameAreaService.setWidthToHeight(1);
+    resizeGameAreaService.setWidthToHeight(1.2);
     gameService.setGame({
       updateUI: updateUI,
       getStateForOgImage: null,
@@ -95,7 +99,7 @@ module game {
      // Only one move/proposal per updateUI
     didMakeMove = playerIdToProposal && playerIdToProposal[yourPlayerInfo.playerId] != undefined;
     yourPlayerInfo = params.yourPlayerInfo;
-    proposals = playerIdToProposal ? getProposalsBoard(playerIdToProposal) : null;
+    /*proposals = playerIdToProposal ? getProposalsBoard(playerIdToProposal) : null;
     if (playerIdToProposal) {
       // If only proposals changed, then return.
       // I don't want to disrupt the player if he's in the middle of a move.
@@ -103,14 +107,17 @@ module game {
       // and compare whether the objects are now deep-equal.
       params.playerIdToProposal = null;
       if (currentUpdateUI && angular.equals(currentUpdateUI, params)) return;
-    }
+    }*/
 
     currentUpdateUI = params;
     clearAnimationTimeout();
+    /*For computer moves, only after animation it should occur */
     state = params.state;
     if (isFirstMove()) {
+      console.log("Initialstate method called");
       state = gameLogic.getInitialState();
     }
+
     // We calculate the AI move only after the animation finishes,
     // because if we call aiService now
     // then the animation will be paused until the javascript finishes.
@@ -192,20 +199,6 @@ module game {
       currentUpdateUI.yourPlayerIndex === currentUpdateUI.turnIndex; // it's my turn
   }
 
-  export function cellClicked(row: number, col: number): void {
-    log.info("Clicked on cell:", row, col);
-    if (!isHumanTurn()) return;
-    let nextMove: IMove = null;
-    try {
-      nextMove = gameLogic.createMove(
-          state, row, col, currentUpdateUI.turnIndex);
-    } catch (e) {
-      log.info(["Cell is already full in position:", row, col]);
-      return;
-    }
-    // Move is legal, make it!
-    makeMove(nextMove);
-  }
 
   export function shouldShowImage(row: number, col: number): boolean {
     //return state.board[row][col] !== "" || isProposal(row, col);
@@ -228,11 +221,131 @@ module game {
     return state.delta &&
         state.delta.row === row && state.delta.col === col;
   }
+  export function giveCounts(row: number, column: number): number{
+    return state.board[row][column];
+    // if(row === 1){
+    //   {
+    //   \
+    // }
+    //   return state.board[0][0];
+    // }
+    // if(location === "pit1"){
+    //   return state.board[0][1];
+    // }
+    //
+    // if(location === "pit2"){
+    //   return state.board[0][2];
+    // }
+    //
+    // if(location === "pit3"){
+    //   return state.board[0][3];
+    // }
+    //
+    // if(location === "pit4"){
+    //   return state.board[0][4];
+    // }
+    //
+    // if(location === "pit5"){
+    //   return state.board[0][5];
+    // }
+    //
+    // if(location === "pit6"){
+    //   return state.board[0][6];
+    // }
+    // if(location === "store1"){
+    //   return state.board[1][6];
+    // }
+    // if(location === "pit7"){
+    //   return state.board[1][5];
+    // }
+    //
+    // if(location === "pit8"){
+    //   return state.board[1][4];
+    // }
+    //
+    // if(location === "pit9"){
+    //   return state.board[1][3];
+    // }
+    // if(location === "pit10"){
+    //   return state.board[1][2];
+    // }
+    // if(location === "pit11"){
+    //   return state.board[1][1];
+    // }
+    // if(location === "pit12"){
+    //   return state.board[1][0];
+    // }
+  }
+  export function getPlayer2ArrayPits():number[]{
+    return state.board[0].slice(1);
+  }
+  export function getPlayer1ArrayPits():number[]{
+    return state.board[1].slice(0,6);
+  }
+  export function makeArray(num:number):number[]{
+       let arr = new Array(num);
+       for (var i = 0; i < num; i++) {
+          arr[i] = i;
+        }
+        return arr;
+
+  }
+  export function pitClicked(row: number, column: number): void{
+    // state.board[row][column]=0;
+    console.info("Cell clicked (row,col): ("+row+","+column+")");
+    if(!isHumanTurn()) return;
+    let nextMove: IMove = null;
+    try{
+     nextMove = gameLogic.createMove(state, row, column, currentUpdateUI.turnIndex);
+
+    }
+    catch(exception){
+      console.info("Problem in createMove: " + exception);
+    }
+    gameService.makeMove(nextMove, null);
+    if(nextMove.endMatchScores!==null){
+        console.info("end state detected to be true");
+        isEndState = true;
+    }
+    currentUpdateUI.turnIndex = nextMove.turnIndex;
+    currentUpdateUI.yourPlayerIndex = nextMove.turnIndex;
+
+    console.log("Current player's name is "+
+    currentUpdateUI.yourPlayerInfo.displayName);
+  }
+  export function isEndOfGame():boolean{
+    if(isEndState===false){
+      console.log("is End of Game is: "+isEndState);
+    }
+
+    return isEndState;
+  }
+  export function isDrawn():boolean{
+    if(isEndOfGame() && currentUpdateUI.endMatchScores[0]===currentUpdateUI.endMatchScores[1]){
+      console.log("Drawing condition true");
+      return true;
+    }
+    return false;
+  }
+  export function giveWinner():number{
+    if(currentUpdateUI.endMatchScores[0]>currentUpdateUI.endMatchScores[1]){
+      console.log("Winner is 0");
+      return 0;
+    }
+    else{
+      console.log("Winner is 1");
+      return 1;
+    }
+  }
+
 }
+
 
 angular.module('myApp', ['gameServices'])
   .run(['$rootScope', '$timeout',
     function ($rootScope: angular.IScope, $timeout: angular.ITimeoutService) {
       $rootScope['game'] = game;
+
+
       game.init($rootScope, $timeout);
     }]);

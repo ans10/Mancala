@@ -28,6 +28,7 @@ describe("In TicTacToe", function () {
         };
         var stateBeforeMove = boardBeforeMove ? { board: boardBeforeMove, delta: null } : null;
         var move = gameLogic.createMove(stateBeforeMove, row, col, turnIndexBeforeMove);
+        console.log(move.state.board);
         expect(angular.equals(move, expectedMove)).toBe(true);
     }
     it("Initial move", function () {
@@ -75,6 +76,11 @@ describe("In TicTacToe", function () {
             [4, 4, 4, 4, 4, 4, 0]], 0, 3, [[6, 0, 6, 0, 0, 4, 4],
             [0, 4, 4, 4, 4, 4, 0]], O_TURN, NO_ONE_WINS);
     });
+    it("last stone on empty hole with no stones in it's front", function () {
+        expectMove(X_TURN, [[1, 0, 5, 2, 0, 4, 4],
+            [0, 4, 4, 4, 4, 4, 0]], 0, 3, [[1, 1, 6, 0, 0, 4, 4],
+            [0, 4, 4, 4, 4, 4, 0]], O_TURN, NO_ONE_WINS);
+    });
     it("normal case ", function () {
         expectMove(O_TURN, [[1, 0, 5, 2, 0, 4, 4],
             [4, 4, 4, 4, 4, 4, 0]], 1, 5, [[1, 0, 5, 2, 1, 5, 5],
@@ -94,6 +100,11 @@ describe("In TicTacToe", function () {
         expectMove(O_TURN, [[24, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 1, 23]], 1, 5, [[24, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 24]], NO_ONE_TURN, TIE_SCORES);
+    });
+    it("X wins", function () {
+        expectMove(O_TURN, [[14, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 1, 23]], 1, 5, [[14, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 24]], NO_ONE_TURN, O_WIN_SCORES);
     });
     it("X wins", function () {
         expectMove(O_TURN, [[14, 0, 0, 0, 0, 0, 0],

@@ -22,8 +22,26 @@ var gameLogic;
         return board;
     }
     gameLogic.getInitialBoard = getInitialBoard;
+    function getPseudoInitialBoard() {
+        //pseudo Initial board for testing the end condition
+        var board = [];
+        for (var i = 0; i < gameLogic.ROWS; i++) {
+            board[i] = [];
+            for (var j = 0; j < gameLogic.COLS; j++) {
+                board[i][j] = 0;
+            }
+        }
+        board[1][5] = 1;
+        board[1][4] = 1;
+        board[0][0] = 26;
+        board[1][6] = 21;
+        board[0][1] = 1;
+        return board;
+    }
+    gameLogic.getPseudoInitialBoard = getPseudoInitialBoard;
     function getInitialState() {
-        return { board: getInitialBoard(), delta: null };
+        console.log("Initial state method called in gameLogic");
+        return { board: getPseudoInitialBoard(), delta: null };
     }
     gameLogic.getInitialState = getInitialState;
     /**
@@ -48,7 +66,32 @@ var gameLogic;
      *      ['X', 'O', ''],
      *      ['X', '', '']]
      */
+    function transferAllLeft(board) {
+        console.log("Transferring the remaining stuff into appropriate store");
+        var lastupdatedr = 0;
+        var lastupdatedc = 0;
+        var boardAfterMove = angular.copy(board);
+        for (var j = 1; j < gameLogic.COLS; j++) {
+            if (boardAfterMove[0][j] > 0) {
+                boardAfterMove[0][0] += boardAfterMove[0][j];
+                lastupdatedr = 0;
+                lastupdatedc = j;
+                boardAfterMove[0][j] = 0;
+            }
+        }
+        for (var j = 0; j < gameLogic.COLS - 1; j++) {
+            if (boardAfterMove[1][j] > 0) {
+                boardAfterMove[1][6] += boardAfterMove[1][j];
+                lastupdatedr = 1;
+                lastupdatedc = j;
+                boardAfterMove[1][j] = 0;
+            }
+        }
+        var updatedState = { board: boardAfterMove, lastupdatedrow: lastupdatedr, lastupdatedcolumn: lastupdatedc };
+        return updatedState;
+    }
     function getWinner(board) {
+        console.log("in Get the winner game Logic");
         if (board[0][0] > board[1][6]) {
             return 0;
         }
@@ -60,19 +103,24 @@ var gameLogic;
         }
     }
     function isEndState(board) {
+        var firstrow = true;
+        var secondrow = true;
         for (var j = 1; j < gameLogic.COLS; j++) {
             if (board[0][j] !== 0) {
-                return false;
+                firstrow = false;
+                break;
             }
         }
         for (var j = 0; j < gameLogic.COLS - 1; j++) {
             if (board[1][j] !== 0) {
-                return false;
+                secondrow = false;
+                break;
             }
         }
-        return true;
+        return firstrow || secondrow;
     }
     function updateBoard(board, row, col) {
+        console.log("In update board in gameLogic");
         var boardAfterMove = angular.copy(board);
         var updatedState = null;
         var i;
@@ -112,12 +160,13 @@ var gameLogic;
         // empty hole on last chance handled
         if (boardAfterMove[i][j] === 1 && row === i &&
             !((i === 0 && j === 0) || (i === 1 && j === 6))) {
-            boardAfterMove[i][j] = 0;
-            if (i === 0) {
+            if (i === 0 && boardAfterMove[1 - i][j - 1] > 0) {
+                boardAfterMove[i][j] = 0;
                 boardAfterMove[0][0] += boardAfterMove[1 - i][j - 1] + 1;
                 boardAfterMove[1 - i][j - 1] = 0;
             }
-            if (i === 1) {
+            if (i === 1 && boardAfterMove[1 - i][j + 1] > 0) {
+                boardAfterMove[i][j] = 0;
                 boardAfterMove[1][6] += boardAfterMove[1 - i][j + 1] + 1;
                 boardAfterMove[1 - i][j + 1] = 0;
             }
@@ -130,6 +179,7 @@ var gameLogic;
             return turnIndex;
         }
         else {
+            console.log("Previous turnIndex value is " + turnIndex);
             return 1 - turnIndex;
         }
     }
@@ -138,13 +188,15 @@ var gameLogic;
      * with index BeforeMove makes a move in cell row X col.
      */
     function createMove(stateBeforeMove, row, col, turnIndexBeforeMove) {
+        console.log("in create move in gameLogic");
         if (!stateBeforeMove) {
             stateBeforeMove = getInitialState();
         }
         var board = stateBeforeMove.board;
+        console.log("Turnindexbeforemove: " + turnIndexBeforeMove + "row: " + row);
         if (board[row][col] === 0 || (row === 0 && col === 0) || (row === 1 && col === 6) ||
             row !== turnIndexBeforeMove) {
-            throw new Error("One can only make a move in an empty position!");
+            throw new Error("Making an invalid move!");
         }
         var updatedState = updateBoard(board, row, col);
         var boardAfterMove = updatedState.board;
@@ -152,6 +204,9 @@ var gameLogic;
         var turnIndex;
         if (isEndState(boardAfterMove)) {
             //Game over
+            console.log("Game's end state detected in Game Logic");
+            updatedState = transferAllLeft(boardAfterMove);
+            boardAfterMove = updatedState.board;
             var winner = getWinner(boardAfterMove);
             turnIndex = -1;
             endMatchScores = winner === 0 ? [1, 0] : winner === 1 ? [0, 1] : [0, 0];
@@ -159,6 +214,7 @@ var gameLogic;
         else {
             //Game continues
             turnIndex = nextTurn(turnIndexBeforeMove, updatedState.lastupdatedrow, updatedState.lastupdatedcolumn);
+            console.log("TurnIndex value is: " + turnIndex);
             endMatchScores = null;
         }
         /*if (getWinner(board) !== '' || isTie(board)) {
@@ -166,6 +222,7 @@ var gameLogic;
         }*/
         var delta = { row: row, col: col };
         var state = { delta: delta, board: boardAfterMove };
+        console.info("Returning createMove successfully");
         return {
             endMatchScores: endMatchScores,
             turnIndex: turnIndex,

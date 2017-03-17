@@ -42,10 +42,29 @@ module gameLogic {
     board[1][6] = 0;
     return board;
   }
+  export function getPseudoInitialBoard(): Board {
+    //pseudo Initial board for testing the end condition
+    let board: Board = [];
+    for (let i = 0; i < ROWS; i++) {
+      board[i] = [];
+      for (let j = 0; j < COLS; j++) {
+        board[i][j] = 0;
+      }
+    }
+    board[1][5] = 1;
+    board[1][4] = 1;
+    board[0][0] = 26;
+    board[1][6] = 21;
+    board[0][1] = 1;
+    return board;
+  }
+
 
   export function getInitialState(): IState {
-    return {board: getInitialBoard(), delta: null};
+    console.log("Initial state method called in gameLogic");
+    return {board: getPseudoInitialBoard(), delta: null};
   }
+
 
   /**
    * Returns true if the game ended in a tie because there are no empty cells.
@@ -71,7 +90,38 @@ module gameLogic {
    *      ['X', 'O', ''],
    *      ['X', '', '']]
    */
+  function transferAllLeft(board:Board):UpdateState{
+    console.log("Transferring the remaining stuff into appropriate store");
+    let lastupdatedr = 0;
+    let lastupdatedc = 0;
+    let boardAfterMove:Board = angular.copy(board);
+    for(let j=1;j<COLS;j++){
+      if(boardAfterMove[0][j]>0){
+        boardAfterMove[0][0]+=boardAfterMove[0][j];
+        lastupdatedr = 0;
+        lastupdatedc = j;
+        boardAfterMove[0][j] = 0;
+      }
+
+    }
+    for(let j=0;j<COLS-1;j++){
+      if(boardAfterMove[1][j]>0){
+        boardAfterMove[1][6]+=boardAfterMove[1][j];
+        lastupdatedr = 1;
+        lastupdatedc = j;
+        boardAfterMove[1][j] = 0;
+      }
+
+    }
+
+    let updatedState:UpdateState =
+    {board : boardAfterMove, lastupdatedrow : lastupdatedr, lastupdatedcolumn : lastupdatedc};
+    return updatedState;
+
+
+  }
   function getWinner(board: Board): number {
+    console.log("in Get the winner game Logic");
     if(board[0][0]>board[1][6]){
       return 0;
     }
@@ -83,20 +133,25 @@ module gameLogic {
     }
   }
   function isEndState(board:Board): boolean {
+    let firstrow = true;
+    let secondrow = true;
     for(let j=1;j<COLS;j++){
       if(board[0][j]!==0){
-        return false;
+        firstrow = false;
+        break;
       }
     }
     for(let j=0;j<COLS-1;j++){
       if(board[1][j]!==0){
-        return false;
+        secondrow = false;
+        break;
       }
     }
-    return true;
+    return firstrow || secondrow;
 
   }
   function updateBoard(board:Board,row:number,col:number):UpdateState{
+    console.log("In update board in gameLogic");
     let boardAfterMove = angular.copy(board);
     let updatedState:UpdateState = null;
     let i:number;
@@ -138,12 +193,14 @@ module gameLogic {
     if(boardAfterMove[i][j]===1 && row===i &&
       !((i===0 && j===0) || (i===1 && j===6))){
 
-      boardAfterMove[i][j] = 0;
-      if(i===0){
+
+      if(i===0 && boardAfterMove[1-i][j-1]>0){
+        boardAfterMove[i][j] = 0;
         boardAfterMove[0][0] += boardAfterMove[1-i][j-1]+1;
         boardAfterMove[1-i][j-1] = 0;
       }
-      if(i===1){
+      if(i===1 && boardAfterMove[1-i][j+1]>0){
+        boardAfterMove[i][j]=0;
         boardAfterMove[1][6] += boardAfterMove[1-i][j+1]+1;
         boardAfterMove[1-i][j+1] = 0;
       }
@@ -157,6 +214,7 @@ module gameLogic {
       return turnIndex;
     }
     else{
+      console.log("Previous turnIndex value is "+turnIndex);
       return 1 - turnIndex;
     }
   }
@@ -166,13 +224,15 @@ module gameLogic {
    */
   export function createMove(
       stateBeforeMove: IState, row: number, col: number, turnIndexBeforeMove: number): IMove {
+        console.log("in create move in gameLogic");
     if (!stateBeforeMove) {
       stateBeforeMove = getInitialState();
     }
     let board: Board = stateBeforeMove.board;
+    console.log("Turnindexbeforemove: "+turnIndexBeforeMove+"row: "+row);
     if (board[row][col] === 0 || (row===0 && col===0) || (row===1 && col===6) ||
         row!==turnIndexBeforeMove) {
-      throw new Error("One can only make a move in an empty position!");
+      throw new Error("Making an invalid move!");
     }
     let updatedState = updateBoard(board,row,col);
     let boardAfterMove = updatedState.board;
@@ -181,6 +241,9 @@ module gameLogic {
 
     if(isEndState(boardAfterMove)){
       //Game over
+      console.log("Game's end state detected in Game Logic");
+      updatedState = transferAllLeft(boardAfterMove);
+      boardAfterMove = updatedState.board;
       let winner = getWinner(boardAfterMove);
       turnIndex = -1;
       endMatchScores = winner === 0 ? [1, 0] : winner === 1 ? [0, 1] : [0, 0];
@@ -189,6 +252,7 @@ module gameLogic {
     else{
       //Game continues
       turnIndex = nextTurn(turnIndexBeforeMove, updatedState.lastupdatedrow, updatedState.lastupdatedcolumn);
+      console.log("TurnIndex value is: "+turnIndex);
       endMatchScores = null;
 
     }
@@ -198,6 +262,8 @@ module gameLogic {
 
     let delta: BoardDelta = {row: row, col: col};
     let state: IState = {delta: delta, board: boardAfterMove};
+    console.info("Returning createMove successfully" );
+
     return {
       endMatchScores: endMatchScores,
       turnIndex: turnIndex,

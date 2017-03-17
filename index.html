@@ -22,41 +22,68 @@
   <script src="ts_output_readonly_do_NOT_change_manually/src/aiService.js"></script>
   <!-- /build -->
 </head>
-<body ng-cloak>
-<div id="gameArea">
-  <div ng-repeat="row in [0, 1, 2]"
-      style="position:absolute; top:{{row * 33}}%; left:0; width:100%; height:33%;">
-    <div ng-repeat="col in [0, 1, 2]"
-        style="position:absolute; top:0; left:{{col * 33}}%; width:33%; height:100%;"
-        ng-class="{r: col < 2, b: row < 2}"
-        ng-click="game.cellClicked(row, col)"
-        id="{{'e2e_test_div_' + row + 'x' + col}}">
-      <div style="width:100%; height: 100%"
-          ng-class="{slowlyAppear: game.shouldSlowlyAppear(row, col)}"
-          ng-style="game.getCellStyle(row, col)"
-          ng-if="game.shouldShowImage(row, col)">
-        <svg ng-if="game.isPieceO(row, col)"
-            id="{{'e2e_test_pieceO_' + row + 'x' + col}}"
-            width="100%" height="100%">
-          <circle cx="50%" cy="50%" r="27%"
-            stroke="blue" stroke-width="5%" fill="white" />
-        </svg>
-        <svg ng-if="game.isPieceX(row, col)"
-            id="{{'e2e_test_pieceX_' + row + 'x' + col}}"
-            width="100%" height="100%">
-          <line x1="25%" y1="25%"
-                x2="75%" y2="75%"
-                stroke="red"
-                stroke-width="5%"/>
-          <line x1="25%" y1="75%"
-                x2="75%" y2="25%"
-                stroke="red"
-                stroke-width="5%"/>
-        </svg>
-      </div>
-    </div>
-  </div>
-</div>
+<body>
 
+  <div id="gameArea">
+    <div ng-class="{board: true}">
+
+  		<div class = "parent">
+  				<div class ="score">
+  				  	{{game.currentCount = game.giveCounts(0,0)}}
+  				</div>
+  				<div class="player-two store">
+            <div ng-repeat="x in game.makeArray(game.currentCount)" ng-class="{candyStore: true}">
+                <img src = "images/exp6.png" alt ="candy" style="width:100%;height=120%">
+            </div>
+
+  			</div>
+  		</div>
+  		<div class="rows">
+  			<div class="row player-two">
+          <div ng-repeat="pitIndex in [1,2,3,4,5,6]" ng-class="{parent: true}"
+          ng-click=game.pitClicked(0,pitIndex)>
+  					  <div ng-class ="{score: true}">
+  							{{game.currentCount = game.giveCounts(0,pitIndex)}}
+  						</div>
+  						<div ng-class="{pit: true}">
+                <div ng-repeat="x in game.makeArray(game.currentCount)" ng-class="{candyPit: true}">
+  							    <img src = "images/exp6.png" alt ="candy" style="width:100%;height=80%">
+  						  </div>
+  		        </div>
+          </div>
+  			</div>
+        <p ng-if ="!isEndOfGame()" class="status">{{game.currentUpdateUI.turnIndex}}'s turn</p>
+        <!--<p ng-if ="isEndOfGame() && isDrawn()" class="status">Match draw!!</p> -->
+        <p ng-if ="isEndOfGame() && !isDrawn()" class="status">{{game.giveWinner()}} is winner</p>
+
+      	<div class="row player-one">
+          <div ng-repeat="pitIndex in [0,1,2,3,4,5]" ng-class="{parent: true}"
+           ng-click="game.pitClicked(1,pitIndex)">
+  					  <div ng-class ="{score: true}">
+                {{game.currentCount = game.giveCounts(1,pitIndex)}}
+  						</div>
+  						<div ng-class="{pit: true}">
+                <div ng-repeat="x in game.makeArray(game.currentCount)" ng-class="{candyPit: true}">
+  							    <img src = "images/shinyred.png" alt ="candy" style="width:100%;height=80%">
+                </div>
+  		        </div>
+          </div>
+  			</div>
+      </div>
+
+
+    		<div class = "parent">
+    				<div class ="score">
+    				  	{{game.currentCount = game.giveCounts(1,6)}}
+    				</div>
+    				<div class="player-two store">
+              <div ng-repeat="x in game.makeArray(game.currentCount)" ng-class="{candyStore: true}">
+                  <img src = "images/exp6.png" alt ="candy" style="width:100%;height=80%">
+              </div>
+
+    			</div>
+    		</div>
+  	</div>
+</div>
 </body>
 </html>
