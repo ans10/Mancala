@@ -59,7 +59,7 @@ body {
 	background-image: url(../images/bg.jpg);
   background-repeat: repeat-x;
 	background-size: cover;
-	font-size: 1.5vw;
+	font-size: 1.8vw;
 	font-family: Roboto Slab, sans-serif;
 	margin-top: 1em;
 }
@@ -72,13 +72,13 @@ h1 {
 }
 
 .board {
-	/*margin: 50px auto;*/
+	margin-top: 70px;
 	display: flex;
 	flex: 1;
 	justify-content: center;
 	width: 100%;
 	max-width: 100%;
-	height: auto;
+	height: 60%;
 	overflow: hidden;
 	background: url(../images/yellow1.png);
 	border-radius: 20px;
@@ -98,6 +98,7 @@ h1 {
 	flex: 7;
 	display: flex;
 	flex-direction: column;
+	margin-bottom: 5px;
 }
 
 .store {
@@ -105,13 +106,13 @@ h1 {
 	border-radius: 40px;
 }
 
-#candyPit{
-	/*This needs to be constant as candy component can have different parent */
+/*#candyPit{
+	/*This needs to be constant as candy component can have different parent 
  width:80%;height:80%;
  }
 #candyStore{
 	width:40%;height:20%;
-}
+}*/
 .candyPit{
 	/*This needs to be constant as candy component can have different parent */
 	/*display: flex;*/
@@ -121,6 +122,17 @@ h1 {
  .candyStore{
  	width:100%;height:100%;
  }
+ .imgClassPit{
+	 width : 30%;
+	 height : 40%;
+	 min-width: 30%;
+	 min-height: 40%;
+ }
+ .imgClassStore{
+	 width: 25%;
+	 height: 15%;
+ }
+
 .row {
 	flex: 1;
 	display: flex;
@@ -132,10 +144,14 @@ h1 {
 
 .parent{
 	flex:1;
-	margin:10px;
-	/*padding:20px;*/
+	margin-top:10px;
+	margin-left:5px;
+	margin-bottom: 7px;
+	margin-right:5px;
+	/*padding:2px;*/
 	display:flex;
 	flex-direction: column;
+	min-height: 80%; 
   position: relative;
 	background-color: rgba(0,0,0,.2);
 	border-radius: 40%;
@@ -219,7 +235,7 @@ h1 {
 	cursor: default;*/
 }
 
-[data-player="two"] .row.player-two .pit,
+/*[data-player="two"] .row.player-two .pit,
 [data-player="one"] .row.player-one .pit {
 	cursor: pointer;
 }
@@ -233,6 +249,12 @@ h1 {
 .store.player-one, .player-one .pit {
 	color: purple;
 	font-size: 2vw;
+}*/
+
+.status{
+justify-content: center;
+align-items: center;
+margin-bottom: 0px;
 }
 .candy_blue {
   /*display: inline-block;*/

@@ -1,4 +1,11 @@
 ;
+var PositionStyle = {
+    position: 'absolute',
+    width: '20%',
+    height: '20%',
+    top: '%',
+    left: '%'
+};
 var game;
 (function (game) {
     game.$rootScope = null;
@@ -12,24 +19,135 @@ var game;
     game.animationEndedTimeout = null;
     game.state = null;
     game.currentCount = 0;
+    game.winner = -1;
     game.isEndState = false;
-    var winner = -1; //-1 indicates match is drawn
+    game.position_arrv = null;
     // For community games.
     game.proposals = null;
     game.yourPlayerInfo = null;
+    var PositionStyle = {
+        position: 'absolute',
+        top: '%',
+        left: '%'
+    };
+    var position_arr = [
+        { t: 10, l: 52 },
+        { t: 19, l: 23 },
+        { t: 23, l: 44 },
+        { t: 20, l: 35 },
+        { t: 25, l: 37 },
+        { t: 35, l: 80 },
+        { t: 18, l: 66 },
+        { t: 20, l: 16 },
+        { t: 14, l: 19 },
+        { t: 7, l: 36 },
+        { t: 10, l: 47 },
+        { t: 25, l: 45 },
+        { t: 30, l: 72 },
+        { t: 20, l: 75 },
+        { t: 14, l: 72 },
+        { t: 15, l: 43 },
+        { t: 27, l: 37 },
+        { t: 37, l: 23 },
+        { t: 40, l: 13 },
+        { t: 24, l: 19 },
+        { t: 18, l: 25 },
+        { t: 24, l: 27 },
+        { t: 30, l: 37 },
+        { t: 20, l: 32 },
+        { t: 17, l: 41 },
+        { t: 36, l: 42 },
+        { t: 42, l: 48 },
+        { t: 31, l: 49 },
+        { t: 31, l: 58 },
+        { t: 27, l: 56 },
+        { t: 29, l: 14 },
+        { t: 27, l: 62 },
+        { t: 43, l: 67 },
+        { t: 33, l: 20 },
+        { t: 40, l: 8 },
+        { t: 33, l: 8 },
+        { t: 32, l: 72 },
+        { t: 16, l: 67 },
+        { t: 46, l: 13 },
+        { t: 32, l: 31 },
+        { t: 23, l: 14 },
+        { t: 29, l: 19 },
+        { t: 44, l: 27 },
+        { t: 30, l: 42 },
+        { t: 24, l: 35 },
+        { t: 12, l: 30 },
+        { t: 15, l: 38 },
+        { t: 12, l: 76 }
+    ];
+    var position_arr_pit = [
+        { t: 0, l: 52 },
+        { t: 12, l: 23 },
+        { t: 25, l: 24 },
+        { t: 29, l: 43 },
+        { t: 36, l: 37 },
+        { t: 20, l: 70 },
+        { t: 5, l: 66 },
+        { t: 6, l: 16 },
+        { t: 8, l: 19 },
+        { t: 23, l: 36 },
+        { t: 65, l: 47 },
+        { t: 44, l: 45 },
+        { t: 23, l: 66 },
+        { t: 43, l: 68 },
+        { t: 56, l: 56 },
+        { t: 19, l: 43 },
+        { t: 44, l: 37 },
+        { t: 57, l: 23 },
+        { t: 62, l: 23 },
+        { t: 11, l: 19 },
+        { t: 33, l: 25 },
+        { t: 53, l: 27 },
+        { t: 44, l: 37 },
+        { t: 37, l: 32 },
+        { t: 17, l: 41 }
+    ];
     function init($rootScope_, $timeout_) {
         game.$rootScope = $rootScope_;
         game.$timeout = $timeout_;
         registerServiceWorker();
         translate.setTranslations(getTranslations());
         translate.setLanguage('en');
-        resizeGameAreaService.setWidthToHeight(1.2);
+        resizeGameAreaService.setWidthToHeight(1.6);
+        initialize_position_array();
         gameService.setGame({
             updateUI: updateUI,
             getStateForOgImage: null,
         });
+        console.log("INIT method over");
     }
     game.init = init;
+    function initialize_position_array() {
+        game.position_arrv = new Array(48);
+        game.position_arrv[0] = { top: 0, left: 52 };
+        console.log("{ t:" + game.position_arrv[0].top + ", l:" + game.position_arrv[0].left + "},");
+        for (var i = 1; i < 48; i++) {
+            var new_position = game.position_arrv[i - 1];
+            var lc = getRandom(-5, 5);
+            var tc = getRandom(-5, 5);
+            new_position.top = Math.round(new_position.top + tc);
+            new_position.left = Math.round(new_position.left + lc);
+            if (new_position.left >= 70) {
+                new_position.left = 65;
+            }
+            if (new_position.top <= 0) {
+                new_position.top = 7;
+            }
+            if (new_position.left <= 0) {
+                new_position.left = 5;
+            }
+            if (new_position.top >= 40) {
+                new_position.top = 40;
+            }
+            game.position_arrv[i] = new_position;
+            console.log("{ t:" + game.position_arrv[i].top + ", l:" + game.position_arrv[i].left + "},");
+        }
+    }
     function registerServiceWorker() {
         // I prefer to use appCache over serviceWorker
         // (because iOS doesn't support serviceWorker, so we have to use appCache)
@@ -99,6 +217,7 @@ var game;
           if (currentUpdateUI && angular.equals(currentUpdateUI, params)) return;
         }*/
         game.currentUpdateUI = params;
+        console.log("Turn index is !!!!!!!!!!!!! : " + game.currentUpdateUI.turnIndex);
         clearAnimationTimeout();
         /*For computer moves, only after animation it should occur */
         game.state = params.state;
@@ -201,58 +320,6 @@ var game;
     game.shouldSlowlyAppear = shouldSlowlyAppear;
     function giveCounts(row, column) {
         return game.state.board[row][column];
-        // if(row === 1){
-        //   {
-        //   \
-        // }
-        //   return state.board[0][0];
-        // }
-        // if(location === "pit1"){
-        //   return state.board[0][1];
-        // }
-        //
-        // if(location === "pit2"){
-        //   return state.board[0][2];
-        // }
-        //
-        // if(location === "pit3"){
-        //   return state.board[0][3];
-        // }
-        //
-        // if(location === "pit4"){
-        //   return state.board[0][4];
-        // }
-        //
-        // if(location === "pit5"){
-        //   return state.board[0][5];
-        // }
-        //
-        // if(location === "pit6"){
-        //   return state.board[0][6];
-        // }
-        // if(location === "store1"){
-        //   return state.board[1][6];
-        // }
-        // if(location === "pit7"){
-        //   return state.board[1][5];
-        // }
-        //
-        // if(location === "pit8"){
-        //   return state.board[1][4];
-        // }
-        //
-        // if(location === "pit9"){
-        //   return state.board[1][3];
-        // }
-        // if(location === "pit10"){
-        //   return state.board[1][2];
-        // }
-        // if(location === "pit11"){
-        //   return state.board[1][1];
-        // }
-        // if(location === "pit12"){
-        //   return state.board[1][0];
-        // }
     }
     game.giveCounts = giveCounts;
     function getPlayer2ArrayPits() {
@@ -276,17 +343,27 @@ var game;
         console.info("Cell clicked (row,col): (" + row + "," + column + ")");
         if (!isHumanTurn())
             return;
+        console.info("hell");
         var nextMove = null;
         try {
             nextMove = gameLogic.createMove(game.state, row, column, game.currentUpdateUI.turnIndex);
         }
         catch (exception) {
             console.info("Problem in createMove: " + exception);
+            return;
         }
         gameService.makeMove(nextMove, null);
         if (nextMove.endMatchScores !== null) {
-            console.info("end state detected to be true");
             game.isEndState = true;
+            console.info("end state detected to be true " + game.isEndState);
+            if (nextMove.endMatchScores[0] > nextMove.endMatchScores[1]) {
+                console.log("Winner is 0");
+                game.winner = 0;
+            }
+            else {
+                console.log("Winner is 1");
+                game.winner = 1;
+            }
         }
         game.currentUpdateUI.turnIndex = nextMove.turnIndex;
         game.currentUpdateUI.yourPlayerIndex = nextMove.turnIndex;
@@ -295,8 +372,12 @@ var game;
     }
     game.pitClicked = pitClicked;
     function isEndOfGame() {
-        if (game.isEndState === false) {
-            console.log("is End of Game is: " + game.isEndState);
+        console.log("is End of Game is: " + game.isEndState);
+        if (game.currentUpdateUI.turnIndex === -1) {
+            console.log("is end state is tureeeeeee");
+        }
+        else {
+            console.log("is falseeeeeeeeeeeeeeeeee");
         }
         return game.isEndState;
     }
@@ -310,16 +391,26 @@ var game;
     }
     game.isDrawn = isDrawn;
     function giveWinner() {
-        if (game.currentUpdateUI.endMatchScores[0] > game.currentUpdateUI.endMatchScores[1]) {
-            console.log("Winner is 0");
-            return 0;
-        }
-        else {
-            console.log("Winner is 1");
-            return 1;
-        }
+        console.log("in give winnerrrrrrr " + game.currentUpdateUI.endMatchScores);
+        console.log("hello?");
+        return game.winner;
     }
     game.giveWinner = giveWinner;
+    function getRandom(min, max) {
+        return Math.random() * (max - min) + min;
+    }
+    function getPosition(pos, store) {
+        if (store == 1) {
+            PositionStyle.top = position_arr[pos].t.toString() + '%';
+            PositionStyle.left = position_arr[pos].l.toString() + '%';
+        }
+        else {
+            PositionStyle.top = position_arr_pit[pos].t.toString() + '%';
+            PositionStyle.left = position_arr_pit[pos].l.toString() + '%';
+        }
+        return PositionStyle;
+    }
+    game.getPosition = getPosition;
 })(game || (game = {}));
 angular.module('myApp', ['gameServices'])
     .run(['$rootScope', '$timeout',

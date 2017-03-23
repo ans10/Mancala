@@ -4,6 +4,19 @@ interface SupportedLanguages {
   el: string, fr: string,
   hi: string, es: string,
 };
+interface MyPosition {
+  top: number;
+  left: number;
+}
+var PositionStyle =
+  {
+    position:'absolute',
+    width:'20%',
+    height:'20%',
+    top: '%',
+    left:'%'
+  };
+
 
 module game {
   export let $rootScope: angular.IScope = null;
@@ -18,11 +31,99 @@ module game {
   export let animationEndedTimeout: ng.IPromise<any> = null;
   export let state: IState = null;
   export let currentCount: number = 0;
+  export let winner: number = -1;
   export let isEndState: boolean = false;
-  let winner: number = -1; //-1 indicates match is drawn
+  export let position_arrv: MyPosition[] = null;
+  
   // For community games.
   export let proposals: number[][] = null;
   export let yourPlayerInfo: IPlayerInfo = null;
+  let PositionStyle =
+  {
+    position:'absolute',
+    top: '%',
+    left:'%'
+  };
+  let position_arr =
+  [
+    {t: 10, l: 52},
+    {t: 19, l: 23},
+    {t: 23, l: 44},
+    {t: 20, l: 35},
+    {t: 25, l: 37},
+    {t: 35, l: 80},
+    {t: 18, l: 66},
+    {t: 20, l: 16},
+    {t: 14, l: 19},
+    {t: 7, l: 36},
+    {t: 10, l: 47},
+    {t: 25, l: 45},
+    {t: 30, l: 72},
+    {t: 20, l: 75},
+    {t: 14, l: 72},
+    {t: 15, l: 43},
+    {t: 27, l: 37},
+    {t: 37, l: 23},
+    {t: 40, l: 13},
+    {t: 24, l: 19},
+    {t: 18, l: 25},
+    {t: 24, l: 27},
+    {t: 30, l: 37},
+    {t: 20, l: 32},
+    {t: 17, l: 41},
+    {t: 36, l: 42},
+    {t: 42, l: 48},
+    {t: 31, l: 49},
+    {t: 31, l: 58},
+    {t: 27, l: 56},
+    {t: 29, l: 14},
+    {t: 27, l: 62},
+    {t: 43, l: 67},
+    {t: 33, l: 20},
+    {t: 40, l: 8},
+    {t: 33, l: 8},
+    {t: 32, l: 72},
+    {t: 16, l: 67},
+    {t: 46, l: 13},
+    {t: 32, l: 31},
+    {t: 23, l: 14},
+    {t: 29, l: 19},
+    {t: 44, l: 27},
+    {t: 30, l: 42},
+    {t: 24, l: 35},
+    {t: 12, l: 30},
+    {t: 15, l: 38},
+    {t: 12, l: 76}
+  ];
+  let position_arr_pit =
+  [
+    {t: 0, l: 52},
+    {t: 12, l: 23},
+    {t: 25, l: 24},
+    {t: 29, l: 43},
+    {t: 36, l: 37},
+    {t: 20, l: 70},
+    {t: 5, l: 66},
+    {t: 6, l: 16},
+    {t: 8, l: 19},
+    {t: 23, l: 36},
+    {t: 65, l: 47},
+    {t: 44, l: 45},
+    {t: 23, l: 66},
+    {t: 43, l: 68},
+    {t: 56, l: 56},
+    {t: 19, l: 43},
+    {t: 44, l: 37},
+    {t: 57, l: 23},
+    {t: 62, l: 23},
+    {t: 11, l: 19},
+    {t: 33, l: 25},
+    {t: 53, l: 27},
+    {t: 44, l: 37},
+    {t: 37, l: 32},
+    {t: 17, l: 41}
+  ];
+
 
   export function init($rootScope_: angular.IScope, $timeout_: angular.ITimeoutService) {
 
@@ -31,13 +132,48 @@ module game {
     registerServiceWorker();
     translate.setTranslations(getTranslations());
     translate.setLanguage('en');
-    resizeGameAreaService.setWidthToHeight(1.2);
+    resizeGameAreaService.setWidthToHeight(1.6);
+    initialize_position_array();
     gameService.setGame({
       updateUI: updateUI,
       getStateForOgImage: null,
     });
+    console.log("INIT method over");
+  }
+   function initialize_position_array(){
+      position_arrv = new Array(48);
+      
+      position_arrv[0] = {top:0,left:52};
+      console.log("{ t:"+position_arrv[0].top+", l:"+position_arrv[0].left+"},");
+      for(let i=1;i<48;i++){
+        let new_position:MyPosition = position_arrv[i-1];
+        let lc = getRandom(-5,5);
+        let tc = getRandom(-5,5);
+        new_position.top = Math.round(new_position.top + tc);
+        new_position.left = Math.round(new_position.left + lc);
+        if(new_position.left>=70){
+          new_position.left = 65;
+        }
+        if(new_position.top<=0){
+          new_position.top=7;
+        }
+        if(new_position.left<=0){
+          new_position.left = 5;
+        }
+        if(new_position.top>=40){
+          new_position.top = 40;
+        }
+        position_arrv[i] = new_position;
+        console.log("{ t:"+position_arrv[i].top+", l:"+position_arrv[i].left+"},");
+
+      }
+      
+      
+
+
   }
 
+  
   function registerServiceWorker() {
     // I prefer to use appCache over serviceWorker
     // (because iOS doesn't support serviceWorker, so we have to use appCache)
@@ -110,6 +246,7 @@ module game {
     }*/
 
     currentUpdateUI = params;
+    console.log("Turn index is !!!!!!!!!!!!! : " + currentUpdateUI.turnIndex);
     clearAnimationTimeout();
     /*For computer moves, only after animation it should occur */
     state = params.state;
@@ -223,58 +360,6 @@ module game {
   }
   export function giveCounts(row: number, column: number): number{
     return state.board[row][column];
-    // if(row === 1){
-    //   {
-    //   \
-    // }
-    //   return state.board[0][0];
-    // }
-    // if(location === "pit1"){
-    //   return state.board[0][1];
-    // }
-    //
-    // if(location === "pit2"){
-    //   return state.board[0][2];
-    // }
-    //
-    // if(location === "pit3"){
-    //   return state.board[0][3];
-    // }
-    //
-    // if(location === "pit4"){
-    //   return state.board[0][4];
-    // }
-    //
-    // if(location === "pit5"){
-    //   return state.board[0][5];
-    // }
-    //
-    // if(location === "pit6"){
-    //   return state.board[0][6];
-    // }
-    // if(location === "store1"){
-    //   return state.board[1][6];
-    // }
-    // if(location === "pit7"){
-    //   return state.board[1][5];
-    // }
-    //
-    // if(location === "pit8"){
-    //   return state.board[1][4];
-    // }
-    //
-    // if(location === "pit9"){
-    //   return state.board[1][3];
-    // }
-    // if(location === "pit10"){
-    //   return state.board[1][2];
-    // }
-    // if(location === "pit11"){
-    //   return state.board[1][1];
-    // }
-    // if(location === "pit12"){
-    //   return state.board[1][0];
-    // }
   }
   export function getPlayer2ArrayPits():number[]{
     return state.board[0].slice(1);
@@ -294,19 +379,30 @@ module game {
     // state.board[row][column]=0;
     console.info("Cell clicked (row,col): ("+row+","+column+")");
     if(!isHumanTurn()) return;
+    console.info("hell");
     let nextMove: IMove = null;
     try{
      nextMove = gameLogic.createMove(state, row, column, currentUpdateUI.turnIndex);
-
+    
     }
     catch(exception){
       console.info("Problem in createMove: " + exception);
+      return;
     }
     gameService.makeMove(nextMove, null);
     if(nextMove.endMatchScores!==null){
-        console.info("end state detected to be true");
         isEndState = true;
+      console.info("end state detected to be true " + isEndState);
+        if(nextMove.endMatchScores[0]>nextMove.endMatchScores[1]){
+      console.log("Winner is 0");
+      winner= 0;
     }
+    else{
+      console.log("Winner is 1");
+      winner= 1;
+    }
+      
+  }
     currentUpdateUI.turnIndex = nextMove.turnIndex;
     currentUpdateUI.yourPlayerIndex = nextMove.turnIndex;
 
@@ -314,10 +410,13 @@ module game {
     currentUpdateUI.yourPlayerInfo.displayName);
   }
   export function isEndOfGame():boolean{
-    if(isEndState===false){
       console.log("is End of Game is: "+isEndState);
+    if(currentUpdateUI.turnIndex === -1){
+      console.log("is end state is tureeeeeee");
     }
-
+    else{
+      console.log("is falseeeeeeeeeeeeeeeeee");
+    }
     return isEndState;
   }
   export function isDrawn():boolean{
@@ -328,18 +427,28 @@ module game {
     return false;
   }
   export function giveWinner():number{
-    if(currentUpdateUI.endMatchScores[0]>currentUpdateUI.endMatchScores[1]){
-      console.log("Winner is 0");
-      return 0;
+    console.log("in give winnerrrrrrr " + currentUpdateUI.endMatchScores);
+       console.log("hello?");
+   return winner;
+  }
+  function getRandom(min:number, max:number):number{
+    return Math.random() * (max - min) + min; 
+  }
+  export function getPosition(pos: number,store:number) {
+ 
+    if(store==1){
+      PositionStyle.top = position_arr[pos].t.toString()+'%';
+      PositionStyle.left = position_arr[pos].l.toString()+'%';
     }
     else{
-      console.log("Winner is 1");
-      return 1;
+      PositionStyle.top = position_arr_pit[pos].t.toString()+'%';
+      PositionStyle.left = position_arr_pit[pos].l.toString()+'%';
     }
+    return PositionStyle;
   }
 
 }
-
+ 
 
 angular.module('myApp', ['gameServices'])
   .run(['$rootScope', '$timeout',

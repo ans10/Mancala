@@ -28,20 +28,20 @@ var gameLogic;
         for (var i = 0; i < gameLogic.ROWS; i++) {
             board[i] = [];
             for (var j = 0; j < gameLogic.COLS; j++) {
-                board[i][j] = 0;
+                board[i][j] = 24;
             }
         }
-        board[1][5] = 1;
-        board[1][4] = 1;
-        board[0][0] = 26;
-        board[1][6] = 21;
-        board[0][1] = 1;
+        board[1][5] = 24;
+        board[1][4] = 24;
+        board[0][0] = 48;
+        board[1][6] = 48;
+        board[0][1] = 24;
         return board;
     }
     gameLogic.getPseudoInitialBoard = getPseudoInitialBoard;
     function getInitialState() {
         console.log("Initial state method called in gameLogic");
-        return { board: getPseudoInitialBoard(), delta: null };
+        return { board: getInitialBoard(), delta: null };
     }
     gameLogic.getInitialState = getInitialState;
     /**
