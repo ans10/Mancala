@@ -7,7 +7,7 @@
   position: fixed!important;
 }*/
 /* To prevent long-press that will bring up copy-paste dialog. */
- {
+* {
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
@@ -107,7 +107,7 @@ h1 {
 }
 
 /*#candyPit{
-	/*This needs to be constant as candy component can have different parent 
+	/*This needs to be constant as candy component can have different parent
  width:80%;height:80%;
  }
 #candyStore{
@@ -151,7 +151,7 @@ h1 {
 	/*padding:2px;*/
 	display:flex;
 	flex-direction: column;
-	min-height: 80%; 
+	min-height: 80%;
   position: relative;
 	background-color: rgba(0,0,0,.2);
 	border-radius: 40%;
@@ -307,4 +307,3 @@ button {
 		background: #fafafa;
 		color: #23282d;
 	}*/
-}
