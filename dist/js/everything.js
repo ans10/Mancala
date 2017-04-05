@@ -31078,6 +31078,7 @@ var gamingPlatform;
         var lastUpdateUiMessage = null;
         function makeMove(move, proposal) {
             checkMakeMove(lastUpdateUiMessage, move, proposal);
+            console.log("In make moveeeeeeeeeee");
             // I'm sending the move even in local testing to make sure it's simple json (or postMessage will fail).
             sendMessage({ move: move, proposal: proposal, lastMessage: { updateUI: lastUpdateUiMessage } });
             lastUpdateUiMessage = null; // to make sure you don't call makeMove until you get the next updateUI.
@@ -31085,6 +31086,7 @@ var gamingPlatform;
         gameService.makeMove = makeMove;
         function callUpdateUI(updateUI) {
             lastUpdateUiMessage = angular.copy(updateUI);
+            console.log("Inside callupdateui: " +updateUI.turnIndex);
             game.updateUI(updateUI);
         }
         gameService.callUpdateUI = callUpdateUI;
@@ -31152,7 +31154,7 @@ var gamingPlatform;
             // but they will stay 0 (on ios) until we send gameReady (because platform will hide the iframe)
             sendMessage({ gameReady: "v4" });
             gamingPlatform.log.info("Calling 'fake' updateUI with yourPlayerIndex=-2 , meaning you're a viewer so you can't make a move");
-            var playerInfo = { playerId: '', avatarImageUrl: null, displayName: null };
+            var playerInfo = { playerId: '', avatarImageUrl: null, displayName: "Player1" };
             callUpdateUI({
                 numberOfPlayersRequiredToMove: null,
                 playerIdToProposal: null,
@@ -31161,7 +31163,7 @@ var gamingPlatform;
                 playersInfo: [playerInfo, playerInfo],
                 numberOfPlayers: 2,
                 state: null,
-                turnIndex: 0,
+                turnIndex: 1,
                 endMatchScores: null,
                 playMode: "passAndPlay",
             });
@@ -31198,7 +31200,7 @@ var gamingPlatform;
          * and it has either a millisecondsLimit or maxDepth field:
          * millisecondsLimit is a time limit, and maxDepth is a depth limit.
          */
-        function alphaBetaDecision(startingState, playerIndex, getNextStates, getStateScoreForIndex0, 
+        function alphaBetaDecision(startingState, playerIndex, getNextStates, getStateScoreForIndex0,
             // If you want to see debugging output in the console, then surf to game.html?debug
             getDebugStateToString, alphaBetaLimits) {
             var move = alphaBetaDecisionMayReturnNull(startingState, playerIndex, getNextStates, getStateScoreForIndex0, getDebugStateToString, alphaBetaLimits);
@@ -31209,7 +31211,7 @@ var gamingPlatform;
             return getNextStates(startingState, playerIndex)[0];
         }
         alphaBetaService.alphaBetaDecision = alphaBetaDecision;
-        function alphaBetaDecisionMayReturnNull(startingState, playerIndex, getNextStates, getStateScoreForIndex0, 
+        function alphaBetaDecisionMayReturnNull(startingState, playerIndex, getNextStates, getStateScoreForIndex0,
             // If you want to see debugging output in the console, then surf to game.html?debug
             getDebugStateToString, alphaBetaLimits) {
             // Checking input
@@ -31285,7 +31287,7 @@ var gamingPlatform;
             return alphaBetaLimits.millisecondsLimit &&
                 new Date().getTime() - startTime > alphaBetaLimits.millisecondsLimit;
         }
-        function getScoreForIndex0(startingState, playerIndex, getNextStates, getStateScoreForIndex0, 
+        function getScoreForIndex0(startingState, playerIndex, getNextStates, getStateScoreForIndex0,
             // If you want to see debugging output in the console, then surf to game.html?debug
             getDebugStateToString, alphaBetaLimits, startTime, depth, alpha, beta) {
             var bestScore = null;
@@ -31629,6 +31631,7 @@ var gamingPlatform;
     });
 })(gamingPlatform || (gamingPlatform = {}));
 //# sourceMappingURL=angularExceptionHandler.js.map
+
 ;
 var gameService = gamingPlatform.gameService;
 var alphaBetaService = gamingPlatform.alphaBetaService;
@@ -31638,21 +31641,41 @@ var log = gamingPlatform.log;
 var dragAndDropService = gamingPlatform.dragAndDropService;
 var gameLogic;
 (function (gameLogic) {
-    gameLogic.ROWS = 3;
-    gameLogic.COLS = 3;
+    gameLogic.ROWS = 2;
+    gameLogic.COLS = 7;
     /** Returns the initial TicTacToe board, which is a ROWSxCOLS matrix containing ''. */
     function getInitialBoard() {
         var board = [];
         for (var i = 0; i < gameLogic.ROWS; i++) {
             board[i] = [];
             for (var j = 0; j < gameLogic.COLS; j++) {
-                board[i][j] = '';
+                board[i][j] = 4;
             }
         }
+        board[0][0] = 0;
+        board[1][6] = 0;
         return board;
     }
     gameLogic.getInitialBoard = getInitialBoard;
+    function getPseudoInitialBoard() {
+        //pseudo Initial board for testing the end condition
+        var board = [];
+        for (var i = 0; i < gameLogic.ROWS; i++) {
+            board[i] = [];
+            for (var j = 0; j < gameLogic.COLS; j++) {
+                board[i][j] = 24;
+            }
+        }
+        board[1][5] = 24;
+        board[1][4] = 24;
+        board[0][0] = 48;
+        board[1][6] = 48;
+        board[0][1] = 24;
+        return board;
+    }
+    gameLogic.getPseudoInitialBoard = getPseudoInitialBoard;
     function getInitialState() {
+        console.log("Initial state method called in gameLogic");
         return { board: getInitialBoard(), delta: null };
     }
     gameLogic.getInitialState = getInitialState;
@@ -31664,16 +31687,11 @@ var gameLogic;
      *      ['O', 'X', 'X']]
      */
     function isTie(board) {
-        for (var i = 0; i < gameLogic.ROWS; i++) {
-            for (var j = 0; j < gameLogic.COLS; j++) {
-                if (board[i][j] === '') {
-                    // If there is an empty cell then we do not have a tie.
-                    return false;
-                }
-            }
+        if (board[0][0] === board[1][6]) {
+            return true;
         }
         // No empty cells, so we have a tie!
-        return true;
+        return false;
     }
     /**
      * Return the winner (either 'X' or 'O') or '' if there is no winner.
@@ -31683,69 +31701,163 @@ var gameLogic;
      *      ['X', 'O', ''],
      *      ['X', '', '']]
      */
+    function transferAllLeft(board) {
+        console.log("Transferring the remaining stuff into appropriate store");
+        var lastupdatedr = 0;
+        var lastupdatedc = 0;
+        var boardAfterMove = angular.copy(board);
+        for (var j = 1; j < gameLogic.COLS; j++) {
+            if (boardAfterMove[0][j] > 0) {
+                boardAfterMove[0][0] += boardAfterMove[0][j];
+                lastupdatedr = 0;
+                lastupdatedc = j;
+                boardAfterMove[0][j] = 0;
+            }
+        }
+        for (var j = 0; j < gameLogic.COLS - 1; j++) {
+            if (boardAfterMove[1][j] > 0) {
+                boardAfterMove[1][6] += boardAfterMove[1][j];
+                lastupdatedr = 1;
+                lastupdatedc = j;
+                boardAfterMove[1][j] = 0;
+            }
+        }
+        var updatedState = { board: boardAfterMove, lastupdatedrow: lastupdatedr, lastupdatedcolumn: lastupdatedc };
+        return updatedState;
+    }
     function getWinner(board) {
-        var boardString = '';
-        for (var i = 0; i < gameLogic.ROWS; i++) {
-            for (var j = 0; j < gameLogic.COLS; j++) {
-                var cell = board[i][j];
-                boardString += cell === '' ? ' ' : cell;
+        console.log("in Get the winner game Logic");
+        if (board[0][0] > board[1][6]) {
+            return 0;
+        }
+        else if (board[0][0] === board[1][6]) {
+            return -1;
+        }
+        else {
+            return 1;
+        }
+    }
+    function isEndState(board) {
+        var firstrow = true;
+        var secondrow = true;
+        for (var j = 1; j < gameLogic.COLS; j++) {
+            if (board[0][j] !== 0) {
+                firstrow = false;
+                break;
             }
         }
-        var win_patterns = [
-            'XXX......',
-            '...XXX...',
-            '......XXX',
-            'X..X..X..',
-            '.X..X..X.',
-            '..X..X..X',
-            'X...X...X',
-            '..X.X.X..'
-        ];
-        for (var _i = 0, win_patterns_1 = win_patterns; _i < win_patterns_1.length; _i++) {
-            var win_pattern = win_patterns_1[_i];
-            var x_regexp = new RegExp(win_pattern);
-            var o_regexp = new RegExp(win_pattern.replace(/X/g, 'O'));
-            if (x_regexp.test(boardString)) {
-                return 'X';
-            }
-            if (o_regexp.test(boardString)) {
-                return 'O';
+        for (var j = 0; j < gameLogic.COLS - 1; j++) {
+            if (board[1][j] !== 0) {
+                secondrow = false;
+                break;
             }
         }
-        return '';
+        return firstrow || secondrow;
+    }
+    function updateBoard(board, row, col) {
+        console.log("In update board in gameLogic");
+        var boardAfterMove = angular.copy(board);
+        var updatedState = null;
+        var i;
+        var j;
+        i = row;
+        j = col;
+        var val;
+        val = boardAfterMove[i][j];
+        boardAfterMove[i][j] = 0;
+        while (val > 0) {
+            if (i === 0) {
+                j--;
+                if (row === 0 && j < 0) {
+                    i = i + 1;
+                    j = 0;
+                }
+                else if (row === 1 && j < 1) {
+                    i = i + 1;
+                    j = 0;
+                }
+                boardAfterMove[i][j] += 1;
+            }
+            else {
+                j++;
+                if (row === 0 && j > 5) {
+                    i = i - 1;
+                    j = 6;
+                }
+                else if (row === 1 && j > 6) {
+                    i = i - 1;
+                    j = 6;
+                }
+                boardAfterMove[i][j] = boardAfterMove[i][j] + 1;
+            }
+            val--;
+        }
+        // empty hole on last chance handled
+        if (boardAfterMove[i][j] === 1 && row === i &&
+            !((i === 0 && j === 0) || (i === 1 && j === 6))) {
+            if (i === 0 && boardAfterMove[1 - i][j - 1] > 0) {
+                boardAfterMove[i][j] = 0;
+                boardAfterMove[0][0] += boardAfterMove[1 - i][j - 1] + 1;
+                boardAfterMove[1 - i][j - 1] = 0;
+            }
+            if (i === 1 && boardAfterMove[1 - i][j + 1] > 0) {
+                boardAfterMove[i][j] = 0;
+                boardAfterMove[1][6] += boardAfterMove[1 - i][j + 1] + 1;
+                boardAfterMove[1 - i][j + 1] = 0;
+            }
+        }
+        updatedState = { board: boardAfterMove, lastupdatedrow: i, lastupdatedcolumn: j };
+        return updatedState;
+    }
+    function nextTurn(turnIndex, row, col) {
+        if ((row === 0 && col === 0) || (row === 1 && col === 6)) {
+            return turnIndex;
+        }
+        else {
+            console.log("Previous turnIndex value is " + turnIndex);
+            return 1 - turnIndex;
+        }
     }
     /**
      * Returns the move that should be performed when player
-     * with index turnIndexBeforeMove makes a move in cell row X col.
+     * with index BeforeMove makes a move in cell row X col.
      */
     function createMove(stateBeforeMove, row, col, turnIndexBeforeMove) {
+        console.log("in create move in gameLogic");
         if (!stateBeforeMove) {
             stateBeforeMove = getInitialState();
         }
         var board = stateBeforeMove.board;
-        if (board[row][col] !== '') {
-            throw new Error("One can only make a move in an empty position!");
+        console.log("Turnindexbeforemove: " + turnIndexBeforeMove + "row: " + row);
+        if (board[row][col] === 0 || (row === 0 && col === 0) || (row === 1 && col === 6) ||
+            row !== turnIndexBeforeMove) {
+            throw new Error("Making an invalid move!");
         }
-        if (getWinner(board) !== '' || isTie(board)) {
-            throw new Error("Can only make a move if the game is not over!");
-        }
-        var boardAfterMove = angular.copy(board);
-        boardAfterMove[row][col] = turnIndexBeforeMove === 0 ? 'X' : 'O';
-        var winner = getWinner(boardAfterMove);
+        var updatedState = updateBoard(board, row, col);
+        var boardAfterMove = updatedState.board;
         var endMatchScores;
         var turnIndex;
-        if (winner !== '' || isTie(boardAfterMove)) {
-            // Game over.
+        if (isEndState(boardAfterMove)) {
+            //Game over
+            console.log("Game's end state detected in Game Logic");
+            updatedState = transferAllLeft(boardAfterMove);
+            boardAfterMove = updatedState.board;
+            var winner = getWinner(boardAfterMove);
             turnIndex = -1;
-            endMatchScores = winner === 'X' ? [1, 0] : winner === 'O' ? [0, 1] : [0, 0];
+            endMatchScores = winner === 0 ? [1, 0] : winner === 1 ? [0, 1] : [0, 0];
         }
         else {
-            // Game continues. Now it's the opponent's turn (the turn switches from 0 to 1 and 1 to 0).
-            turnIndex = 1 - turnIndexBeforeMove;
+            //Game continues
+            turnIndex = nextTurn(turnIndexBeforeMove, updatedState.lastupdatedrow, updatedState.lastupdatedcolumn);
+            console.log("TurnIndex value is: " + turnIndex);
             endMatchScores = null;
         }
+        /*if (getWinner(board) !== '' || isTie(board)) {
+          throw new Error("Can only make a move if the game is not over!");
+        }*/
         var delta = { row: row, col: col };
         var state = { delta: delta, board: boardAfterMove };
+        console.info("Returning createMove successfully");
         return {
             endMatchScores: endMatchScores,
             turnIndex: turnIndex,
@@ -31767,6 +31879,13 @@ var gameLogic;
 //# sourceMappingURL=gameLogic.js.map
 ;
 ;
+var PositionStyle = {
+    position: 'absolute',
+    width: '20%',
+    height: '20%',
+    top: '%',
+    left: '%'
+};
 var game;
 (function (game) {
     game.$rootScope = null;
@@ -31776,25 +31895,139 @@ var game;
     // simply typing in the console, e.g.,
     // game.currentUpdateUI
     game.currentUpdateUI = null;
+    game.flipDisplay = false;
     game.didMakeMove = false; // You can only make one move per updateUI
     game.animationEndedTimeout = null;
     game.state = null;
+    game.currentCount = 0;
+    game.winner = -1;
+    game.isEndState = false;
+    game.position_arrv = null;
     // For community games.
     game.proposals = null;
     game.yourPlayerInfo = null;
+    var PositionStyle = {
+        position: 'absolute',
+        top: '%',
+        left: '%'
+    };
+    var position_arr = [
+        { t: 10, l: 52 },
+        { t: 19, l: 23 },
+        { t: 23, l: 44 },
+        { t: 20, l: 35 },
+        { t: 25, l: 37 },
+        { t: 35, l: 80 },
+        { t: 18, l: 66 },
+        { t: 20, l: 16 },
+        { t: 14, l: 19 },
+        { t: 7, l: 36 },
+        { t: 10, l: 47 },
+        { t: 25, l: 45 },
+        { t: 30, l: 72 },
+        { t: 20, l: 75 },
+        { t: 14, l: 72 },
+        { t: 15, l: 43 },
+        { t: 27, l: 37 },
+        { t: 37, l: 23 },
+        { t: 40, l: 13 },
+        { t: 24, l: 19 },
+        { t: 18, l: 25 },
+        { t: 24, l: 27 },
+        { t: 30, l: 37 },
+        { t: 20, l: 32 },
+        { t: 17, l: 41 },
+        { t: 36, l: 42 },
+        { t: 42, l: 48 },
+        { t: 31, l: 49 },
+        { t: 31, l: 58 },
+        { t: 27, l: 56 },
+        { t: 29, l: 14 },
+        { t: 27, l: 62 },
+        { t: 43, l: 67 },
+        { t: 33, l: 20 },
+        { t: 40, l: 8 },
+        { t: 33, l: 8 },
+        { t: 32, l: 72 },
+        { t: 16, l: 67 },
+        { t: 46, l: 13 },
+        { t: 32, l: 31 },
+        { t: 23, l: 14 },
+        { t: 29, l: 19 },
+        { t: 44, l: 27 },
+        { t: 30, l: 42 },
+        { t: 24, l: 35 },
+        { t: 12, l: 30 },
+        { t: 15, l: 38 },
+        { t: 12, l: 76 }
+    ];
+    var position_arr_pit = [
+        { t: 0, l: 52 },
+        { t: 12, l: 23 },
+        { t: 25, l: 24 },
+        { t: 29, l: 43 },
+        { t: 36, l: 37 },
+        { t: 20, l: 70 },
+        { t: 5, l: 66 },
+        { t: 6, l: 16 },
+        { t: 8, l: 19 },
+        { t: 23, l: 36 },
+        { t: 65, l: 47 },
+        { t: 44, l: 45 },
+        { t: 23, l: 66 },
+        { t: 43, l: 68 },
+        { t: 56, l: 56 },
+        { t: 19, l: 43 },
+        { t: 44, l: 37 },
+        { t: 57, l: 23 },
+        { t: 62, l: 23 },
+        { t: 11, l: 19 },
+        { t: 33, l: 25 },
+        { t: 53, l: 27 },
+        { t: 44, l: 37 },
+        { t: 37, l: 32 },
+        { t: 17, l: 41 }
+    ];
     function init($rootScope_, $timeout_) {
         game.$rootScope = $rootScope_;
         game.$timeout = $timeout_;
         registerServiceWorker();
         translate.setTranslations(getTranslations());
         translate.setLanguage('en');
-        resizeGameAreaService.setWidthToHeight(1);
+        resizeGameAreaService.setWidthToHeight(1.6);
         gameService.setGame({
             updateUI: updateUI,
             getStateForOgImage: null,
         });
+        console.log("INIT method over");
     }
     game.init = init;
+    function initialize_position_array() {
+        game.position_arrv = new Array(48);
+        game.position_arrv[0] = { top: 0, left: 52 };
+        console.log("{ t:" + game.position_arrv[0].top + ", l:" + game.position_arrv[0].left + "},");
+        for (var i = 1; i < 48; i++) {
+            var new_position = game.position_arrv[i - 1];
+            var lc = getRandom(-5, 5);
+            var tc = getRandom(-5, 5);
+            new_position.top = Math.round(new_position.top + tc);
+            new_position.left = Math.round(new_position.left + lc);
+            if (new_position.left >= 70) {
+                new_position.left = 65;
+            }
+            if (new_position.top <= 0) {
+                new_position.top = 7;
+            }
+            if (new_position.left <= 0) {
+                new_position.left = 5;
+            }
+            if (new_position.top >= 40) {
+                new_position.top = 40;
+            }
+            game.position_arrv[i] = new_position;
+            console.log("{ t:" + game.position_arrv[i].top + ", l:" + game.position_arrv[i].left + "},");
+        }
+    }
     function registerServiceWorker() {
         // I prefer to use appCache over serviceWorker
         // (because iOS doesn't support serviceWorker, so we have to use appCache)
@@ -31854,22 +32087,31 @@ var game;
         // Only one move/proposal per updateUI
         game.didMakeMove = playerIdToProposal && playerIdToProposal[game.yourPlayerInfo.playerId] != undefined;
         game.yourPlayerInfo = params.yourPlayerInfo;
-        game.proposals = playerIdToProposal ? getProposalsBoard(playerIdToProposal) : null;
+        /*proposals = playerIdToProposal ? getProposalsBoard(playerIdToProposal) : null;
         if (playerIdToProposal) {
-            // If only proposals changed, then return.
-            // I don't want to disrupt the player if he's in the middle of a move.
-            // I delete playerIdToProposal field from params (and so it's also not in currentUpdateUI),
-            // and compare whether the objects are now deep-equal.
-            params.playerIdToProposal = null;
-            if (game.currentUpdateUI && angular.equals(game.currentUpdateUI, params))
-                return;
-        }
+          // If only proposals changed, then return.
+          // I don't want to disrupt the player if he's in the middle of a move.
+          // I delete playerIdToProposal field from params (and so it's also not in currentUpdateUI),
+          // and compare whether the objects are now deep-equal.
+          params.playerIdToProposal = null;
+          if (currentUpdateUI && angular.equals(currentUpdateUI, params)) return;
+        }*/
         game.currentUpdateUI = params;
+        console.log("Turn index is !!!!!!!!!!!!! : " + game.currentUpdateUI.turnIndex + " " + game.currentUpdateUI.playMode);
         clearAnimationTimeout();
+        /*For computer moves, only after animation it should occur */
         game.state = params.state;
         if (isFirstMove()) {
+            console.log("Initialstate method called");
             game.state = gameLogic.getInitialState();
         }
+        if (game.currentUpdateUI.playMode === 1 || game.currentUpdateUI.playMode === "multiplayer") {
+            game.flipDisplay = true;
+        }
+        else {
+            game.flipDisplay = false;
+        }
+        console.log("flip is : ~~~~~~~~~~ " + game.flipDisplay);
         // We calculate the AI move only after the animation finishes,
         // because if we call aiService now
         // then the animation will be paused until the javascript finishes.
@@ -31942,35 +32184,20 @@ var game;
             game.currentUpdateUI.turnIndex >= 0 &&
             game.currentUpdateUI.yourPlayerIndex === game.currentUpdateUI.turnIndex; // it's my turn
     }
-    function cellClicked(row, col) {
-        log.info("Clicked on cell:", row, col);
-        if (!isHumanTurn())
-            return;
-        var nextMove = null;
-        try {
-            nextMove = gameLogic.createMove(game.state, row, col, game.currentUpdateUI.turnIndex);
-        }
-        catch (e) {
-            log.info(["Cell is already full in position:", row, col]);
-            return;
-        }
-        // Move is legal, make it!
-        makeMove(nextMove);
-    }
-    game.cellClicked = cellClicked;
     function shouldShowImage(row, col) {
-        return game.state.board[row][col] !== "" || isProposal(row, col);
+        //return state.board[row][col] !== "" || isProposal(row, col);
+        return isProposal(row, col);
     }
     game.shouldShowImage = shouldShowImage;
     function isPiece(row, col, turnIndex, pieceKind) {
         return game.state.board[row][col] === pieceKind || (isProposal(row, col) && game.currentUpdateUI.turnIndex == turnIndex);
     }
     function isPieceX(row, col) {
-        return isPiece(row, col, 0, 'X');
+        return isPiece(row, col, 0, 1);
     }
     game.isPieceX = isPieceX;
     function isPieceO(row, col) {
-        return isPiece(row, col, 1, 'O');
+        return isPiece(row, col, 1, 0);
     }
     game.isPieceO = isPieceO;
     function shouldSlowlyAppear(row, col) {
@@ -31978,6 +32205,104 @@ var game;
             game.state.delta.row === row && game.state.delta.col === col;
     }
     game.shouldSlowlyAppear = shouldSlowlyAppear;
+    function giveCounts(row, column) {
+        return game.state.board[row][column];
+    }
+    game.giveCounts = giveCounts;
+    function getPlayer2ArrayPits() {
+        return game.state.board[0].slice(1);
+    }
+    game.getPlayer2ArrayPits = getPlayer2ArrayPits;
+    function getPlayer1ArrayPits() {
+        return game.state.board[1].slice(0, 6);
+    }
+    game.getPlayer1ArrayPits = getPlayer1ArrayPits;
+    function makeArray(num) {
+        var arr = new Array(num);
+        for (var i = 0; i < num; i++) {
+            arr[i] = i;
+        }
+        return arr;
+    }
+    game.makeArray = makeArray;
+    function pitClicked(row, column) {
+        // state.board[row][column]=0;
+        console.info("Cell clicked (row,col): (" + row + "," + column + ")");
+        if (!isHumanTurn())
+            return;
+        console.info("hell");
+        var nextMove = null;
+        try {
+            nextMove = gameLogic.createMove(game.state, row, column, game.currentUpdateUI.turnIndex);
+        }
+        catch (exception) {
+            console.info("Problem in createMove: " + exception);
+            return;
+        }
+        gameService.makeMove(nextMove, null);
+        if (nextMove.endMatchScores !== null) {
+            game.isEndState = true;
+            console.info("end state detected to be true " + game.isEndState);
+            if (nextMove.endMatchScores[0] > nextMove.endMatchScores[1]) {
+                console.log("Winner is 0");
+                game.winner = 0;
+            }
+            else {
+                console.log("Winner is 1");
+                game.winner = 1;
+            }
+        }
+        game.currentUpdateUI.turnIndex = nextMove.turnIndex;
+        game.currentUpdateUI.yourPlayerIndex = nextMove.turnIndex;
+        console.log("Current player's name is " +
+            game.currentUpdateUI.yourPlayerInfo.displayName);
+    }
+    game.pitClicked = pitClicked;
+    function isEndOfGame() {
+        console.log("is End of Game is: " + game.isEndState);
+        if (game.currentUpdateUI.turnIndex === -1) {
+            console.log("is end state is tureeeeeee");
+        }
+        else {
+            console.log("is falseeeeeeeeeeeeeeeeee");
+        }
+        return game.isEndState;
+    }
+    game.isEndOfGame = isEndOfGame;
+    function isDrawn() {
+        if (isEndOfGame() && game.currentUpdateUI.endMatchScores[0] === game.currentUpdateUI.endMatchScores[1]) {
+            console.log("Drawing condition true");
+            return true;
+        }
+        return false;
+    }
+    game.isDrawn = isDrawn;
+    function giveWinner() {
+        console.log("in give winnerrrrrrr " + game.currentUpdateUI.endMatchScores);
+        console.log("hello?");
+        return game.winner;
+    }
+    game.giveWinner = giveWinner;
+    function getRandom(min, max) {
+        return Math.random() * (max - min) + min;
+    }
+    function getPosition(pos, store) {
+        if (store == 1) {
+            PositionStyle.top = position_arr[pos].t.toString() + '%';
+            PositionStyle.left = position_arr[pos].l.toString() + '%';
+        }
+        else {
+            PositionStyle.top = position_arr_pit[pos].t.toString() + '%';
+            PositionStyle.left = position_arr_pit[pos].l.toString() + '%';
+        }
+        return PositionStyle;
+    }
+    game.getPosition = getPosition;
+    function flipBoard() {
+        console.log("flipdisplay in function is: " + game.flipDisplay);
+        return game.flipDisplay;
+    }
+    game.flipBoard = flipBoard;
 })(game || (game = {}));
 angular.module('myApp', ['gameServices'])
     .run(['$rootScope', '$timeout',

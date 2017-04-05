@@ -15,6 +15,7 @@ var game;
     // simply typing in the console, e.g.,
     // game.currentUpdateUI
     game.currentUpdateUI = null;
+    game.flipDisplay = false;
     game.didMakeMove = false; // You can only make one move per updateUI
     game.animationEndedTimeout = null;
     game.state = null;
@@ -114,7 +115,6 @@ var game;
         translate.setTranslations(getTranslations());
         translate.setLanguage('en');
         resizeGameAreaService.setWidthToHeight(1.6);
-        initialize_position_array();
         gameService.setGame({
             updateUI: updateUI,
             getStateForOgImage: null,
@@ -217,7 +217,7 @@ var game;
           if (currentUpdateUI && angular.equals(currentUpdateUI, params)) return;
         }*/
         game.currentUpdateUI = params;
-        console.log("Turn index is !!!!!!!!!!!!! : " + game.currentUpdateUI.turnIndex);
+        console.log("Turn index is !!!!!!!!!!!!! : " + game.currentUpdateUI.turnIndex + " " + game.currentUpdateUI.playMode);
         clearAnimationTimeout();
         /*For computer moves, only after animation it should occur */
         game.state = params.state;
@@ -225,6 +225,13 @@ var game;
             console.log("Initialstate method called");
             game.state = gameLogic.getInitialState();
         }
+        if (game.currentUpdateUI.playMode === 1 || game.currentUpdateUI.playMode === "multiplayer") {
+            game.flipDisplay = true;
+        }
+        else {
+            game.flipDisplay = false;
+        }
+        console.log("flip is : ~~~~~~~~~~ " + game.flipDisplay);
         // We calculate the AI move only after the animation finishes,
         // because if we call aiService now
         // then the animation will be paused until the javascript finishes.
@@ -411,6 +418,11 @@ var game;
         return PositionStyle;
     }
     game.getPosition = getPosition;
+    function flipBoard() {
+        console.log("flipdisplay in function is: " + game.flipDisplay);
+        return game.flipDisplay;
+    }
+    game.flipBoard = flipBoard;
 })(game || (game = {}));
 angular.module('myApp', ['gameServices'])
     .run(['$rootScope', '$timeout',

@@ -56,7 +56,7 @@ body {
 
 	text-align: center;
 	color: #555;
-	background-image: url(../images/bg.jpg);
+	background-image: url(../imgs/bg.jpg);
   background-repeat: repeat-x;
 	background-size: cover;
 	font-size: 1.8vw;
@@ -80,7 +80,7 @@ h1 {
 	max-width: 100%;
 	height: 60%;
 	overflow: hidden;
-	background: url(../images/yellow1.png);
+	background: url(../imgs/yellow1.png);
 	border-radius: 20px;
 
 	&, p {

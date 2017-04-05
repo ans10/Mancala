@@ -17,7 +17,6 @@ var PositionStyle =
     left:'%'
   };
 
-
 module game {
   export let $rootScope: angular.IScope = null;
   export let $timeout: angular.ITimeoutService = null;
@@ -27,6 +26,7 @@ module game {
   // simply typing in the console, e.g.,
   // game.currentUpdateUI
   export let currentUpdateUI: IUpdateUI = null;
+  export let flipDisplay: boolean = false;
   export let didMakeMove: boolean = false; // You can only make one move per updateUI
   export let animationEndedTimeout: ng.IPromise<any> = null;
   export let state: IState = null;
@@ -133,7 +133,6 @@ module game {
     translate.setTranslations(getTranslations());
     translate.setLanguage('en');
     resizeGameAreaService.setWidthToHeight(1.6);
-    initialize_position_array();
     gameService.setGame({
       updateUI: updateUI,
       getStateForOgImage: null,
@@ -246,7 +245,7 @@ module game {
     }*/
 
     currentUpdateUI = params;
-    console.log("Turn index is !!!!!!!!!!!!! : " + currentUpdateUI.turnIndex);
+    console.log("Turn index is !!!!!!!!!!!!! : " + currentUpdateUI.turnIndex + " " + currentUpdateUI.playMode);
     clearAnimationTimeout();
     /*For computer moves, only after animation it should occur */
     state = params.state;
@@ -255,6 +254,13 @@ module game {
       state = gameLogic.getInitialState();
     }
 
+    if (currentUpdateUI.playMode === 1 || currentUpdateUI.playMode === "multiplayer"){
+      flipDisplay = true;
+    }
+    else{
+      flipDisplay = false;
+    }
+    console.log("flip is : ~~~~~~~~~~ " + flipDisplay);
     // We calculate the AI move only after the animation finishes,
     // because if we call aiService now
     // then the animation will be paused until the javascript finishes.
@@ -445,6 +451,11 @@ module game {
       PositionStyle.left = position_arr_pit[pos].l.toString()+'%';
     }
     return PositionStyle;
+  }
+
+  export function flipBoard(){
+    console.log("flipdisplay in function is: " + flipDisplay);
+    return flipDisplay;
   }
 
 }
