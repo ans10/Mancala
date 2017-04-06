@@ -31663,14 +31663,14 @@ var gameLogic;
         for (var i = 0; i < gameLogic.ROWS; i++) {
             board[i] = [];
             for (var j = 0; j < gameLogic.COLS; j++) {
-                board[i][j] = 24;
+                board[i][j] = 0;
             }
         }
-        board[1][5] = 24;
-        board[1][4] = 24;
-        board[0][0] = 48;
-        board[1][6] = 48;
-        board[0][1] = 24;
+        board[1][5] = 0;
+        board[1][4] = 0;
+        board[0][0] = 24;
+        board[1][6] = 20;
+        board[0][1] = 1;
         return board;
     }
     gameLogic.getPseudoInitialBoard = getPseudoInitialBoard;
@@ -32097,7 +32097,7 @@ var game;
           if (currentUpdateUI && angular.equals(currentUpdateUI, params)) return;
         }*/
         game.currentUpdateUI = params;
-        console.log("Turn index is !!!!!!!!!!!!! : " + game.currentUpdateUI.turnIndex + " " + game.currentUpdateUI.playMode);
+        console.log("Turn index is !!!!!!!!!!!!! : " + game.currentUpdateUI.turnIndex + " " + game.isEndState);
         clearAnimationTimeout();
         /*For computer moves, only after animation it should occur */
         game.state = params.state;
@@ -32105,6 +32105,10 @@ var game;
             console.log("Initialstate method called");
             game.state = gameLogic.getInitialState();
         }
+        if (game.currentUpdateUI.turnIndex === -1) {
+            game.isEndState = true;
+        }
+        console.log("Turn index is !!!!!!!!!!!!! : " + game.currentUpdateUI.turnIndex + " " + game.isEndState);
         if (game.currentUpdateUI.playMode === 1 || game.currentUpdateUI.playMode === "multiplayer") {
             game.flipDisplay = true;
         }
@@ -32278,8 +32282,20 @@ var game;
     }
     game.isDrawn = isDrawn;
     function giveWinner() {
-        console.log("in give winnerrrrrrr " + game.currentUpdateUI.endMatchScores);
+        console.log("in give winnerrrrrrr " + game.currentUpdateUI.endMatchScores + " " + game.isEndState);
         console.log("hello?");
+        if (game.currentUpdateUI.endMatchScores !== null) {
+            game.isEndState = true;
+            console.info("end state detected to be true " + game.isEndState);
+            if (game.currentUpdateUI.endMatchScores[0] > game.currentUpdateUI.endMatchScores[1]) {
+                console.log("Winner is 0");
+                game.winner = 0;
+            }
+            else {
+                console.log("Winner is 1");
+                game.winner = 1;
+            }
+        }
         return game.winner;
     }
     game.giveWinner = giveWinner;
@@ -32333,6 +32349,7 @@ var aiService;
                     possibleMoves.push(gameLogic.createMove(state, i, j, turnIndexBeforeMove));
                 }
                 catch (e) {
+                    // The cell in that position was full.
                 }
             }
         }

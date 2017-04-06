@@ -48,14 +48,14 @@ module gameLogic {
     for (let i = 0; i < ROWS; i++) {
       board[i] = [];
       for (let j = 0; j < COLS; j++) {
-        board[i][j] =24;
+        board[i][j] =0;
       }
     }
-    board[1][5] = 24;
-    board[1][4] = 24;
-    board[0][0] = 48;
-    board[1][6] = 48;
-    board[0][1] = 24;
+    board[1][5] = 0;
+    board[1][4] = 0;
+    board[0][0] = 24;
+    board[1][6] = 20;
+    board[0][1] = 1;
     return board;
   }
 

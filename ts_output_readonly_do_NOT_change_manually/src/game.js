@@ -217,7 +217,7 @@ var game;
           if (currentUpdateUI && angular.equals(currentUpdateUI, params)) return;
         }*/
         game.currentUpdateUI = params;
-        console.log("Turn index is !!!!!!!!!!!!! : " + game.currentUpdateUI.turnIndex + " " + game.currentUpdateUI.playMode);
+        console.log("Turn index is !!!!!!!!!!!!! : " + game.currentUpdateUI.turnIndex + " " + game.isEndState);
         clearAnimationTimeout();
         /*For computer moves, only after animation it should occur */
         game.state = params.state;
@@ -225,6 +225,10 @@ var game;
             console.log("Initialstate method called");
             game.state = gameLogic.getInitialState();
         }
+        if (game.currentUpdateUI.turnIndex === -1) {
+            game.isEndState = true;
+        }
+        console.log("Turn index is !!!!!!!!!!!!! : " + game.currentUpdateUI.turnIndex + " " + game.isEndState);
         if (game.currentUpdateUI.playMode === 1 || game.currentUpdateUI.playMode === "multiplayer") {
             game.flipDisplay = true;
         }
@@ -398,8 +402,20 @@ var game;
     }
     game.isDrawn = isDrawn;
     function giveWinner() {
-        console.log("in give winnerrrrrrr " + game.currentUpdateUI.endMatchScores);
+        console.log("in give winnerrrrrrr " + game.currentUpdateUI.endMatchScores + " " + game.isEndState);
         console.log("hello?");
+        if (game.currentUpdateUI.endMatchScores !== null) {
+            game.isEndState = true;
+            console.info("end state detected to be true " + game.isEndState);
+            if (game.currentUpdateUI.endMatchScores[0] > game.currentUpdateUI.endMatchScores[1]) {
+                console.log("Winner is 0");
+                game.winner = 0;
+            }
+            else {
+                console.log("Winner is 1");
+                game.winner = 1;
+            }
+        }
         return game.winner;
     }
     game.giveWinner = giveWinner;

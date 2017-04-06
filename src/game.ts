@@ -245,7 +245,7 @@ module game {
     }*/
 
     currentUpdateUI = params;
-    console.log("Turn index is !!!!!!!!!!!!! : " + currentUpdateUI.turnIndex + " " + currentUpdateUI.playMode);
+    console.log("Turn index is !!!!!!!!!!!!! : " + currentUpdateUI.turnIndex + " " + isEndState);
     clearAnimationTimeout();
     /*For computer moves, only after animation it should occur */
     state = params.state;
@@ -253,7 +253,11 @@ module game {
       console.log("Initialstate method called");
       state = gameLogic.getInitialState();
     }
-
+    if (currentUpdateUI.turnIndex === -1){
+      isEndState = true;
+    }
+   console.log("Turn index is !!!!!!!!!!!!! : " + currentUpdateUI.turnIndex + " " + isEndState);
+ 
     if (currentUpdateUI.playMode === 1 || currentUpdateUI.playMode === "multiplayer"){
       flipDisplay = true;
     }
@@ -433,8 +437,20 @@ module game {
     return false;
   }
   export function giveWinner():number{
-    console.log("in give winnerrrrrrr " + currentUpdateUI.endMatchScores);
+    console.log("in give winnerrrrrrr " + currentUpdateUI.endMatchScores + " " + isEndState);
        console.log("hello?");
+       if(currentUpdateUI.endMatchScores!==null){
+        isEndState = true;
+      console.info("end state detected to be true " + isEndState);
+        if(currentUpdateUI.endMatchScores[0]>currentUpdateUI.endMatchScores[1]){
+      console.log("Winner is 0");
+      winner= 0;
+    }
+    else{
+      console.log("Winner is 1");
+      winner= 1;
+    }
+       }
    return winner;
   }
   function getRandom(min:number, max:number):number{
