@@ -31668,8 +31668,8 @@ var gameLogic;
         }
         board[1][5] = 0;
         board[1][4] = 0;
-        board[0][0] = 24;
-        board[1][6] = 20;
+        board[0][0] = 23;
+        board[1][6] = 24;
         board[0][1] = 1;
         return board;
     }
@@ -32108,6 +32108,9 @@ var game;
         if (game.currentUpdateUI.turnIndex === -1) {
             game.isEndState = true;
         }
+        else {
+            game.isEndState = false;
+        }
         console.log("Turn index is !!!!!!!!!!!!! : " + game.currentUpdateUI.turnIndex + " " + game.isEndState);
         if (game.currentUpdateUI.playMode === 1 || game.currentUpdateUI.playMode === "multiplayer") {
             game.flipDisplay = true;
@@ -32251,9 +32254,12 @@ var game;
                 console.log("Winner is 0");
                 game.winner = 0;
             }
-            else {
+            else if (nextMove.endMatchScores[0] < nextMove.endMatchScores[1]) {
                 console.log("Winner is 1");
                 game.winner = 1;
+            }
+            else {
+                game.winner = 2;
             }
         }
         game.currentUpdateUI.turnIndex = nextMove.turnIndex;
@@ -32272,7 +32278,6 @@ var game;
         }
         return game.isEndState;
     }
-    game.isEndOfGame = isEndOfGame;
     function isDrawn() {
         if (isEndOfGame() && game.currentUpdateUI.endMatchScores[0] === game.currentUpdateUI.endMatchScores[1]) {
             console.log("Drawing condition true");
@@ -32291,12 +32296,20 @@ var game;
                 console.log("Winner is 0");
                 game.winner = 0;
             }
-            else {
+            else if (game.currentUpdateUI.endMatchScores[0] < game.currentUpdateUI.endMatchScores[1]) {
                 console.log("Winner is 1");
                 game.winner = 1;
             }
+            else {
+                game.winner = 2;
+            }
         }
-        return game.winner;
+        if (game.winner === 1 || game.winner === 0) {
+            return "Player " + game.winner + " is winner";
+        }
+        else {
+            return "Game Drawn ";
+        }
     }
     game.giveWinner = giveWinner;
     function getRandom(min, max) {
