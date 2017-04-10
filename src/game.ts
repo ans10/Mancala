@@ -256,6 +256,9 @@ module game {
     if (currentUpdateUI.turnIndex === -1){
       isEndState = true;
     }
+    else{
+      isEndState = false;
+    }
    console.log("Turn index is !!!!!!!!!!!!! : " + currentUpdateUI.turnIndex + " " + isEndState);
  
     if (currentUpdateUI.playMode === 1 || currentUpdateUI.playMode === "multiplayer"){
@@ -401,25 +404,29 @@ module game {
     }
     gameService.makeMove(nextMove, null);
     if(nextMove.endMatchScores!==null){
-        isEndState = true;
+      isEndState = true;
       console.info("end state detected to be true " + isEndState);
-        if(nextMove.endMatchScores[0]>nextMove.endMatchScores[1]){
-      console.log("Winner is 0");
-      winner= 0;
-    }
-    else{
-      console.log("Winner is 1");
-      winner= 1;
+      if(nextMove.endMatchScores[0]>nextMove.endMatchScores[1]){
+        console.log("Winner is 0");
+        winner = 0;
+      }
+      else if(nextMove.endMatchScores[0]<nextMove.endMatchScores[1]){
+        console.log("Winner is 1");
+        winner = 1;
+      }
+      else{
+      winner = 2;
+      }
     }
       
-  }
+  
     currentUpdateUI.turnIndex = nextMove.turnIndex;
     currentUpdateUI.yourPlayerIndex = nextMove.turnIndex;
 
     console.log("Current player's name is "+
     currentUpdateUI.yourPlayerInfo.displayName);
   }
-  export function isEndOfGame():boolean{
+  function isEndOfGame():boolean{
       console.log("is End of Game is: "+isEndState);
     if(currentUpdateUI.turnIndex === -1){
       console.log("is end state is tureeeeeee");
@@ -436,7 +443,7 @@ module game {
     }
     return false;
   }
-  export function giveWinner():number{
+  export function giveWinner():string{
     console.log("in give winnerrrrrrr " + currentUpdateUI.endMatchScores + " " + isEndState);
        console.log("hello?");
        if(currentUpdateUI.endMatchScores!==null){
@@ -446,12 +453,20 @@ module game {
       console.log("Winner is 0");
       winner= 0;
     }
-    else{
+    else  if(currentUpdateUI.endMatchScores[0]<currentUpdateUI.endMatchScores[1]){
       console.log("Winner is 1");
       winner= 1;
     }
-       }
-   return winner;
+    else{
+      winner = 2;
+    }
+  }
+  if(winner === 1 || winner === 0) {
+    return "Player " + winner + " is winner";
+  }
+  else{
+    return "Game Drawn ";
+  }
   }
   function getRandom(min:number, max:number):number{
     return Math.random() * (max - min) + min; 

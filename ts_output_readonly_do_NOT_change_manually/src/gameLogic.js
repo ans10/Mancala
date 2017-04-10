@@ -33,8 +33,8 @@ var gameLogic;
         }
         board[1][5] = 0;
         board[1][4] = 0;
-        board[0][0] = 24;
-        board[1][6] = 20;
+        board[0][0] = 23;
+        board[1][6] = 24;
         board[0][1] = 1;
         return board;
     }
