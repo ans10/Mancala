@@ -239,7 +239,7 @@ font-family: 'Indie Flower', cursive;*/
   -moz-box-shadow: 2px 2px 1px #888;
 	box-shadow: 2px 2px 1px #888;
 	cursor: default;
-	opacity: 0.5;
+	opacity: 1;
 }
 
 .parentWiggle{
@@ -263,10 +263,10 @@ font-family: 'Indie Flower', cursive;*/
   box-shadow:  inset 0px 0px 10px 1px indigo;
 	cursor: default;
 
-	 -webkit-animation: wiggle 0.5s ease infinite;
+	 /*-webkit-animation: wiggle 0.5s ease infinite;
     -moz-animation: wiggle 0.5s ease infinite;
     -o-animation: wiggle 0.5s ease infinite;
-    animation: wiggle 0.5s ease infinite;
+    animation: wiggle 0.5s ease infinite;*/
 
 }
 

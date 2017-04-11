@@ -51,7 +51,7 @@ module game {
     {t: 23, l: 44},
     {t: 20, l: 35},
     {t: 25, l: 37},
-    {t: 35, l: 80},
+    {t: 35, l: 56},
     {t: 18, l: 66},
     {t: 20, l: 16},
     {t: 14, l: 19},
@@ -396,7 +396,7 @@ module game {
         return arr;
 
   }
-  export function pitClicked(row: number, column: number): void{
+  export function pitClicked(event:any,row: number, column: number): void{
     // state.board[row][column]=0;
     console.info("Cell clicked (row,col): ("+row+","+column+")");
     if(!isHumanTurn()) return;
