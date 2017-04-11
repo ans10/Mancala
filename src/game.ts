@@ -34,7 +34,7 @@ module game {
   export let winner: number = -1;
   export let isEndState: boolean = false;
   export let position_arrv: MyPosition[] = null;
-  
+
   // For community games.
   export let proposals: number[][] = null;
   export let yourPlayerInfo: IPlayerInfo = null;
@@ -141,7 +141,7 @@ module game {
   }
    function initialize_position_array(){
       position_arrv = new Array(48);
-      
+
       position_arrv[0] = {top:0,left:52};
       console.log("{ t:"+position_arrv[0].top+", l:"+position_arrv[0].left+"},");
       for(let i=1;i<48;i++){
@@ -166,13 +166,13 @@ module game {
         console.log("{ t:"+position_arrv[i].top+", l:"+position_arrv[i].left+"},");
 
       }
-      
-      
+
+
 
 
   }
 
-  
+
   function registerServiceWorker() {
     // I prefer to use appCache over serviceWorker
     // (because iOS doesn't support serviceWorker, so we have to use appCache)
@@ -260,7 +260,7 @@ module game {
       isEndState = false;
     }
    console.log("Turn index is !!!!!!!!!!!!! : " + currentUpdateUI.turnIndex + " " + isEndState);
- 
+
     if (currentUpdateUI.playMode === 1 || currentUpdateUI.playMode === "multiplayer"){
       flipDisplay = true;
     }
@@ -374,6 +374,14 @@ module game {
   export function giveCounts(row: number, column: number): number{
     return state.board[row][column];
   }
+  export function givePreviousCounts(row: number, column: number): number{
+    let previousCellValue:number = state.board[row][column];
+    if(state.delta!=null){
+      previousCellValue = previousCellValue - state.delta.board[row][column];
+    }
+    return previousCellValue;
+  }
+
   export function getPlayer2ArrayPits():number[]{
     return state.board[0].slice(1);
   }
@@ -396,36 +404,222 @@ module game {
     let nextMove: IMove = null;
     try{
      nextMove = gameLogic.createMove(state, row, column, currentUpdateUI.turnIndex);
-    
+
     }
     catch(exception){
       console.info("Problem in createMove: " + exception);
       return;
     }
-    gameService.makeMove(nextMove, null);
-    if(nextMove.endMatchScores!==null){
-      isEndState = true;
-      console.info("end state detected to be true " + isEndState);
-      if(nextMove.endMatchScores[0]>nextMove.endMatchScores[1]){
-        console.log("Winner is 0");
-        winner = 0;
-      }
-      else if(nextMove.endMatchScores[0]<nextMove.endMatchScores[1]){
-        console.log("Winner is 1");
-        winner = 1;
+    console.log(nextMove.state.delta.board);
+    animate(event, row,column, nextMove);
+
+  }
+  export function updatePosition(destinationElement:any,
+  currentRow:number,currentCol:number,deltaboard:Board,stateBoard:Board,isStore:boolean):MyPosition{
+  let newPositionTop = 0;
+  let newPositionLeft = 0;
+  newPositionTop = destinationElement.getBoundingClientRect().top;
+  newPositionLeft = destinationElement.getBoundingClientRect().left;
+  let newPositionShift:any = null;
+  if(isStore){
+    console.log(giveCounts(currentRow,currentCol)+" "+deltaboard[currentRow][currentCol]);
+    newPositionShift =
+    position_arr[stateBoard[currentRow][currentCol]-deltaboard[currentRow][currentCol]-1];
+  }
+  else{
+    console.log(giveCounts(currentRow,currentCol)+" "+deltaboard[currentRow][currentCol]);
+    newPositionShift = position_arr_pit[stateBoard[currentRow][currentCol]-deltaboard[currentRow][currentCol]-1];
+  }
+  console.log(destinationElement+" "+currentRow+" "+currentCol+" "+newPositionShift);
+  console.log(destinationElement.clientLeft + " "+newPositionShift.l);
+  newPositionTop = newPositionTop +
+  destinationElement.clientHeight*(newPositionShift.t/100);
+  newPositionLeft = newPositionLeft +
+  destinationElement.clientWidth*(newPositionShift.l/100);
+  return {top: newPositionTop, left: newPositionLeft };
+}
+function getPitIndex(row:number,col:number):number{
+  let pitIndex = 0;
+  if(row==0){
+      pitIndex = row + col - 1;
+  }
+  else{
+      pitIndex = row*6 + col;
+  }
+  return pitIndex;
+}
+function getNewPosition(deltaboard:Board,stateBoard:Board,currentRow:number, currentCol:number,
+  sourceCellRow:number,sourceCellCol:number,storeArray:any,pitArray:any):MyPosition{
+  let newPosition:MyPosition = null;
+  deltaboard[currentRow][currentCol]--;
+  deltaboard[sourceCellRow][sourceCellCol]++;
+  //store two condition
+
+  if(currentRow==1 && currentCol==6){
+    newPosition = updatePosition(storeArray[1],currentRow,currentCol,deltaboard,stateBoard,true);
+  }
+  //store one condition
+  else if(currentRow==0 && currentCol==0){
+    newPosition = updatePosition(storeArray[0],currentRow,currentCol,deltaboard,stateBoard,true);
+
+  }
+  //pit condition
+  else{
+    let pitIndex = getPitIndex(currentRow,currentCol);
+    newPosition = updatePosition(pitArray[pitIndex],currentRow,currentCol,deltaboard,stateBoard,false);
+
+  }
+  return newPosition;
+
+}
+function putintoDestination(loopCount:number,children:any,currentRow:number,
+  currentCol:number,turn:number,deltaboard:Board,stateBoard:Board,storeArray:any,pitArray:any):void{
+   let sourceCellRow = currentRow;
+   let sourceCellCol = currentCol;
+  //check destination cells
+  for(let loopNo = 0; loopNo< loopCount; loopNo++){
+    let candyImage = children[loopNo].getElementsByTagName("img")[0];
+    let currentPositionLeft = candyImage.getBoundingClientRect().left;
+    let currentPositionTop = candyImage.getBoundingClientRect().top;
+    let updateIndex = true;
+    if(updateIndex){
+      if(currentRow == 1){
+        currentCol++;
+        if(turn==0 && currentCol==6){
+          currentRow=0;
+        }
+        if(currentCol>=7){
+          currentCol--;
+          currentRow = 0;
+        }
       }
       else{
-      winner = 2;
+        currentCol--;
+        if(turn == 1 && currentCol==0){
+          currentRow = 1;
+        }
+        if(currentCol<0){
+          currentCol++;
+          currentRow = 1;
+        }
       }
+
     }
-      
-  
+    console.log("Moving to");
+    console.log(currentRow);
+    console.log(currentCol);
+    let newPosition:MyPosition = null;
+    if(deltaboard[currentRow][currentCol]==1){
+      newPosition  = getNewPosition(deltaboard,stateBoard,currentRow, currentCol,
+        sourceCellRow,sourceCellCol,storeArray,pitArray);
+      updateIndex = true;
+
+    }
+    else{
+        //handle the case when there can be case where whole circle can be completed
+        if(deltaboard[currentRow][currentCol]>1){
+          newPosition  = getNewPosition(deltaboard,stateBoard,currentRow, currentCol,
+            sourceCellRow,sourceCellCol,storeArray,pitArray);
+          updateIndex = false;
+        }
+        else{
+          if(updateIndex){
+            for(let i=0;i<deltaboard.length;i++){
+              for(let j=0;j<deltaboard[0].length;j++){
+                if(deltaboard[i][j]>0){
+                  currentRow = i;
+                  currentCol = j;
+                  break;
+                }
+
+              }
+            }
+          }
+          newPosition  = getNewPosition(deltaboard,stateBoard,currentRow, currentCol,
+            sourceCellRow,sourceCellCol,storeArray,pitArray);
+          updateIndex = false;
+        }
+    }
+
+    let newPositionLefttext = newPosition.left-currentPositionLeft + 'px';
+    let newPositionToptext = newPosition.top-currentPositionTop + 'px';
+    console.log("delta positions")
+    console.log(newPositionLefttext);
+    console.log(newPositionToptext);
+    candyImage.style.transform = "translate("+newPositionLefttext+","+newPositionToptext+")";
+  }
+
+
+}
+function translateToNewPosition(event:any,row:number,col:number,deltaBoard:Board,stateBoard:Board):void{
+  //let children =
+  //event.currentTarget.getElementsByClassName("pit")[0].children;
+  let storeArray = document.getElementById("gameArea").children[0].getElementsByClassName("player-two store");
+  let pitArray = document.getElementById("gameArea").children[0].getElementsByClassName("pit");
+  console.log(document.getElementById("gameArea"));
+  ///let pitPositions:MyPosition[] = [];
+  //let destinationPits:number[] = [];
+  let positionCount = 0;
+  let loopCount = 0;
+
+  //check departure cell
+  if(deltaBoard[row][col]<0){
+    loopCount = -1 * deltaBoard[row][col];
+    let children:any = pitArray[getPitIndex(row,col)].children;
+    let turn = row;
+    putintoDestination(loopCount,children,row,col,
+      turn,deltaBoard,stateBoard,storeArray,pitArray);
+
+  }
+  //check for other cells if there are any transfers left
+  for(let rowNo = 0;rowNo < 2;rowNo++){
+    for(let colNo = 0;colNo < 7;colNo++){
+        if(deltaBoard[rowNo][colNo]<0){
+          loopCount = -1 * deltaBoard[rowNo][colNo];
+          let children:any = pitArray[getPitIndex(rowNo,colNo)].children;
+          let turn = row;
+          putintoDestination(loopCount,children,rowNo,colNo,
+            turn,deltaBoard,stateBoard,storeArray,pitArray);
+
+        }
+
+    }
+  }
+
+
+}
+export function animate(event:any,row:number,col:number, nextMove:any):void{
+  console.log("The delta of this move is: ");
+  console.log(nextMove.state.delta.board);
+  console.log("The delta of this move ends");
+  translateToNewPosition(event,row,col,nextMove.state.delta.board,nextMove.state.board);
+  setTimeout(function(){
+    gameService.makeMove(nextMove, null);
+
+    if(nextMove.endMatchScores!==null){
+        isEndState = true;
+      console.info("end state detected to be true " + isEndState);
+        if(nextMove.endMatchScores[0]>nextMove.endMatchScores[1]){
+          console.log("Winner is 0");
+          winner= 0;
+        }
+        else{
+          console.log("Winner is 1");
+          winner= 1;
+        }
+
+    }
     currentUpdateUI.turnIndex = nextMove.turnIndex;
     currentUpdateUI.yourPlayerIndex = nextMove.turnIndex;
 
     console.log("Current player's name is "+
     currentUpdateUI.yourPlayerInfo.displayName);
-  }
+
+  },2000);
+
+
+}
+
   function isEndOfGame():boolean{
       console.log("is End of Game is: "+isEndState);
     if(currentUpdateUI.turnIndex === -1){
@@ -469,10 +663,10 @@ module game {
   }
   }
   function getRandom(min:number, max:number):number{
-    return Math.random() * (max - min) + min; 
+    return Math.random() * (max - min) + min;
   }
   export function getPosition(pos: number,store:number) {
- 
+
     if(store==1){
       PositionStyle.top = position_arr[pos].t.toString()+'%';
       PositionStyle.left = position_arr[pos].l.toString()+'%';
@@ -490,7 +684,7 @@ module game {
   }
 
 }
- 
+
 
 angular.module('myApp', ['gameServices'])
   .run(['$rootScope', '$timeout',

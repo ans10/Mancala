@@ -6,6 +6,7 @@ board[1][6] pit for 1 player
 interface BoardDelta {
   row: number;
   col: number;
+  board:Board;
 }
 type IProposalData = BoardDelta;
 interface IState {
@@ -218,6 +219,26 @@ module gameLogic {
       return 1 - turnIndex;
     }
   }
+  function createDelta(boardAfterMove:Board, boardBeforeMove:Board):Board{
+    let deltaBoard:Board = [];
+    console.log(boardBeforeMove);
+    console.log(boardAfterMove);
+
+    for(let rowNo = 0;rowNo<ROWS;rowNo++){
+      deltaBoard[rowNo] = [];
+      for(let colNo = 0;colNo<COLS;colNo++){
+        deltaBoard[rowNo][colNo] =
+        boardAfterMove[rowNo][colNo] - boardBeforeMove[rowNo][colNo];
+        console.log(deltaBoard[rowNo][colNo]);
+
+      }
+      console.log(deltaBoard[rowNo]);
+    }
+    console.log("in create delta");
+    console.log(deltaBoard);
+    return deltaBoard;
+  }
+
   /**
    * Returns the move that should be performed when player
    * with index BeforeMove makes a move in cell row X col.
@@ -238,7 +259,7 @@ module gameLogic {
     let boardAfterMove = updatedState.board;
     let endMatchScores: number[];
     let turnIndex: number;
-
+    console.log("Just before the  check of end state");
     if(isEndState(boardAfterMove)){
       //Game over
       console.log("Game's end state detected in Game Logic");
@@ -251,6 +272,7 @@ module gameLogic {
     }
     else{
       //Game continues
+      console.log("Yo turnindex ");
       turnIndex = nextTurn(turnIndexBeforeMove, updatedState.lastupdatedrow, updatedState.lastupdatedcolumn);
       console.log("TurnIndex value is: "+turnIndex);
       endMatchScores = null;
@@ -260,7 +282,7 @@ module gameLogic {
       throw new Error("Can only make a move if the game is not over!");
     }*/
 
-    let delta: BoardDelta = {row: row, col: col};
+    let delta:BoardDelta = {row:row,col:col,board:createDelta(boardAfterMove,board)};
     let state: IState = {delta: delta, board: boardAfterMove};
     console.info("Returning createMove successfully" );
 

@@ -183,6 +183,23 @@ var gameLogic;
             return 1 - turnIndex;
         }
     }
+    function createDelta(boardAfterMove, boardBeforeMove) {
+        var deltaBoard = [];
+        console.log(boardBeforeMove);
+        console.log(boardAfterMove);
+        for (var rowNo = 0; rowNo < gameLogic.ROWS; rowNo++) {
+            deltaBoard[rowNo] = [];
+            for (var colNo = 0; colNo < gameLogic.COLS; colNo++) {
+                deltaBoard[rowNo][colNo] =
+                    boardAfterMove[rowNo][colNo] - boardBeforeMove[rowNo][colNo];
+                console.log(deltaBoard[rowNo][colNo]);
+            }
+            console.log(deltaBoard[rowNo]);
+        }
+        console.log("in create delta");
+        console.log(deltaBoard);
+        return deltaBoard;
+    }
     /**
      * Returns the move that should be performed when player
      * with index BeforeMove makes a move in cell row X col.
@@ -202,6 +219,7 @@ var gameLogic;
         var boardAfterMove = updatedState.board;
         var endMatchScores;
         var turnIndex;
+        console.log("Just before the  check of end state");
         if (isEndState(boardAfterMove)) {
             //Game over
             console.log("Game's end state detected in Game Logic");
@@ -213,6 +231,7 @@ var gameLogic;
         }
         else {
             //Game continues
+            console.log("Yo turnindex ");
             turnIndex = nextTurn(turnIndexBeforeMove, updatedState.lastupdatedrow, updatedState.lastupdatedcolumn);
             console.log("TurnIndex value is: " + turnIndex);
             endMatchScores = null;
@@ -220,7 +239,7 @@ var gameLogic;
         /*if (getWinner(board) !== '' || isTie(board)) {
           throw new Error("Can only make a move if the game is not over!");
         }*/
-        var delta = { row: row, col: col };
+        var delta = { row: row, col: col, board: createDelta(boardAfterMove, board) };
         var state = { delta: delta, board: boardAfterMove };
         console.info("Returning createMove successfully");
         return {
