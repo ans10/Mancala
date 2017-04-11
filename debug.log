@@ -7,3 +7,6 @@
 [0221/112835.482:WARNING:in_range_cast.h(38)] value 2151452776764 out of range
 [0221/112835.482:WARNING:in_range_cast.h(38)] value 2151452774092 out of range
 [0221/112835.482:WARNING:in_range_cast.h(38)] value 2151452783146 out of range
+[0411/154945.016:ERROR:process_reader_win.cc(114)] NtOpenThread: {Access Denied} A process has requested access to an object, but has not been granted those access rights.  (0xc0000022)
+[0411/154945.022:ERROR:exception_snapshot_win.cc(87)] thread ID 7924 not found in process
+[0411/154945.022:WARNING:crash_report_exception_handler.cc(60)] ProcessSnapshotWin::Initialize failed

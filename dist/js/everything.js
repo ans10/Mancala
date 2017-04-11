@@ -31818,6 +31818,23 @@ var gameLogic;
             return 1 - turnIndex;
         }
     }
+    function createDelta(boardAfterMove, boardBeforeMove) {
+        var deltaBoard = [];
+        console.log(boardBeforeMove);
+        console.log(boardAfterMove);
+        for (var rowNo = 0; rowNo < gameLogic.ROWS; rowNo++) {
+            deltaBoard[rowNo] = [];
+            for (var colNo = 0; colNo < gameLogic.COLS; colNo++) {
+                deltaBoard[rowNo][colNo] =
+                    boardAfterMove[rowNo][colNo] - boardBeforeMove[rowNo][colNo];
+                console.log(deltaBoard[rowNo][colNo]);
+            }
+            console.log(deltaBoard[rowNo]);
+        }
+        console.log("in create delta");
+        console.log(deltaBoard);
+        return deltaBoard;
+    }
     /**
      * Returns the move that should be performed when player
      * with index BeforeMove makes a move in cell row X col.
@@ -31837,6 +31854,7 @@ var gameLogic;
         var boardAfterMove = updatedState.board;
         var endMatchScores;
         var turnIndex;
+        console.log("Just before the  check of end state");
         if (isEndState(boardAfterMove)) {
             //Game over
             console.log("Game's end state detected in Game Logic");
@@ -31848,6 +31866,7 @@ var gameLogic;
         }
         else {
             //Game continues
+            console.log("Yo turnindex ");
             turnIndex = nextTurn(turnIndexBeforeMove, updatedState.lastupdatedrow, updatedState.lastupdatedcolumn);
             console.log("TurnIndex value is: " + turnIndex);
             endMatchScores = null;
@@ -31855,7 +31874,7 @@ var gameLogic;
         /*if (getWinner(board) !== '' || isTie(board)) {
           throw new Error("Can only make a move if the game is not over!");
         }*/
-        var delta = { row: row, col: col };
+        var delta = { row: row, col: col, board: createDelta(boardAfterMove, board) };
         var state = { delta: delta, board: boardAfterMove };
         console.info("Returning createMove successfully");
         return {
@@ -31917,7 +31936,7 @@ var game;
         { t: 23, l: 44 },
         { t: 20, l: 35 },
         { t: 25, l: 37 },
-        { t: 35, l: 80 },
+        { t: 35, l: 56 },
         { t: 18, l: 66 },
         { t: 20, l: 16 },
         { t: 14, l: 19 },
@@ -32216,6 +32235,14 @@ var game;
         return game.state.board[row][column];
     }
     game.giveCounts = giveCounts;
+    function givePreviousCounts(row, column) {
+        var previousCellValue = game.state.board[row][column];
+        if (game.state.delta != null) {
+            previousCellValue = previousCellValue - game.state.delta.board[row][column];
+        }
+        return previousCellValue;
+    }
+    game.givePreviousCounts = givePreviousCounts;
     function getPlayer2ArrayPits() {
         return game.state.board[0].slice(1);
     }
@@ -32232,7 +32259,7 @@ var game;
         return arr;
     }
     game.makeArray = makeArray;
-    function pitClicked(row, column) {
+    function pitClicked(event, row, column) {
         // state.board[row][column]=0;
         console.info("Cell clicked (row,col): (" + row + "," + column + ")");
         if (!isHumanTurn())
@@ -32246,28 +32273,185 @@ var game;
             console.info("Problem in createMove: " + exception);
             return;
         }
-        gameService.makeMove(nextMove, null);
-        if (nextMove.endMatchScores !== null) {
-            game.isEndState = true;
-            console.info("end state detected to be true " + game.isEndState);
-            if (nextMove.endMatchScores[0] > nextMove.endMatchScores[1]) {
-                console.log("Winner is 0");
-                game.winner = 0;
-            }
-            else if (nextMove.endMatchScores[0] < nextMove.endMatchScores[1]) {
-                console.log("Winner is 1");
-                game.winner = 1;
-            }
-            else {
-                game.winner = 2;
-            }
-        }
-        game.currentUpdateUI.turnIndex = nextMove.turnIndex;
-        game.currentUpdateUI.yourPlayerIndex = nextMove.turnIndex;
-        console.log("Current player's name is " +
-            game.currentUpdateUI.yourPlayerInfo.displayName);
+        console.log(nextMove.state.delta.board);
+        animate(event, row, column, nextMove);
     }
     game.pitClicked = pitClicked;
+    function updatePosition(destinationElement, currentRow, currentCol, deltaboard, stateBoard, isStore) {
+        var newPositionTop = 0;
+        var newPositionLeft = 0;
+        newPositionTop = destinationElement.getBoundingClientRect().top;
+        newPositionLeft = destinationElement.getBoundingClientRect().left;
+        var newPositionShift = null;
+        if (isStore) {
+            console.log(giveCounts(currentRow, currentCol) + " " + deltaboard[currentRow][currentCol]);
+            newPositionShift =
+                position_arr[stateBoard[currentRow][currentCol] - deltaboard[currentRow][currentCol] - 1];
+        }
+        else {
+            console.log(giveCounts(currentRow, currentCol) + " " + deltaboard[currentRow][currentCol]);
+            newPositionShift = position_arr_pit[stateBoard[currentRow][currentCol] - deltaboard[currentRow][currentCol] - 1];
+        }
+        console.log(destinationElement + " " + currentRow + " " + currentCol + " " + newPositionShift);
+        console.log(destinationElement.clientLeft + " " + newPositionShift.l);
+        newPositionTop = newPositionTop +
+            destinationElement.clientHeight * (newPositionShift.t / 100);
+        newPositionLeft = newPositionLeft +
+            destinationElement.clientWidth * (newPositionShift.l / 100);
+        return { top: newPositionTop, left: newPositionLeft };
+    }
+    game.updatePosition = updatePosition;
+    function getPitIndex(row, col) {
+        var pitIndex = 0;
+        if (row == 0) {
+            pitIndex = row + col - 1;
+        }
+        else {
+            pitIndex = row * 6 + col;
+        }
+        return pitIndex;
+    }
+    function getNewPosition(deltaboard, stateBoard, currentRow, currentCol, sourceCellRow, sourceCellCol, storeArray, pitArray) {
+        var newPosition = null;
+        deltaboard[currentRow][currentCol]--;
+        deltaboard[sourceCellRow][sourceCellCol]++;
+        //store two condition
+        if (currentRow == 1 && currentCol == 6) {
+            newPosition = updatePosition(storeArray[1], currentRow, currentCol, deltaboard, stateBoard, true);
+        }
+        else if (currentRow == 0 && currentCol == 0) {
+            newPosition = updatePosition(storeArray[0], currentRow, currentCol, deltaboard, stateBoard, true);
+        }
+        else {
+            var pitIndex = getPitIndex(currentRow, currentCol);
+            newPosition = updatePosition(pitArray[pitIndex], currentRow, currentCol, deltaboard, stateBoard, false);
+        }
+        return newPosition;
+    }
+    function putintoDestination(loopCount, children, currentRow, currentCol, turn, deltaboard, stateBoard, storeArray, pitArray) {
+        var sourceCellRow = currentRow;
+        var sourceCellCol = currentCol;
+        //check destination cells
+        for (var loopNo = 0; loopNo < loopCount; loopNo++) {
+            var candyImage = children[loopNo].getElementsByTagName("img")[0];
+            var currentPositionLeft = candyImage.getBoundingClientRect().left;
+            var currentPositionTop = candyImage.getBoundingClientRect().top;
+            var updateIndex = true;
+            if (updateIndex) {
+                if (currentRow == 1) {
+                    currentCol++;
+                    if (turn == 0 && currentCol == 6) {
+                        currentRow = 0;
+                    }
+                    if (currentCol >= 7) {
+                        currentCol--;
+                        currentRow = 0;
+                    }
+                }
+                else {
+                    currentCol--;
+                    if (turn == 1 && currentCol == 0) {
+                        currentRow = 1;
+                    }
+                    if (currentCol < 0) {
+                        currentCol++;
+                        currentRow = 1;
+                    }
+                }
+            }
+            console.log("Moving to");
+            console.log(currentRow);
+            console.log(currentCol);
+            var newPosition = null;
+            if (deltaboard[currentRow][currentCol] == 1) {
+                newPosition = getNewPosition(deltaboard, stateBoard, currentRow, currentCol, sourceCellRow, sourceCellCol, storeArray, pitArray);
+                updateIndex = true;
+            }
+            else {
+                //handle the case when there can be case where whole circle can be completed
+                if (deltaboard[currentRow][currentCol] > 1) {
+                    newPosition = getNewPosition(deltaboard, stateBoard, currentRow, currentCol, sourceCellRow, sourceCellCol, storeArray, pitArray);
+                    updateIndex = false;
+                }
+                else {
+                    if (updateIndex) {
+                        for (var i = 0; i < deltaboard.length; i++) {
+                            for (var j = 0; j < deltaboard[0].length; j++) {
+                                if (deltaboard[i][j] > 0) {
+                                    currentRow = i;
+                                    currentCol = j;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    newPosition = getNewPosition(deltaboard, stateBoard, currentRow, currentCol, sourceCellRow, sourceCellCol, storeArray, pitArray);
+                    updateIndex = false;
+                }
+            }
+            var newPositionLefttext = newPosition.left - currentPositionLeft + 'px';
+            var newPositionToptext = newPosition.top - currentPositionTop + 'px';
+            console.log("delta positions");
+            console.log(newPositionLefttext);
+            console.log(newPositionToptext);
+            candyImage.style.transform = "translate(" + newPositionLefttext + "," + newPositionToptext + ")";
+        }
+    }
+    function translateToNewPosition(event, row, col, deltaBoard, stateBoard) {
+        //let children =
+        //event.currentTarget.getElementsByClassName("pit")[0].children;
+        var storeArray = document.getElementById("gameArea").children[0].getElementsByClassName("player-two store");
+        var pitArray = document.getElementById("gameArea").children[0].getElementsByClassName("pit");
+        console.log(document.getElementById("gameArea"));
+        ///let pitPositions:MyPosition[] = [];
+        //let destinationPits:number[] = [];
+        var positionCount = 0;
+        var loopCount = 0;
+        //check departure cell
+        if (deltaBoard[row][col] < 0) {
+            loopCount = -1 * deltaBoard[row][col];
+            var children = pitArray[getPitIndex(row, col)].children;
+            var turn = row;
+            putintoDestination(loopCount, children, row, col, turn, deltaBoard, stateBoard, storeArray, pitArray);
+        }
+        //check for other cells if there are any transfers left
+        for (var rowNo = 0; rowNo < 2; rowNo++) {
+            for (var colNo = 0; colNo < 7; colNo++) {
+                if (deltaBoard[rowNo][colNo] < 0) {
+                    loopCount = -1 * deltaBoard[rowNo][colNo];
+                    var children = pitArray[getPitIndex(rowNo, colNo)].children;
+                    var turn = row;
+                    putintoDestination(loopCount, children, rowNo, colNo, turn, deltaBoard, stateBoard, storeArray, pitArray);
+                }
+            }
+        }
+    }
+    function animate(event, row, col, nextMove) {
+        console.log("The delta of this move is: ");
+        console.log(nextMove.state.delta.board);
+        console.log("The delta of this move ends");
+        translateToNewPosition(event, row, col, nextMove.state.delta.board, nextMove.state.board);
+        setTimeout(function () {
+            gameService.makeMove(nextMove, null);
+            if (nextMove.endMatchScores !== null) {
+                game.isEndState = true;
+                console.info("end state detected to be true " + game.isEndState);
+                if (nextMove.endMatchScores[0] > nextMove.endMatchScores[1]) {
+                    console.log("Winner is 0");
+                    game.winner = 0;
+                }
+                else {
+                    console.log("Winner is 1");
+                    game.winner = 1;
+                }
+            }
+            game.currentUpdateUI.turnIndex = nextMove.turnIndex;
+            game.currentUpdateUI.yourPlayerIndex = nextMove.turnIndex;
+            console.log("Current player's name is " +
+                game.currentUpdateUI.yourPlayerInfo.displayName);
+        }, 2000);
+    }
+    game.animate = animate;
     function isEndOfGame() {
         console.log("is End of Game is: " + game.isEndState);
         if (game.currentUpdateUI.turnIndex === -1) {
@@ -32362,7 +32546,6 @@ var aiService;
                     possibleMoves.push(gameLogic.createMove(state, i, j, turnIndexBeforeMove));
                 }
                 catch (e) {
-                    // The cell in that position was full.
                 }
             }
         }
