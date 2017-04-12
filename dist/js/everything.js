@@ -31922,6 +31922,8 @@ var game;
     game.winner = -1;
     game.isEndState = false;
     game.position_arrv = null;
+    game.clickedRow = 0;
+    game.clickedCol = 0;
     // For community games.
     game.proposals = null;
     game.yourPlayerInfo = null;
@@ -32119,7 +32121,16 @@ var game;
         console.log("Turn index is !!!!!!!!!!!!! : " + game.currentUpdateUI.turnIndex + " " + game.isEndState);
         clearAnimationTimeout();
         /*For computer moves, only after animation it should occur */
-        game.state = params.state;
+        if (params.state != null)
+            console.log(params.state.board);
+        if (params.state != null && params.state.delta != null) {
+            translateToNewPosition(game.clickedRow, game.clickedCol, params.state.delta.board, game.state.board);
+            game.$timeout(function () {
+                console.log("Animation done");
+                game.state = params.state;
+            }, 2000);
+        }
+        console.log(game.state);
         if (isFirstMove()) {
             console.log("Initialstate method called");
             game.state = gameLogic.getInitialState();
@@ -32237,9 +32248,9 @@ var game;
     game.giveCounts = giveCounts;
     function givePreviousCounts(row, column) {
         var previousCellValue = game.state.board[row][column];
-        if (game.state.delta != null) {
-            previousCellValue = previousCellValue - game.state.delta.board[row][column];
-        }
+        /*if(state.delta && state.delta!=null){
+          previousCellValue = previousCellValue - state.delta.board[row][column];
+        }*/
         return previousCellValue;
     }
     game.givePreviousCounts = givePreviousCounts;
@@ -32262,9 +32273,10 @@ var game;
     function pitClicked(event, row, column) {
         // state.board[row][column]=0;
         console.info("Cell clicked (row,col): (" + row + "," + column + ")");
+        game.clickedRow = row;
+        game.clickedCol = column;
         if (!isHumanTurn())
             return;
-        console.info("hell");
         var nextMove = null;
         try {
             nextMove = gameLogic.createMove(game.state, row, column, game.currentUpdateUI.turnIndex);
@@ -32273,8 +32285,25 @@ var game;
             console.info("Problem in createMove: " + exception);
             return;
         }
-        console.log(nextMove.state.delta.board);
-        animate(event, row, column, nextMove);
+        gameService.makeMove(nextMove, null);
+        if (nextMove.endMatchScores !== null) {
+            game.isEndState = true;
+            console.info("end state detected to be true " + game.isEndState);
+            if (nextMove.endMatchScores[0] > nextMove.endMatchScores[1]) {
+                console.log("Winner is 0");
+                game.winner = 0;
+            }
+            else {
+                console.log("Winner is 1");
+                game.winner = 1;
+            }
+        }
+        game.currentUpdateUI.turnIndex = nextMove.turnIndex;
+        game.currentUpdateUI.yourPlayerIndex = nextMove.turnIndex;
+        game.clickedRow = row;
+        game.clickedCol = column;
+        console.log("Current player's name is " +
+            game.currentUpdateUI.yourPlayerInfo.displayName);
     }
     game.pitClicked = pitClicked;
     function updatePosition(destinationElement, currentRow, currentCol, deltaboard, stateBoard, isStore) {
@@ -32286,11 +32315,11 @@ var game;
         if (isStore) {
             console.log(giveCounts(currentRow, currentCol) + " " + deltaboard[currentRow][currentCol]);
             newPositionShift =
-                position_arr[stateBoard[currentRow][currentCol] - deltaboard[currentRow][currentCol] - 1];
+                position_arr[stateBoard[currentRow][currentCol] + deltaboard[currentRow][currentCol] + 1];
         }
         else {
             console.log(giveCounts(currentRow, currentCol) + " " + deltaboard[currentRow][currentCol]);
-            newPositionShift = position_arr_pit[stateBoard[currentRow][currentCol] - deltaboard[currentRow][currentCol] - 1];
+            newPositionShift = position_arr_pit[stateBoard[currentRow][currentCol] + deltaboard[currentRow][currentCol] + 1];
         }
         console.log(destinationElement + " " + currentRow + " " + currentCol + " " + newPositionShift);
         console.log(destinationElement.clientLeft + " " + newPositionShift.l);
@@ -32311,24 +32340,24 @@ var game;
         }
         return pitIndex;
     }
-    function getNewPosition(deltaboard, stateBoard, currentRow, currentCol, sourceCellRow, sourceCellCol, storeArray, pitArray) {
+    function getNewPosition(deltaboard, stateBoard, currentRow, currentCol, sourceCellRow, sourceCellCol) {
         var newPosition = null;
         deltaboard[currentRow][currentCol]--;
         deltaboard[sourceCellRow][sourceCellCol]++;
         //store two condition
         if (currentRow == 1 && currentCol == 6) {
-            newPosition = updatePosition(storeArray[1], currentRow, currentCol, deltaboard, stateBoard, true);
+            newPosition = updatePosition(document.getElementById('store-1'), currentRow, currentCol, deltaboard, stateBoard, true);
         }
         else if (currentRow == 0 && currentCol == 0) {
-            newPosition = updatePosition(storeArray[0], currentRow, currentCol, deltaboard, stateBoard, true);
+            newPosition = updatePosition(document.getElementById('store-0'), currentRow, currentCol, deltaboard, stateBoard, true);
         }
         else {
             var pitIndex = getPitIndex(currentRow, currentCol);
-            newPosition = updatePosition(pitArray[pitIndex], currentRow, currentCol, deltaboard, stateBoard, false);
+            newPosition = updatePosition(document.getElementById('pit-' + currentRow + currentCol), currentRow, currentCol, deltaboard, stateBoard, false);
         }
         return newPosition;
     }
-    function putintoDestination(loopCount, children, currentRow, currentCol, turn, deltaboard, stateBoard, storeArray, pitArray) {
+    function putintoDestination(loopCount, children, currentRow, currentCol, turn, deltaboard, stateBoard) {
         var sourceCellRow = currentRow;
         var sourceCellCol = currentCol;
         //check destination cells
@@ -32364,13 +32393,13 @@ var game;
             console.log(currentCol);
             var newPosition = null;
             if (deltaboard[currentRow][currentCol] == 1) {
-                newPosition = getNewPosition(deltaboard, stateBoard, currentRow, currentCol, sourceCellRow, sourceCellCol, storeArray, pitArray);
+                newPosition = getNewPosition(deltaboard, stateBoard, currentRow, currentCol, sourceCellRow, sourceCellCol);
                 updateIndex = true;
             }
             else {
                 //handle the case when there can be case where whole circle can be completed
                 if (deltaboard[currentRow][currentCol] > 1) {
-                    newPosition = getNewPosition(deltaboard, stateBoard, currentRow, currentCol, sourceCellRow, sourceCellCol, storeArray, pitArray);
+                    newPosition = getNewPosition(deltaboard, stateBoard, currentRow, currentCol, sourceCellRow, sourceCellCol);
                     updateIndex = false;
                 }
                 else {
@@ -32385,7 +32414,7 @@ var game;
                             }
                         }
                     }
-                    newPosition = getNewPosition(deltaboard, stateBoard, currentRow, currentCol, sourceCellRow, sourceCellCol, storeArray, pitArray);
+                    newPosition = getNewPosition(deltaboard, stateBoard, currentRow, currentCol, sourceCellRow, sourceCellCol);
                     updateIndex = false;
                 }
             }
@@ -32397,11 +32426,13 @@ var game;
             candyImage.style.transform = "translate(" + newPositionLefttext + "," + newPositionToptext + ")";
         }
     }
-    function translateToNewPosition(event, row, col, deltaBoard, stateBoard) {
+    function translateToNewPosition(row, col, deltaBoard, stateBoard) {
         //let children =
         //event.currentTarget.getElementsByClassName("pit")[0].children;
-        var storeArray = document.getElementById("gameArea").children[0].getElementsByClassName("player-two store");
-        var pitArray = document.getElementById("gameArea").children[0].getElementsByClassName("pit");
+        //let storeArray = document.getElementById("gameArea").children[0].getElementsByClassName("player-two store");
+        //let pitArray = document.getElementById("gameArea").children[0].getElementsByClassName("pit");
+        var experimentPit = document.getElementById("pit-01");
+        console.log(experimentPit);
         console.log(document.getElementById("gameArea"));
         ///let pitPositions:MyPosition[] = [];
         //let destinationPits:number[] = [];
@@ -32410,45 +32441,28 @@ var game;
         //check departure cell
         if (deltaBoard[row][col] < 0) {
             loopCount = -1 * deltaBoard[row][col];
-            var children = pitArray[getPitIndex(row, col)].children;
+            var children = document.getElementById('pit-' + row + col).children;
             var turn = row;
-            putintoDestination(loopCount, children, row, col, turn, deltaBoard, stateBoard, storeArray, pitArray);
+            putintoDestination(loopCount, children, row, col, turn, deltaBoard, stateBoard);
         }
         //check for other cells if there are any transfers left
         for (var rowNo = 0; rowNo < 2; rowNo++) {
             for (var colNo = 0; colNo < 7; colNo++) {
                 if (deltaBoard[rowNo][colNo] < 0) {
                     loopCount = -1 * deltaBoard[rowNo][colNo];
-                    var children = pitArray[getPitIndex(rowNo, colNo)].children;
+                    var children = document.getElementById('pit-' + rowNo + colNo).children;
                     var turn = row;
-                    putintoDestination(loopCount, children, rowNo, colNo, turn, deltaBoard, stateBoard, storeArray, pitArray);
+                    putintoDestination(loopCount, children, rowNo, colNo, turn, deltaBoard, stateBoard);
                 }
             }
         }
     }
-    function animate(event, row, col, nextMove) {
+    function animate(row, col) {
         console.log("The delta of this move is: ");
-        console.log(nextMove.state.delta.board);
+        console.log(game.state.delta.board);
         console.log("The delta of this move ends");
-        translateToNewPosition(event, row, col, nextMove.state.delta.board, nextMove.state.board);
+        translateToNewPosition(row, col, game.state.delta.board, game.state.board);
         setTimeout(function () {
-            gameService.makeMove(nextMove, null);
-            if (nextMove.endMatchScores !== null) {
-                game.isEndState = true;
-                console.info("end state detected to be true " + game.isEndState);
-                if (nextMove.endMatchScores[0] > nextMove.endMatchScores[1]) {
-                    console.log("Winner is 0");
-                    game.winner = 0;
-                }
-                else {
-                    console.log("Winner is 1");
-                    game.winner = 1;
-                }
-            }
-            game.currentUpdateUI.turnIndex = nextMove.turnIndex;
-            game.currentUpdateUI.yourPlayerIndex = nextMove.turnIndex;
-            console.log("Current player's name is " +
-                game.currentUpdateUI.yourPlayerInfo.displayName);
         }, 2000);
     }
     game.animate = animate;
@@ -32470,7 +32484,7 @@ var game;
         return false;
     }
     game.isDrawn = isDrawn;
-    function giveWinner() {
+    function getWinner() {
         console.log("in give winnerrrrrrr " + game.currentUpdateUI.endMatchScores + " " + game.isEndState);
         console.log("hello?");
         if (game.currentUpdateUI.endMatchScores !== null) {
@@ -32489,13 +32503,17 @@ var game;
             }
         }
         if (game.winner === 1 || game.winner === 0) {
+            if (game.currentUpdateUI.playersInfo[game.winner].displayName &&
+                game.currentUpdateUI.playersInfo[game.winner].displayName != null) {
+                return game.currentUpdateUI.playersInfo[game.winner].displayName + "'s turn";
+            }
             return "Player " + game.winner + " is winner";
         }
         else {
-            return "Game Drawn ";
+            return "Draw!!! ";
         }
     }
-    game.giveWinner = giveWinner;
+    game.getWinner = getWinner;
     function getRandom(min, max) {
         return Math.random() * (max - min) + min;
     }
@@ -32516,6 +32534,18 @@ var game;
         return game.flipDisplay;
     }
     game.flipBoard = flipBoard;
+    function getTurnStatus() {
+        var turn = game.currentUpdateUI.turnIndex;
+        if (game.currentUpdateUI.playersInfo[turn].displayName &&
+            game.currentUpdateUI.playersInfo[turn].displayName != null &&
+            game.currentUpdateUI.playersInfo[turn].displayName != '') {
+            console.log("Reaching here to display the name" +
+                game.currentUpdateUI.playersInfo[turn].displayName);
+            return game.currentUpdateUI.playersInfo[turn].displayName + "'s turn";
+        }
+        return "Player " + turn + "'s turn";
+    }
+    game.getTurnStatus = getTurnStatus;
 })(game || (game = {}));
 angular.module('myApp', ['gameServices'])
     .run(['$rootScope', '$timeout',
