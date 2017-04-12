@@ -32123,13 +32123,15 @@ var game;
         /*For computer moves, only after animation it should occur */
         if (params.state != null)
             console.log(params.state.board);
-        if (params.state != null && params.state.delta != null) {
-            translateToNewPosition(game.clickedRow, game.clickedCol, params.state.delta.board, game.state.board);
-            game.$timeout(function () {
-                console.log("Animation done");
-                game.state = params.state;
-            }, 2000);
-        }
+        /*if(params.state!=null && params.state.delta!=null){
+    
+          translateToNewPosition(clickedRow,clickedCol,params.state.delta.board,state.board);
+          $timeout(function(){
+            console.log("Animation done");
+            state = params.state;
+          },2000);
+        }*/
+        game.state = params.state;
         console.log(game.state);
         if (isFirstMove()) {
             console.log("Initialstate method called");
@@ -32596,12 +32598,22 @@ var aiService;
         for (var i = 0; i < moves.length; i++) {
             if (moves[i].endMatchScores) {
                 if (moves[i].endMatchScores[1] > moves[i].endMatchScores[0]) {
+                    console.log("Choosing winning move");
                     return moves[i];
                 }
             }
+            else if (moves[i].turnIndex === 1) {
+                console.log("Placing last candy in store");
+                return moves[i];
+            }
             else {
-                if (moves[i].turnIndex === 1) {
-                    return moves[i];
+                for (var j = 1; j < gameLogic.COLS; j++) {
+                    if (moves[i].state.board[0][j] === 0) {
+                        if (move.state.board[0][j] !== 0) {
+                            console.log("Placing last candy in empty hole");
+                            return moves[i];
+                        }
+                    }
                 }
             }
         }

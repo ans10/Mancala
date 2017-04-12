@@ -251,15 +251,15 @@ module game {
     /*For computer moves, only after animation it should occur */
     if(params.state!=null)
     console.log(params.state.board);
-    if(params.state!=null && params.state.delta!=null){
+    /*if(params.state!=null && params.state.delta!=null){
 
       translateToNewPosition(clickedRow,clickedCol,params.state.delta.board,state.board);
       $timeout(function(){
         console.log("Animation done");
         state = params.state;
       },2000);
-    }
-
+    }*/
+    state = params.state;      
     console.log(state);
     if (isFirstMove()) {
       console.log("Initialstate method called");

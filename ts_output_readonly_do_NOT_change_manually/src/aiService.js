@@ -39,12 +39,22 @@ var aiService;
         for (var i = 0; i < moves.length; i++) {
             if (moves[i].endMatchScores) {
                 if (moves[i].endMatchScores[1] > moves[i].endMatchScores[0]) {
+                    console.log("Choosing winning move");
                     return moves[i];
                 }
             }
+            else if (moves[i].turnIndex === 1) {
+                console.log("Placing last candy in store");
+                return moves[i];
+            }
             else {
-                if (moves[i].turnIndex === 1) {
-                    return moves[i];
+                for (var j = 1; j < gameLogic.COLS; j++) {
+                    if (moves[i].state.board[0][j] === 0) {
+                        if (move.state.board[0][j] !== 0) {
+                            console.log("Placing last candy in empty hole");
+                            return moves[i];
+                        }
+                    }
                 }
             }
         }
