@@ -33,8 +33,25 @@ module aiService {
   export function createComputerMove(
       move: IMove, alphaBetaLimits: IAlphaBetaLimits): IMove {
     // We use alpha-beta search, where the search states are TicTacToe moves.
-    return alphaBetaService.alphaBetaDecision(
-        move, move.turnIndex, getNextStates, getStateScoreForIndex0, null, alphaBetaLimits);
+     let moves: IMove[] = [];
+     moves = getPossibleMoves(move.state, move.turnIndex);
+    for(let i = 0; i < moves.length; i++){
+      if(moves[i].endMatchScores){
+        if(moves[i].endMatchScores[1] > moves[i].endMatchScores[0]){
+          return moves[i];
+        }
+      }
+      else{
+        if(moves[i].turnIndex === 1){
+          return moves[i];
+        }
+      }
+    }
+    let randomIndex = Math.floor(Math.random() * moves.length);
+    return moves[randomIndex];
+    
+    /*return alphaBetaService.alphaBetaDecision(
+        move, move.turnIndex, getNextStates, getStateScoreForIndex0, null, alphaBetaLimits);*/
   }
 
   function getStateScoreForIndex0(move: IMove, playerIndex: number): number {
