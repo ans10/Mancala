@@ -157,6 +157,10 @@ font-family: 'Indie Flower', cursive;*/
   height : 40%;
   min-width: 30%;
   min-height: 40%;
+  animation: none;
+  -webkit-animation: none;
+  -moz-animation: none;
+  -o-animation: none;
   transition: all 2s ease-in-out;
  -webkit-transition: all 2s ease-in-out; /** Chrome & Safari **/
  -moz-transition: all 2s ease-in-out; /** Firefox **/
@@ -253,20 +257,20 @@ font-family: 'Indie Flower', cursive;*/
 	flex-direction: column;
 	opacity: 1;
 	min-height: 80%;
-  position: relative;
+    position: relative;
 
 	background-color: rgba(0,0,0,.2);
 	border-radius: 40%;
 
-  -webkit-box-shadow: 0px 0px 15px 5px indigo;
-  -moz-box-shadow: 0px 0px 15px 5px indigo;
-  box-shadow:  inset 0px 0px 10px 1px indigo;
-	cursor: default;
+    -webkit-box-shadow: inset 0px 0px 15px 5px indigo;
+    -moz-box-shadow: inset 0px 0px 15px 5px indigo;
+    box-shadow:  inset 0px 0px 10px 1px indigo;
+    cursor: default;
 
-	 /*-webkit-animation: wiggle 0.5s ease infinite;
+	-webkit-animation: wiggle 0.5s ease infinite;
     -moz-animation: wiggle 0.5s ease infinite;
     -o-animation: wiggle 0.5s ease infinite;
-    animation: wiggle 0.5s ease infinite;*/
+    animation: wiggle 0.5s ease infinite;
 
 }
 

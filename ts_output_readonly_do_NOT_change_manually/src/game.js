@@ -224,15 +224,13 @@ var game;
         /*For computer moves, only after animation it should occur */
         if (params.state != null)
             console.log(params.state.board);
-        /*if(params.state!=null && params.state.delta!=null){
-    
-          translateToNewPosition(clickedRow,clickedCol,params.state.delta.board,state.board);
-          $timeout(function(){
-            console.log("Animation done");
-            state = params.state;
-          },2000);
-        }*/
-        game.state = params.state;
+        if (params.state != null && params.state.delta != null) {
+            translateToNewPosition(game.clickedRow, game.clickedCol, params.state.delta.board, game.state.board);
+            game.$timeout(function () {
+                console.log("Animation done");
+                game.state = params.state;
+            }, 2000);
+        }
         console.log(game.state);
         if (isFirstMove()) {
             console.log("Initialstate method called");
