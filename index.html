@@ -26,13 +26,13 @@
 <body ng-cloak>
 
   <div id="gameArea">
-    <div ng-if="game.flipBoard()" class="board">
+    <div ng-if="!game.flipBoard()" class="board">
 
 	<div class = "parent">
     				<div class ="score">
     				  	{{game.currentCount = game.givePreviousCounts(1,6)}}
     				</div>
-    				<div class="player-two store">
+    				<div class="player-two store" id='store-1'>
               <div ng-repeat="x in game.makeArray(game.currentCount)" ng-class="{candyStore: true}">
                   <img src = "imgs/exp6.png" alt ="candy" ng-class = "{imgClassStore: true}" ng-style="{{game.getPosition(x,1)}}" >
               </div>
@@ -49,7 +49,7 @@
   					 <div ng-class ="{score: true}">
                {{game.currentCount = game.givePreviousCounts(1,pitIndex)}}
   						</div>
-  						<div ng-class="{pit: true}">
+  						<div ng-class="{pit: true}" ng-attr-id="{{'pit-1' + pitIndex}}">
                 <div ng-repeat="x in game.makeArray(game.currentCount)" ng-class="{candyPit: true}">
   							    <img src = "imgs/exp6.png" alt ="candy" ng-class = "{imgClassPit: true}" ng-style="{{game.getPosition(x,0)}}">
                 </div>
@@ -57,9 +57,9 @@
           </div>
   			</div>
 
-        <p ng-if ="game.isEndState" ng-class="{status: true}">{{game.giveWinner()}}</p>
+        <p ng-if ="game.isEndState" ng-class="{status: true}">{{game.getWinner()}}</p>
 
-        <p ng-if ="!game.isEndState" ng-class="{status: true}">{{game.currentUpdateUI.turnIndex}}'s turn</p>
+        <p ng-if ="!game.isEndState" ng-class="{status: true}">{{game.getTurnStatus()}}</p>
 
        	<div class="row">
           <div ng-repeat="pitIndex in [6,5,4,3,2,1]"   ng-class="{'parentWiggle': game.currentUpdateUI.turnIndex == 0,
@@ -67,7 +67,7 @@
               <div ng-class ="{score: true}">
   							{{game.currentCount = game.givePreviousCounts(0,pitIndex)}}
   						</div>
-  						<div ng-class="{pit: true}">
+  						<div ng-class="{pit: true}" ng-attr-id="{{'pit-0'+pitIndex}}">
                 <div ng-repeat="x in game.makeArray(game.currentCount)" ng-class="{candyPit: true}">
   							    <img src = "imgs/exp6.png" alt ="candy" ng-class = "{imgClassPit: true}" ng-style="{{game.getPosition(x,0)}}">
   						  </div>
@@ -81,7 +81,7 @@
   		  <div class ="score">
   			   {{game.currentCount = game.givePreviousCounts(0,0)}}
   			</div>
-  			<div class="player-two store">
+  			<div class="player-two store" id="store-0">
           <div ng-repeat="x in game.makeArray(game.currentCount)" ng-class="{candyStore: true}">
             <img src = "imgs/exp6.png" alt ="candy" ng-class = "{imgClassStore: true}" ng-style="{{game.getPosition(x,1)}}">
           </div>
@@ -91,13 +91,13 @@
 
   	</div>
 
-    <div  ng-if="!game.flipBoard()" class="board">
+    <div  ng-if="game.flipBoard()" class="board">
 
            <div class = "parent">
   				<div class ="score">
   				  	{{game.currentCount = game.givePreviousCounts(0,0)}}
   				</div>
-  				<div class="player-two store">
+  				<div class="player-two store" id='store-0'>
             <div ng-repeat="x in game.makeArray(game.currentCount)" ng-class="{candyStore: true}">
                 <img src = "imgs/exp6.png" alt ="candy" ng-class = "{imgClassStore: true}" ng-style="{{game.getPosition(x,1)}}">
             </div>
@@ -113,7 +113,7 @@
             <div ng-class ="{score: true}">
               {{game.currentCount = game.givePreviousCounts(0,pitIndex)}}
             </div>
-            <div ng-class="{pit: true}">
+            <div ng-class="{pit: true}" ng-attr-id="{{'pit-0'+pitIndex}}">
               <div ng-repeat="x in game.makeArray(game.currentCount)" ng-class="{candyPit: true}">
                 <img src = "imgs/exp6.png" alt ="candy" ng-class = "{imgClassPit: true}" ng-style="{{game.getPosition(x,0)}}">
               </div>
@@ -121,9 +121,9 @@
           </div>
         </div>
 
-        <p ng-if ="game.isEndState" ng-class="{status: true}">{{game.giveWinner()}}</p>
+        <p ng-if ="game.isEndState" ng-class="{status: true}">{{game.getWinner()}}</p>
 
-        <p ng-if ="!game.isEndState" ng-class="{status: true}">Player {{game.currentUpdateUI.turnIndex}}'s turn</p>
+        <p ng-if ="!game.isEndState" ng-class="{status: true}">{{game.getTurnStatus()}}</p>
 
 
 <div class="row">
@@ -133,7 +133,7 @@
   					  <div ng-class ="{score: true}">
                 {{game.currentCount = game.givePreviousCounts(1,pitIndex)}}
   						</div>
-  						<div ng-class="{pit: true}">
+  						<div ng-class="{pit: true}" ng-attr-id="{{'pit-1'+pitIndex}}">
                 <div ng-repeat="x in game.makeArray(game.currentCount)" ng-class="{candyPit: true}">
   							    <img src = "imgs/exp6.png" alt ="candy" ng-class = "{imgClassPit: true}" ng-style="{{game.getPosition(x,0)}}">
                 </div>
@@ -150,7 +150,7 @@
     				<div class ="score">
     				  {{game.currentCount = game.givePreviousCounts(1,6)}}
     				</div>
-    				<div class="player-two store">
+    				<div class="player-two store" id='store-1'>
               <div ng-repeat="x in game.makeArray(game.currentCount)" ng-class="{candyStore: true}">
                   <img src = "imgs/exp6.png" alt ="candy" ng-class = "{imgClassStore: true}" ng-style="{{game.getPosition(x,1)}}" >
               </div>
