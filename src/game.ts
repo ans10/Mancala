@@ -34,8 +34,10 @@ module game {
   export let winner: number = -1;
   export let isEndState: boolean = false;
   export let position_arrv: MyPosition[] = null;
+  export let turnStatus = 0;
   export let clickedRow = 0;
   export let clickedCol = 0;
+  export let scores:Board = null
   // For community games.
   export let proposals: number[][] = null;
   export let yourPlayerInfo: IPlayerInfo = null;
@@ -252,18 +254,16 @@ module game {
     if(params.state!=null)
     console.log(params.state.board);
     if(params.state!=null && params.state.delta!=null){
-
-      translateToNewPosition(clickedRow,clickedCol,params.state.delta.board,state.board);
-      $timeout(function(){
-        console.log("Animation done");
-        state = params.state;
-      },2000);
+      animate(params.state.delta.row,params.state.delta.col,params);
     }
 
+    state = params.state;
+    console.log("Step after animation");
     console.log(state);
     if (isFirstMove()) {
       console.log("Initialstate method called");
       state = gameLogic.getInitialState();
+      scores = state.board;
     }
     if (currentUpdateUI.turnIndex === -1){
       isEndState = true;
@@ -283,14 +283,21 @@ module game {
     // We calculate the AI move only after the animation finishes,
     // because if we call aiService now
     // then the animation will be paused until the javascript finishes.
-    animationEndedTimeout = $timeout(animationEndedCallback, 500);
+    animationEndedTimeout = $timeout(animationEndedCallback, 2000);
   }
 
   function animationEndedCallback() {
     log.info("Animation ended");
+    setTurnStatus();
+    updateScores();
     maybeSendComputerMove();
   }
-
+  function setTurnStatus():void{
+    turnStatus = currentUpdateUI.turnIndex;
+  }
+  function updateScores(){
+    scores = state.board;
+  }
   function clearAnimationTimeout() {
     if (animationEndedTimeout) {
       $timeout.cancel(animationEndedTimeout);
@@ -387,7 +394,7 @@ module game {
     return state.board[row][column];
   }
   export function givePreviousCounts(row: number, column: number): number{
-    let previousCellValue:number = state.board[row][column];
+    let previousCellValue:number = scores[row][column];
     /*if(state.delta && state.delta!=null){
       previousCellValue = previousCellValue - state.delta.board[row][column];
     }*/
@@ -411,8 +418,6 @@ module game {
   export function pitClicked(event:any,row: number, column: number): void{
     // state.board[row][column]=0;
     console.info("Cell clicked (row,col): ("+row+","+column+")");
-    clickedRow = row;
-    clickedCol = column;
     if(!isHumanTurn()) return;
 
     let nextMove: IMove = null;
@@ -440,8 +445,8 @@ module game {
         }
 
     }
-    currentUpdateUI.turnIndex = nextMove.turnIndex;
-    currentUpdateUI.yourPlayerIndex = nextMove.turnIndex;
+    //currentUpdateUI.turnIndex = nextMove.turnIndex;
+    //currentUpdateUI.yourPlayerIndex = nextMove.turnIndex;
     clickedRow = row;
     clickedCol = column;
 
@@ -460,13 +465,15 @@ module game {
   if(isStore){
     console.log(giveCounts(currentRow,currentCol)+" "+deltaboard[currentRow][currentCol]);
     newPositionShift =
-    position_arr[stateBoard[currentRow][currentCol]+deltaboard[currentRow][currentCol]+1];
+    position_arr[stateBoard[currentRow][currentCol]+deltaboard[currentRow][currentCol]];
+
   }
   else{
     console.log(giveCounts(currentRow,currentCol)+" "+deltaboard[currentRow][currentCol]);
-    newPositionShift = position_arr_pit[stateBoard[currentRow][currentCol]+deltaboard[currentRow][currentCol]+1];
+    newPositionShift = position_arr_pit[stateBoard[currentRow][currentCol]+deltaboard[currentRow][currentCol]];
+
   }
-  console.log(destinationElement+" "+currentRow+" "+currentCol+" "+newPositionShift);
+  console.log(destinationElement+" "+currentRow+" "+currentCol+" "+newPositionShift.t+" "+newPositionShift.l);
   console.log(destinationElement.clientLeft + " "+newPositionShift.l);
   newPositionTop = newPositionTop +
   destinationElement.clientHeight*(newPositionShift.t/100);
@@ -474,7 +481,7 @@ module game {
   destinationElement.clientWidth*(newPositionShift.l/100);
   return {top: newPositionTop, left: newPositionLeft };
 }
-function getPitIndex(row:number,col:number):number{
+/*function getPitIndex(row:number,col:number):number{
   let pitIndex = 0;
   if(row==0){
       pitIndex = row + col - 1;
@@ -483,7 +490,7 @@ function getPitIndex(row:number,col:number):number{
       pitIndex = row*6 + col;
   }
   return pitIndex;
-}
+}*/
 function getNewPosition(deltaboard:Board,stateBoard:Board,currentRow:number, currentCol:number,
   sourceCellRow:number,sourceCellCol:number):MyPosition{
   let newPosition:MyPosition = null;
@@ -503,7 +510,6 @@ function getNewPosition(deltaboard:Board,stateBoard:Board,currentRow:number, cur
   }
   //pit condition
   else{
-    let pitIndex = getPitIndex(currentRow,currentCol);
     newPosition = updatePosition(document.getElementById('pit-'+currentRow+currentCol),
     currentRow,currentCol,deltaboard,stateBoard,false);
 
@@ -629,16 +635,11 @@ function translateToNewPosition(row:number,col:number,deltaBoard:Board,stateBoar
 
 
 }
-export function animate(row:number,col:number):void{
+export function animate(row:number,col:number,params:any):void{
   console.log("The delta of this move is: ");
-  console.log(state.delta.board);
+  console.log(params.state.delta.board);
   console.log("The delta of this move ends");
-  translateToNewPosition(row,col,state.delta.board,state.board);
-  setTimeout(function(){
-
-  },2000);
-
-
+  translateToNewPosition(row,col,params.state.delta.board,state.board);
 }
 
   function isEndOfGame():boolean{
@@ -708,8 +709,8 @@ export function animate(row:number,col:number):void{
     console.log("flipdisplay in function is: " + flipDisplay);
     return flipDisplay;
   }
-  export function getTurnStatus(){
-    let turn:number = currentUpdateUI.turnIndex;
+  export function printStatus(){
+    let turn:number = getTurnStatus();
     if(currentUpdateUI.playersInfo[turn].displayName &&
         currentUpdateUI.playersInfo[turn].displayName!=null &&
         currentUpdateUI.playersInfo[turn].displayName!=''){
@@ -719,6 +720,9 @@ export function animate(row:number,col:number):void{
         }
     return "Player "+turn+"'s turn";
 
+  }
+  export function getTurnStatus():number{
+      return turnStatus;
   }
 
 }
