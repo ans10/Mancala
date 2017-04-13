@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Instructions</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <link href="https://fonts.googleapis.com/css?family=Love+Ya+Like+A+Sister" rel="stylesheet">
+  <style>
+  .carousel-inner > .item > img,
+  .carousel-inner > .item > a > img {
+      width: 100%;
+      max-width: 100%;
+      margin: auto;
+      height:100%;
+      max-height: 100%; 
+    }
+    h1,h3 {
+      font-family: 'Love Ya Like A Sister', cursive;
+      color: darkmagenta;	
+    }
+    h1{
+        margin-top:50px;
+        margin-bottom: 40px;
+    }
+    h3{
+        margin-left:120px;
+        margin-right:120px;
+        text-align: left;
+    }
+    
+    .carousel-caption { 
+        position:static;
+    }
+    .carousel .item {
+        background-color: lavender;
+    }
+ </style>
+</head>
+<body>
+
+<div class="container">
+  <br>
+  <div id="myCarousel" class="carousel slide"">
+    <!-- Indicators -->
+    <ol class="carousel-indicators">
+      <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
+      <li data-target="#myCarousel" data-slide-to="1"></li>
+      <li data-target="#myCarousel" data-slide-to="2"></li>
+    </ol>   
+
+    <!-- Wrapper for slides -->
+    <div class="carousel-inner" role="listbox">
+        <div class="item active">
+		  <div class="carousel-caption">
+             <h1>HOW TO PLAY MANCALA</h1>           
+                <h3>1. The goal of the game is to capture more candies than one's opponent. The board has six small pits on each side and a big pit called a store at each end. At the beginning of the game an equal number of candies are placed in each pit. </h3>
+                <h3>2. Each player controls the six pits and its candies on his side of the board. His score is the number of candies currently placed in the store that is located to his right.</h3>
+        </div>
+	 </div>
+    
+      <div class="item">
+         <div class="carousel-caption">
+           <h1>HOW TO PLAY MANCALA</h1>
+            <h3>3. Players take turns removing their candies. On a turn, the player removes all candies from one of the pits under his control. Moving counter-clockwise, the player drops one candy in each pit, including the player's own store but not his opponent's.</h3>
+            <h3>4. If the last dropped candy lands in the player's store, the player gets an additional move.</h3>
+       </div>
+      </div>
+    
+      <div class="item">
+       <div class="carousel-caption">
+          <h1>HOW TO PLAY MANCALA</h1>
+           <h3>5. If the last dropped candy lands in an empty pit owned by the player, and the opposite pit contains candies, both the last dropped candy and the opposite pit's candies are captured and placed into the player's store.</h3>
+           <h3>6. When one player no longer has any candies in any of his pits, the game ends. All remaining candies of the other player are moved to his store. The player with the most candies in his store wins!</h3>
+          </div>
+      </div>   
+  
+    </div>
+
+    <!-- Left and right controls -->
+    <a class="left carousel-control" href="#myCarousel" role="button" data-slide="prev">
+      <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+      <span class="sr-only">Previous</span>
+    </a>
+    <a class="right carousel-control" href="#myCarousel" role="button" data-slide="next">
+      <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+      <span class="sr-only">Next</span>
+    </a>
+  </div>
+</div>
+
+</body>
+</html>
