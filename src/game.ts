@@ -711,7 +711,7 @@ export function animate(row:number,col:number,params:any):void{
   }
   export function printStatus(){
     let turn:number = getTurnStatus();
-    if(currentUpdateUI.playersInfo[turn].displayName &&
+    if(currentUpdateUI.playersInfo[turn] && currentUpdateUI.playersInfo[turn].displayName &&
         currentUpdateUI.playersInfo[turn].displayName!=null &&
         currentUpdateUI.playersInfo[turn].displayName!=''){
           console.log("Reaching here to display the name"+

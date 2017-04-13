@@ -123,7 +123,7 @@
 
         <p ng-if ="game.isEndState" ng-class="{status: true}">{{game.getWinner()}}</p>
 
-        <p ng-if ="!game.isEndState" ng-class="{status: true}">{{game.getTurnStatus()}}</p>
+        <p ng-if ="!game.isEndState" ng-class="{status: true}">{{game.printStatus()}}</p>
 
 
 <div class="row">

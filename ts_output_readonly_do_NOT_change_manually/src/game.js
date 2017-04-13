@@ -641,7 +641,7 @@ var game;
     game.flipBoard = flipBoard;
     function printStatus() {
         var turn = getTurnStatus();
-        if (game.currentUpdateUI.playersInfo[turn].displayName &&
+        if (game.currentUpdateUI.playersInfo[turn] && game.currentUpdateUI.playersInfo[turn].displayName &&
             game.currentUpdateUI.playersInfo[turn].displayName != null &&
             game.currentUpdateUI.playersInfo[turn].displayName != '') {
             console.log("Reaching here to display the name" +
