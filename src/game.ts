@@ -710,7 +710,7 @@ export function animate(row:number,col:number,params:any):void{
     return flipDisplay;
   }
   export function printStatus(){
-    let turn:number = getTurnStatus();
+    let turn:number = turnStatus;
     if(currentUpdateUI.playersInfo[turn] && currentUpdateUI.playersInfo[turn].displayName &&
         currentUpdateUI.playersInfo[turn].displayName!=null &&
         currentUpdateUI.playersInfo[turn].displayName!=''){
