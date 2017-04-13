@@ -32539,7 +32539,7 @@ var game;
     }
     game.flipBoard = flipBoard;
     function printStatus() {
-        var turn = getTurnStatus();
+        var turn = game.turnStatus;
         if (game.currentUpdateUI.playersInfo[turn] && game.currentUpdateUI.playersInfo[turn].displayName &&
             game.currentUpdateUI.playersInfo[turn].displayName != null &&
             game.currentUpdateUI.playersInfo[turn].displayName != '') {
