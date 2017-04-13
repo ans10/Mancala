@@ -34,7 +34,7 @@
   		<div class="rows">
 
           <div class="row">
-           <div ng-repeat="pitIndex in [5,4,3,2,1,0]"  ng-class="{'parentWiggle': game.currentUpdateUI.turnIndex == 1, 'parentStill': game.currentUpdateUI.turnIndex == 0 || -1 }"
+           <div ng-repeat="pitIndex in [5,4,3,2,1,0]"  ng-class="{'parentWiggle': game.getTurnStatus() == 1, 'parentStill': game.getTurnStatus() == 0 || -1 }"
            ng-click="game.pitClicked($event,1,pitIndex)">
   					 <div ng-class ="{score: true}">
                {{game.currentCount = game.givePreviousCounts(1,pitIndex)}}
@@ -49,11 +49,11 @@
 
         <p ng-if ="game.isEndState" ng-class="{status: true}">{{game.getWinner()}}</p>
 
-        <p ng-if ="!game.isEndState" ng-class="{status: true}">{{game.getTurnStatus()}}</p>
+        <p ng-if ="!game.isEndState" ng-class="{status: true}">{{game.printStatus()}}</p>
 
        	<div class="row">
-          <div ng-repeat="pitIndex in [6,5,4,3,2,1]"   ng-class="{'parentWiggle': game.currentUpdateUI.turnIndex == 0,
-          'parentStill': game.currentUpdateUI.turnIndex == 1 || -1 }" ng-click=game.pitClicked($event,0,pitIndex)>
+          <div ng-repeat="pitIndex in [6,5,4,3,2,1]"   ng-class="{'parentWiggle': game.getTurnStatus() == 0,
+          'parentStill': game.getTurnStatus() == 1 || -1 }" ng-click=game.pitClicked($event,0,pitIndex)>
               <div ng-class ="{score: true}">
   							{{game.currentCount = game.givePreviousCounts(0,pitIndex)}}
   						</div>
@@ -98,8 +98,8 @@
      	<div class="rows">
 
           <div class="row">
-          <div ng-repeat="pitIndex in [1,2,3,4,5,6]"  ng-class="{'parentWiggle': game.currentUpdateUI.turnIndex == 0,
-          'parentStill': game.currentUpdateUI.turnIndex == 1 || -1 }" ng-click=game.pitClicked($event,0,pitIndex)>
+          <div ng-repeat="pitIndex in [1,2,3,4,5,6]"  ng-class="{'parentWiggle': game.printStatus() == 0,
+          'parentStill': game.getTurnStatus() == 1 || -1 }" ng-click=game.pitClicked($event,0,pitIndex)>
             <div ng-class ="{score: true}">
               {{game.currentCount = game.givePreviousCounts(0,pitIndex)}}
             </div>
@@ -113,12 +113,12 @@
 
         <p ng-if ="game.isEndState" ng-class="{status: true}">{{game.getWinner()}}</p>
 
-        <p ng-if ="!game.isEndState" ng-class="{status: true}">{{game.getTurnStatus()}}</p>
+        <p ng-if ="!game.isEndState" ng-class="{status: true}">{{game.printStatus()}}</p>
 
 
 <div class="row">
-          <div ng-repeat="pitIndex in [0,1,2,3,4,5]" ng-class="{'parentWiggle': game.currentUpdateUI.turnIndex == 1,
-          'parentStill': game.currentUpdateUI.turnIndex == 0 || -1 }"
+          <div ng-repeat="pitIndex in [0,1,2,3,4,5]" ng-class="{'parentWiggle': game.getTurnStatus() == 1,
+          'parentStill': game.getTurnStatus() == 0 || -1 }"
            ng-click="game.pitClicked($event,1,pitIndex)">
   					  <div ng-class ="{score: true}">
                 {{game.currentCount = game.givePreviousCounts(1,pitIndex)}}

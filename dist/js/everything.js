@@ -31922,8 +31922,10 @@ var game;
     game.winner = -1;
     game.isEndState = false;
     game.position_arrv = null;
+    game.turnStatus = 0;
     game.clickedRow = 0;
     game.clickedCol = 0;
+    game.scores = null;
     // For community games.
     game.proposals = null;
     game.yourPlayerInfo = null;
@@ -32124,16 +32126,15 @@ var game;
         if (params.state != null)
             console.log(params.state.board);
         if (params.state != null && params.state.delta != null) {
-            translateToNewPosition(game.clickedRow, game.clickedCol, params.state.delta.board, game.state.board);
-            game.$timeout(function () {
-                console.log("Animation done");
-                game.state = params.state;
-            }, 2000);
+            animate(params.state.delta.row, params.state.delta.col, params);
         }
+        game.state = params.state;
+        console.log("Step after animation");
         console.log(game.state);
         if (isFirstMove()) {
             console.log("Initialstate method called");
             game.state = gameLogic.getInitialState();
+            game.scores = game.state.board;
         }
         if (game.currentUpdateUI.turnIndex === -1) {
             game.isEndState = true;
@@ -32152,12 +32153,20 @@ var game;
         // We calculate the AI move only after the animation finishes,
         // because if we call aiService now
         // then the animation will be paused until the javascript finishes.
-        game.animationEndedTimeout = game.$timeout(animationEndedCallback, 500);
+        game.animationEndedTimeout = game.$timeout(animationEndedCallback, 2000);
     }
     game.updateUI = updateUI;
     function animationEndedCallback() {
         log.info("Animation ended");
+        setTurnStatus();
+        updateScores();
         maybeSendComputerMove();
+    }
+    function setTurnStatus() {
+        game.turnStatus = game.currentUpdateUI.turnIndex;
+    }
+    function updateScores() {
+        game.scores = game.state.board;
     }
     function clearAnimationTimeout() {
         if (game.animationEndedTimeout) {
@@ -32247,7 +32256,7 @@ var game;
     }
     game.giveCounts = giveCounts;
     function givePreviousCounts(row, column) {
-        var previousCellValue = game.state.board[row][column];
+        var previousCellValue = game.scores[row][column];
         /*if(state.delta && state.delta!=null){
           previousCellValue = previousCellValue - state.delta.board[row][column];
         }*/
@@ -32273,8 +32282,6 @@ var game;
     function pitClicked(event, row, column) {
         // state.board[row][column]=0;
         console.info("Cell clicked (row,col): (" + row + "," + column + ")");
-        game.clickedRow = row;
-        game.clickedCol = column;
         if (!isHumanTurn())
             return;
         var nextMove = null;
@@ -32298,8 +32305,8 @@ var game;
                 game.winner = 1;
             }
         }
-        game.currentUpdateUI.turnIndex = nextMove.turnIndex;
-        game.currentUpdateUI.yourPlayerIndex = nextMove.turnIndex;
+        //currentUpdateUI.turnIndex = nextMove.turnIndex;
+        //currentUpdateUI.yourPlayerIndex = nextMove.turnIndex;
         game.clickedRow = row;
         game.clickedCol = column;
         console.log("Current player's name is " +
@@ -32315,13 +32322,13 @@ var game;
         if (isStore) {
             console.log(giveCounts(currentRow, currentCol) + " " + deltaboard[currentRow][currentCol]);
             newPositionShift =
-                position_arr[stateBoard[currentRow][currentCol] + deltaboard[currentRow][currentCol] + 1];
+                position_arr[stateBoard[currentRow][currentCol] + deltaboard[currentRow][currentCol]];
         }
         else {
             console.log(giveCounts(currentRow, currentCol) + " " + deltaboard[currentRow][currentCol]);
-            newPositionShift = position_arr_pit[stateBoard[currentRow][currentCol] + deltaboard[currentRow][currentCol] + 1];
+            newPositionShift = position_arr_pit[stateBoard[currentRow][currentCol] + deltaboard[currentRow][currentCol]];
         }
-        console.log(destinationElement + " " + currentRow + " " + currentCol + " " + newPositionShift);
+        console.log(destinationElement + " " + currentRow + " " + currentCol + " " + newPositionShift.t + " " + newPositionShift.l);
         console.log(destinationElement.clientLeft + " " + newPositionShift.l);
         newPositionTop = newPositionTop +
             destinationElement.clientHeight * (newPositionShift.t / 100);
@@ -32330,16 +32337,16 @@ var game;
         return { top: newPositionTop, left: newPositionLeft };
     }
     game.updatePosition = updatePosition;
-    function getPitIndex(row, col) {
-        var pitIndex = 0;
-        if (row == 0) {
-            pitIndex = row + col - 1;
-        }
-        else {
-            pitIndex = row * 6 + col;
-        }
-        return pitIndex;
-    }
+    /*function getPitIndex(row:number,col:number):number{
+      let pitIndex = 0;
+      if(row==0){
+          pitIndex = row + col - 1;
+      }
+      else{
+          pitIndex = row*6 + col;
+      }
+      return pitIndex;
+    }*/
     function getNewPosition(deltaboard, stateBoard, currentRow, currentCol, sourceCellRow, sourceCellCol) {
         var newPosition = null;
         deltaboard[currentRow][currentCol]--;
@@ -32352,7 +32359,6 @@ var game;
             newPosition = updatePosition(document.getElementById('store-0'), currentRow, currentCol, deltaboard, stateBoard, true);
         }
         else {
-            var pitIndex = getPitIndex(currentRow, currentCol);
             newPosition = updatePosition(document.getElementById('pit-' + currentRow + currentCol), currentRow, currentCol, deltaboard, stateBoard, false);
         }
         return newPosition;
@@ -32457,13 +32463,11 @@ var game;
             }
         }
     }
-    function animate(row, col) {
+    function animate(row, col, params) {
         console.log("The delta of this move is: ");
-        console.log(game.state.delta.board);
+        console.log(params.state.delta.board);
         console.log("The delta of this move ends");
-        translateToNewPosition(row, col, game.state.delta.board, game.state.board);
-        setTimeout(function () {
-        }, 2000);
+        translateToNewPosition(row, col, params.state.delta.board, game.state.board);
     }
     game.animate = animate;
     function isEndOfGame() {
@@ -32534,9 +32538,9 @@ var game;
         return game.flipDisplay;
     }
     game.flipBoard = flipBoard;
-    function getTurnStatus() {
-        var turn = game.currentUpdateUI.turnIndex;
-        if (game.currentUpdateUI.playersInfo[turn].displayName &&
+    function printStatus() {
+        var turn = getTurnStatus();
+        if (game.currentUpdateUI.playersInfo[turn] && game.currentUpdateUI.playersInfo[turn].displayName &&
             game.currentUpdateUI.playersInfo[turn].displayName != null &&
             game.currentUpdateUI.playersInfo[turn].displayName != '') {
             console.log("Reaching here to display the name" +
@@ -32544,6 +32548,10 @@ var game;
             return game.currentUpdateUI.playersInfo[turn].displayName + "'s turn";
         }
         return "Player " + turn + "'s turn";
+    }
+    game.printStatus = printStatus;
+    function getTurnStatus() {
+        return game.turnStatus;
     }
     game.getTurnStatus = getTurnStatus;
 })(game || (game = {}));
@@ -32576,7 +32584,6 @@ var aiService;
                     possibleMoves.push(gameLogic.createMove(state, i, j, turnIndexBeforeMove));
                 }
                 catch (e) {
-                    // The cell in that position was full.
                 }
             }
         }
