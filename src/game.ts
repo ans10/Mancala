@@ -35,9 +35,8 @@ module game {
   export let isEndState: boolean = false;
   export let position_arrv: MyPosition[] = null;
   export let turnStatus = 0;
-  export let clickedRow = 0;
-  export let clickedCol = 0;
-  export let scores:Board = null
+  export let scores:Board = null;
+  export let animationDone = true;
   // For community games.
   export let proposals: number[][] = null;
   export let yourPlayerInfo: IPlayerInfo = null;
@@ -250,11 +249,10 @@ module game {
     currentUpdateUI = params;
     console.log("Turn index is !!!!!!!!!!!!! : " + currentUpdateUI.turnIndex + " " + isEndState);
     clearAnimationTimeout();
+    animationDone = false;
     /*For computer moves, only after animation it should occur */
-    if(params.state!=null)
-    console.log(params.state.board);
-    if(params.state!=null && params.state.delta!=null){
-      animate(params.state.delta.row,params.state.delta.col,params);
+    if(currentUpdateUI.state!=null && currentUpdateUI.state.delta!=null){
+      animate();
     }
 
     state = params.state;
@@ -290,6 +288,7 @@ module game {
     log.info("Animation ended");
     setTurnStatus();
     updateScores();
+    animationDone = true;
     maybeSendComputerMove();
   }
   function setTurnStatus():void{
@@ -418,7 +417,7 @@ module game {
   export function pitClicked(event:any,row: number, column: number): void{
     // state.board[row][column]=0;
     console.info("Cell clicked (row,col): ("+row+","+column+")");
-    if(!isHumanTurn()) return;
+    if(!isHumanTurn() || !animationDone) return;
 
     let nextMove: IMove = null;
     try{
@@ -447,8 +446,6 @@ module game {
     }
     //currentUpdateUI.turnIndex = nextMove.turnIndex;
     //currentUpdateUI.yourPlayerIndex = nextMove.turnIndex;
-    clickedRow = row;
-    clickedCol = column;
 
     console.log("Current player's name is "+
     currentUpdateUI.yourPlayerInfo.displayName);
@@ -456,21 +453,22 @@ module game {
 
   }
   export function updatePosition(destinationElement:any,
-  currentRow:number,currentCol:number,deltaboard:Board,stateBoard:Board,isStore:boolean):MyPosition{
+  currentRow:number,currentCol:number,deltaboard:Board,isStore:boolean):MyPosition{
   let newPositionTop = 0;
   let newPositionLeft = 0;
+  let stateBoard:Board = currentUpdateUI.state.board;
   newPositionTop = destinationElement.getBoundingClientRect().top;
   newPositionLeft = destinationElement.getBoundingClientRect().left;
   let newPositionShift:any = null;
   if(isStore){
     console.log(giveCounts(currentRow,currentCol)+" "+deltaboard[currentRow][currentCol]);
     newPositionShift =
-    position_arr[stateBoard[currentRow][currentCol]+deltaboard[currentRow][currentCol]];
+    position_arr[stateBoard[currentRow][currentCol]-deltaboard[currentRow][currentCol]-1];
 
   }
   else{
     console.log(giveCounts(currentRow,currentCol)+" "+deltaboard[currentRow][currentCol]);
-    newPositionShift = position_arr_pit[stateBoard[currentRow][currentCol]+deltaboard[currentRow][currentCol]];
+    newPositionShift = position_arr_pit[stateBoard[currentRow][currentCol]-deltaboard[currentRow][currentCol]-1];
 
   }
   console.log(destinationElement+" "+currentRow+" "+currentCol+" "+newPositionShift.t+" "+newPositionShift.l);
@@ -481,48 +479,47 @@ module game {
   destinationElement.clientWidth*(newPositionShift.l/100);
   return {top: newPositionTop, left: newPositionLeft };
 }
-/*function getPitIndex(row:number,col:number):number{
-  let pitIndex = 0;
-  if(row==0){
-      pitIndex = row + col - 1;
-  }
-  else{
-      pitIndex = row*6 + col;
-  }
-  return pitIndex;
-}*/
-function getNewPosition(deltaboard:Board,stateBoard:Board,currentRow:number, currentCol:number,
-  sourceCellRow:number,sourceCellCol:number):MyPosition{
+function getNewPosition(currentRow:number, currentCol:number,
+  sourceCellRow:number,sourceCellCol:number,parentArray:any[]):MyPosition{
   let newPosition:MyPosition = null;
+  let deltaboard:Board = currentUpdateUI.state.delta.board;
   deltaboard[currentRow][currentCol]--;
   deltaboard[sourceCellRow][sourceCellCol]++;
+
+  let parent:any = null;
+  let isStore:boolean = true;
   //store two condition
 
   if(currentRow==1 && currentCol==6){
-    newPosition = updatePosition(document.getElementById('store-1'),
-    currentRow,currentCol,deltaboard,stateBoard,true);
+    parent = document.getElementById('store-1');
   }
   //store one condition
   else if(currentRow==0 && currentCol==0){
-    newPosition = updatePosition(document.getElementById('store-0'),currentRow,
-    currentCol,deltaboard,stateBoard,true);
+    parent = document.getElementById('store-0');
 
   }
   //pit condition
   else{
-    newPosition = updatePosition(document.getElementById('pit-'+currentRow+currentCol),
-    currentRow,currentCol,deltaboard,stateBoard,false);
+    parent = document.getElementById('pit-'+currentRow+currentCol);
+    isStore = false;
 
   }
+
+  newPosition = updatePosition(parent,
+  currentRow,currentCol,deltaboard,false);
+  parentArray.push(parent);
   return newPosition;
 
 }
 function putintoDestination(loopCount:number,children:any,currentRow:number,
-  currentCol:number,turn:number,deltaboard:Board,stateBoard:Board):void{
+  currentCol:number,turn:number):any[]{
    let sourceCellRow = currentRow;
    let sourceCellCol = currentCol;
+   let parentArray : any[] = [];
+   let childArray : any[] = [];
+   let deltaBoard:Board = currentUpdateUI.state.delta.board;
   //check destination cells
-  for(let loopNo = 0; loopNo< loopCount; loopNo++){
+  for(let loopNo=0; loopNo<loopCount; loopNo++){
     let candyImage = children[loopNo].getElementsByTagName("img")[0];
     let currentPositionLeft = candyImage.getBoundingClientRect().left;
     let currentPositionTop = candyImage.getBoundingClientRect().top;
@@ -554,24 +551,24 @@ function putintoDestination(loopCount:number,children:any,currentRow:number,
     console.log(currentRow);
     console.log(currentCol);
     let newPosition:MyPosition = null;
-    if(deltaboard[currentRow][currentCol]==1){
-      newPosition  = getNewPosition(deltaboard,stateBoard,currentRow, currentCol,
-        sourceCellRow,sourceCellCol);
+    if(deltaBoard[currentRow][currentCol]==1){
+      newPosition  = getNewPosition(currentRow, currentCol,
+        sourceCellRow,sourceCellCol,parentArray);
       updateIndex = true;
 
     }
     else{
         //handle the case when there can be case where whole circle can be completed
-        if(deltaboard[currentRow][currentCol]>1){
-          newPosition  = getNewPosition(deltaboard,stateBoard,currentRow, currentCol,
-            sourceCellRow,sourceCellCol);
+        if(deltaBoard[currentRow][currentCol]>1){
+          newPosition  = getNewPosition(currentRow, currentCol,
+            sourceCellRow,sourceCellCol,parentArray);
           updateIndex = false;
         }
         else{
           if(updateIndex){
-            for(let i=0;i<deltaboard.length;i++){
-              for(let j=0;j<deltaboard[0].length;j++){
-                if(deltaboard[i][j]>0){
+            for(let i=0;i<deltaBoard.length;i++){
+              for(let j=0;j<deltaBoard[0].length;j++){
+                if(deltaBoard[i][j]>0){
                   currentRow = i;
                   currentCol = j;
                   break;
@@ -580,8 +577,8 @@ function putintoDestination(loopCount:number,children:any,currentRow:number,
               }
             }
           }
-          newPosition  = getNewPosition(deltaboard,stateBoard,currentRow, currentCol,
-            sourceCellRow,sourceCellCol);
+          newPosition  = getNewPosition(currentRow, currentCol,
+            sourceCellRow,sourceCellCol,parentArray);
           updateIndex = false;
         }
     }
@@ -592,15 +589,23 @@ function putintoDestination(loopCount:number,children:any,currentRow:number,
     console.log(newPositionLefttext);
     console.log(newPositionToptext);
     candyImage.style.transform = "translate("+newPositionLefttext+","+newPositionToptext+")";
-  }
+    childArray.push(candyImage);
 
+  }
+  let resultArray:any[] = [];
+  resultArray.push(parentArray);
+  resultArray.push(childArray);
+  return resultArray;
 
 }
-function translateToNewPosition(row:number,col:number,deltaBoard:Board,stateBoard:Board):void{
-  //let children =
-  //event.currentTarget.getElementsByClassName("pit")[0].children;
-  //let storeArray = document.getElementById("gameArea").children[0].getElementsByClassName("player-two store");
-  //let pitArray = document.getElementById("gameArea").children[0].getElementsByClassName("pit");
+function assignChildren(parent:any,child:any){
+  parent.appendChild(child);
+}
+function translateToNewPosition(secondOrderAnimate:Function):void{
+  let row:number = currentUpdateUI.state.delta.row;
+  let col:number = currentUpdateUI.state.delta.col;
+  let deltaBoard:Board = currentUpdateUI.state.delta.board;
+
   let experimentPit = document.getElementById("pit-01");
   console.log(experimentPit);
   console.log(document.getElementById("gameArea"));
@@ -608,25 +613,37 @@ function translateToNewPosition(row:number,col:number,deltaBoard:Board,stateBoar
   //let destinationPits:number[] = [];
   let positionCount = 0;
   let loopCount = 0;
-
+  let resultArray:any[] = [];
   //check departure cell
   if(deltaBoard[row][col]<0){
     loopCount = -1 * deltaBoard[row][col];
     let children:any = document.getElementById('pit-'+row+col).children;
     let turn = row;
-    putintoDestination(loopCount,children,row,col,
-      turn,deltaBoard,stateBoard);
+    resultArray = putintoDestination(loopCount,children,row,col,
+      turn);
 
   }
   //check for other cells if there are any transfers left
+
+ //secondOrderAnimate(row,deltaBoard,resultArray);
+
+}
+export function secondOrderAnimate(row:number,deltaBoard:Board,stateBoard:Board,resultArray:any[]){
+  if(resultArray!=null){
+    for(let resultNo = 0 ; resultNo< resultArray[0].length;resultNo++){
+      resultArray[0][resultNo].appendChild(resultArray[1][resultNo]);
+    }
+
+  }
+
   for(let rowNo = 0;rowNo < 2;rowNo++){
     for(let colNo = 0;colNo < 7;colNo++){
         if(deltaBoard[rowNo][colNo]<0){
-          loopCount = -1 * deltaBoard[rowNo][colNo];
+          let loopCount = -1 * deltaBoard[rowNo][colNo];
           let children:any = document.getElementById('pit-'+rowNo+colNo).children;
           let turn = row;
           putintoDestination(loopCount,children,rowNo,colNo,
-            turn,deltaBoard,stateBoard);
+            turn);
 
         }
 
@@ -634,12 +651,13 @@ function translateToNewPosition(row:number,col:number,deltaBoard:Board,stateBoar
   }
 
 
+
 }
-export function animate(row:number,col:number,params:any):void{
-  console.log("The delta of this move is: ");
-  console.log(params.state.delta.board);
-  console.log("The delta of this move ends");
-  translateToNewPosition(row,col,params.state.delta.board,state.board);
+export function animate():void{
+  //console.log("The delta of this move is: ");
+  //console.log(params.state.delta.board);
+  //console.log("The delta of this move ends");
+  translateToNewPosition(secondOrderAnimate);
 }
 
   function isEndOfGame():boolean{

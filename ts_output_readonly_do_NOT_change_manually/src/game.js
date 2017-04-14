@@ -24,9 +24,8 @@ var game;
     game.isEndState = false;
     game.position_arrv = null;
     game.turnStatus = 0;
-    game.clickedRow = 0;
-    game.clickedCol = 0;
     game.scores = null;
+    game.animationDone = true;
     // For community games.
     game.proposals = null;
     game.yourPlayerInfo = null;
@@ -223,11 +222,10 @@ var game;
         game.currentUpdateUI = params;
         console.log("Turn index is !!!!!!!!!!!!! : " + game.currentUpdateUI.turnIndex + " " + game.isEndState);
         clearAnimationTimeout();
+        game.animationDone = false;
         /*For computer moves, only after animation it should occur */
-        if (params.state != null)
-            console.log(params.state.board);
-        if (params.state != null && params.state.delta != null) {
-            animate(params.state.delta.row, params.state.delta.col, params);
+        if (game.currentUpdateUI.state != null && game.currentUpdateUI.state.delta != null) {
+            animate();
         }
         game.state = params.state;
         console.log("Step after animation");
@@ -261,6 +259,7 @@ var game;
         log.info("Animation ended");
         setTurnStatus();
         updateScores();
+        game.animationDone = true;
         maybeSendComputerMove();
     }
     function setTurnStatus() {
@@ -383,7 +382,7 @@ var game;
     function pitClicked(event, row, column) {
         // state.board[row][column]=0;
         console.info("Cell clicked (row,col): (" + row + "," + column + ")");
-        if (!isHumanTurn())
+        if (!isHumanTurn() || !game.animationDone)
             return;
         var nextMove = null;
         try {
@@ -408,26 +407,25 @@ var game;
         }
         //currentUpdateUI.turnIndex = nextMove.turnIndex;
         //currentUpdateUI.yourPlayerIndex = nextMove.turnIndex;
-        game.clickedRow = row;
-        game.clickedCol = column;
         console.log("Current player's name is " +
             game.currentUpdateUI.yourPlayerInfo.displayName);
     }
     game.pitClicked = pitClicked;
-    function updatePosition(destinationElement, currentRow, currentCol, deltaboard, stateBoard, isStore) {
+    function updatePosition(destinationElement, currentRow, currentCol, deltaboard, isStore) {
         var newPositionTop = 0;
         var newPositionLeft = 0;
+        var stateBoard = game.currentUpdateUI.state.board;
         newPositionTop = destinationElement.getBoundingClientRect().top;
         newPositionLeft = destinationElement.getBoundingClientRect().left;
         var newPositionShift = null;
         if (isStore) {
             console.log(giveCounts(currentRow, currentCol) + " " + deltaboard[currentRow][currentCol]);
             newPositionShift =
-                position_arr[stateBoard[currentRow][currentCol] + deltaboard[currentRow][currentCol]];
+                position_arr[stateBoard[currentRow][currentCol] - deltaboard[currentRow][currentCol] - 1];
         }
         else {
             console.log(giveCounts(currentRow, currentCol) + " " + deltaboard[currentRow][currentCol]);
-            newPositionShift = position_arr_pit[stateBoard[currentRow][currentCol] + deltaboard[currentRow][currentCol]];
+            newPositionShift = position_arr_pit[stateBoard[currentRow][currentCol] - deltaboard[currentRow][currentCol] - 1];
         }
         console.log(destinationElement + " " + currentRow + " " + currentCol + " " + newPositionShift.t + " " + newPositionShift.l);
         console.log(destinationElement.clientLeft + " " + newPositionShift.l);
@@ -438,35 +436,34 @@ var game;
         return { top: newPositionTop, left: newPositionLeft };
     }
     game.updatePosition = updatePosition;
-    /*function getPitIndex(row:number,col:number):number{
-      let pitIndex = 0;
-      if(row==0){
-          pitIndex = row + col - 1;
-      }
-      else{
-          pitIndex = row*6 + col;
-      }
-      return pitIndex;
-    }*/
-    function getNewPosition(deltaboard, stateBoard, currentRow, currentCol, sourceCellRow, sourceCellCol) {
+    function getNewPosition(currentRow, currentCol, sourceCellRow, sourceCellCol, parentArray) {
         var newPosition = null;
+        var deltaboard = game.currentUpdateUI.state.delta.board;
         deltaboard[currentRow][currentCol]--;
         deltaboard[sourceCellRow][sourceCellCol]++;
+        var parent = null;
+        var isStore = true;
         //store two condition
         if (currentRow == 1 && currentCol == 6) {
-            newPosition = updatePosition(document.getElementById('store-1'), currentRow, currentCol, deltaboard, stateBoard, true);
+            parent = document.getElementById('store-1');
         }
         else if (currentRow == 0 && currentCol == 0) {
-            newPosition = updatePosition(document.getElementById('store-0'), currentRow, currentCol, deltaboard, stateBoard, true);
+            parent = document.getElementById('store-0');
         }
         else {
-            newPosition = updatePosition(document.getElementById('pit-' + currentRow + currentCol), currentRow, currentCol, deltaboard, stateBoard, false);
+            parent = document.getElementById('pit-' + currentRow + currentCol);
+            isStore = false;
         }
+        newPosition = updatePosition(parent, currentRow, currentCol, deltaboard, false);
+        parentArray.push(parent);
         return newPosition;
     }
-    function putintoDestination(loopCount, children, currentRow, currentCol, turn, deltaboard, stateBoard) {
+    function putintoDestination(loopCount, children, currentRow, currentCol, turn) {
         var sourceCellRow = currentRow;
         var sourceCellCol = currentCol;
+        var parentArray = [];
+        var childArray = [];
+        var deltaBoard = game.currentUpdateUI.state.delta.board;
         //check destination cells
         for (var loopNo = 0; loopNo < loopCount; loopNo++) {
             var candyImage = children[loopNo].getElementsByTagName("img")[0];
@@ -499,21 +496,21 @@ var game;
             console.log(currentRow);
             console.log(currentCol);
             var newPosition = null;
-            if (deltaboard[currentRow][currentCol] == 1) {
-                newPosition = getNewPosition(deltaboard, stateBoard, currentRow, currentCol, sourceCellRow, sourceCellCol);
+            if (deltaBoard[currentRow][currentCol] == 1) {
+                newPosition = getNewPosition(currentRow, currentCol, sourceCellRow, sourceCellCol, parentArray);
                 updateIndex = true;
             }
             else {
                 //handle the case when there can be case where whole circle can be completed
-                if (deltaboard[currentRow][currentCol] > 1) {
-                    newPosition = getNewPosition(deltaboard, stateBoard, currentRow, currentCol, sourceCellRow, sourceCellCol);
+                if (deltaBoard[currentRow][currentCol] > 1) {
+                    newPosition = getNewPosition(currentRow, currentCol, sourceCellRow, sourceCellCol, parentArray);
                     updateIndex = false;
                 }
                 else {
                     if (updateIndex) {
-                        for (var i = 0; i < deltaboard.length; i++) {
-                            for (var j = 0; j < deltaboard[0].length; j++) {
-                                if (deltaboard[i][j] > 0) {
+                        for (var i = 0; i < deltaBoard.length; i++) {
+                            for (var j = 0; j < deltaBoard[0].length; j++) {
+                                if (deltaBoard[i][j] > 0) {
                                     currentRow = i;
                                     currentCol = j;
                                     break;
@@ -521,7 +518,7 @@ var game;
                             }
                         }
                     }
-                    newPosition = getNewPosition(deltaboard, stateBoard, currentRow, currentCol, sourceCellRow, sourceCellCol);
+                    newPosition = getNewPosition(currentRow, currentCol, sourceCellRow, sourceCellCol, parentArray);
                     updateIndex = false;
                 }
             }
@@ -531,13 +528,20 @@ var game;
             console.log(newPositionLefttext);
             console.log(newPositionToptext);
             candyImage.style.transform = "translate(" + newPositionLefttext + "," + newPositionToptext + ")";
+            childArray.push(candyImage);
         }
+        var resultArray = [];
+        resultArray.push(parentArray);
+        resultArray.push(childArray);
+        return resultArray;
     }
-    function translateToNewPosition(row, col, deltaBoard, stateBoard) {
-        //let children =
-        //event.currentTarget.getElementsByClassName("pit")[0].children;
-        //let storeArray = document.getElementById("gameArea").children[0].getElementsByClassName("player-two store");
-        //let pitArray = document.getElementById("gameArea").children[0].getElementsByClassName("pit");
+    function assignChildren(parent, child) {
+        parent.appendChild(child);
+    }
+    function translateToNewPosition(secondOrderAnimate) {
+        var row = game.currentUpdateUI.state.delta.row;
+        var col = game.currentUpdateUI.state.delta.col;
+        var deltaBoard = game.currentUpdateUI.state.delta.board;
         var experimentPit = document.getElementById("pit-01");
         console.log(experimentPit);
         console.log(document.getElementById("gameArea"));
@@ -545,30 +549,40 @@ var game;
         //let destinationPits:number[] = [];
         var positionCount = 0;
         var loopCount = 0;
+        var resultArray = [];
         //check departure cell
         if (deltaBoard[row][col] < 0) {
             loopCount = -1 * deltaBoard[row][col];
             var children = document.getElementById('pit-' + row + col).children;
             var turn = row;
-            putintoDestination(loopCount, children, row, col, turn, deltaBoard, stateBoard);
+            resultArray = putintoDestination(loopCount, children, row, col, turn);
         }
         //check for other cells if there are any transfers left
+        //secondOrderAnimate(row,deltaBoard,resultArray);
+    }
+    function secondOrderAnimate(row, deltaBoard, stateBoard, resultArray) {
+        if (resultArray != null) {
+            for (var resultNo = 0; resultNo < resultArray[0].length; resultNo++) {
+                resultArray[0][resultNo].appendChild(resultArray[1][resultNo]);
+            }
+        }
         for (var rowNo = 0; rowNo < 2; rowNo++) {
             for (var colNo = 0; colNo < 7; colNo++) {
                 if (deltaBoard[rowNo][colNo] < 0) {
-                    loopCount = -1 * deltaBoard[rowNo][colNo];
+                    var loopCount = -1 * deltaBoard[rowNo][colNo];
                     var children = document.getElementById('pit-' + rowNo + colNo).children;
                     var turn = row;
-                    putintoDestination(loopCount, children, rowNo, colNo, turn, deltaBoard, stateBoard);
+                    putintoDestination(loopCount, children, rowNo, colNo, turn);
                 }
             }
         }
     }
-    function animate(row, col, params) {
-        console.log("The delta of this move is: ");
-        console.log(params.state.delta.board);
-        console.log("The delta of this move ends");
-        translateToNewPosition(row, col, params.state.delta.board, game.state.board);
+    game.secondOrderAnimate = secondOrderAnimate;
+    function animate() {
+        //console.log("The delta of this move is: ");
+        //console.log(params.state.delta.board);
+        //console.log("The delta of this move ends");
+        translateToNewPosition(secondOrderAnimate);
     }
     game.animate = animate;
     function isEndOfGame() {
