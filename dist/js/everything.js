@@ -32306,8 +32306,8 @@ var game;
         }
         //currentUpdateUI.turnIndex = nextMove.turnIndex;
         //currentUpdateUI.yourPlayerIndex = nextMove.turnIndex;
-        console.log("Current player's name is " +
-            game.currentUpdateUI.yourPlayerInfo.displayName);
+        /*console.log("Current player's name is "+
+        currentUpdateUI.yourPlayerInfo.displayName);*/
     }
     game.pitClicked = pitClicked;
     function updatePosition(destinationElement, currentRow, currentCol, deltaboard, isStore) {
