@@ -447,8 +447,8 @@ module game {
     //currentUpdateUI.turnIndex = nextMove.turnIndex;
     //currentUpdateUI.yourPlayerIndex = nextMove.turnIndex;
 
-    console.log("Current player's name is "+
-    currentUpdateUI.yourPlayerInfo.displayName);
+    /*console.log("Current player's name is "+
+    currentUpdateUI.yourPlayerInfo.displayName);*/
 
 
   }
