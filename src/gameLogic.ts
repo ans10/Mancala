@@ -8,16 +8,20 @@ interface BoardDelta {
   col: number;
   board:Board;
 }
+var MoveType = {
+  1:"clickUpdate",
+  2:"emptyHole",
+  3:"transferAll"
+}
 type IProposalData = BoardDelta;
 interface IState {
   board: Board;
   delta: BoardDelta;
+  nextMoveType:string;
+  lastupdatedrow:number;
+  lastupdatedcol:number;
 }
-interface UpdateState{
-  board: Board;
-  lastupdatedrow: number;
-  lastupdatedcolumn: number;
-}
+
 
 import gameService = gamingPlatform.gameService;
 import alphaBetaService = gamingPlatform.alphaBetaService;
@@ -63,7 +67,9 @@ module gameLogic {
 
   export function getInitialState(): IState {
     console.log("Initial state method called in gameLogic");
-    return {board: getInitialBoard(), delta: null};
+
+    return {board: getInitialBoard(), delta: null,lastupdatedrow:-1,
+      lastupdatedcol:-1,nextMoveType:"clickUpdate"};
   }
 
 
@@ -91,7 +97,7 @@ module gameLogic {
    *      ['X', 'O', ''],
    *      ['X', '', '']]
    */
-  function transferAllLeft(board:Board):UpdateState{
+  function transferAllLeft(board:Board):IState{
     console.log("Transferring the remaining stuff into appropriate store");
     let lastupdatedr = 0;
     let lastupdatedc = 0;
@@ -115,8 +121,9 @@ module gameLogic {
 
     }
 
-    let updatedState:UpdateState =
-    {board : boardAfterMove, lastupdatedrow : lastupdatedr, lastupdatedcolumn : lastupdatedc};
+    let updatedState:IState =
+    {board : boardAfterMove, delta:null,
+      lastupdatedrow : lastupdatedr,lastupdatedcol:lastupdatedc,nextMoveType:null};
     return updatedState;
 
 
@@ -151,10 +158,10 @@ module gameLogic {
     return firstrow || secondrow;
 
   }
-  function updateBoard(board:Board,row:number,col:number):UpdateState{
+  function updateBoard(board:Board,row:number,col:number):IState{
     console.log("In update board in gameLogic");
     let boardAfterMove = angular.copy(board);
-    let updatedState:UpdateState = null;
+    let updatedState:IState = null;
     let i:number;
     let j:number;
     i = row;
@@ -190,28 +197,53 @@ module gameLogic {
       }
       val--;
     }
+    let deltaBoard:Board = createDelta(boardAfterMove,board);
+    let delta:BoardDelta = {board:deltaBoard,row:row,col:col};
     // empty hole on last chance handled
     if(boardAfterMove[i][j]===1 && row===i &&
-      !((i===0 && j===0) || (i===1 && j===6))){
-
-
-      if(i===0 && boardAfterMove[1-i][j-1]>0){
-        boardAfterMove[i][j] = 0;
-        boardAfterMove[0][0] += boardAfterMove[1-i][j-1]+1;
-        boardAfterMove[1-i][j-1] = 0;
-      }
-      if(i===1 && boardAfterMove[1-i][j+1]>0){
-        boardAfterMove[i][j]=0;
-        boardAfterMove[1][6] += boardAfterMove[1-i][j+1]+1;
-        boardAfterMove[1-i][j+1] = 0;
-      }
+      !((i===0 && j===0) || (i===1 && j===6)) &&
+      ((i===0 && boardAfterMove[1-i][j-1]>0) ||
+      (i===1 && boardAfterMove[1-i][j+1]>0))){
+        updatedState = {board : boardAfterMove, delta : delta,lastupdatedrow : i,
+          lastupdatedcol : j,nextMoveType:"emptyHole"};
+    }
+    else if(isEndState(boardAfterMove)){
+      updatedState = {board : boardAfterMove, delta : delta,lastupdatedrow : i,
+        lastupdatedcol : j,nextMoveType:"transferAll"};
+    }
+    else{
+        updatedState = {board : boardAfterMove, delta : delta,lastupdatedrow : i,
+        lastupdatedcol : j,nextMoveType:"clickUpdate"};
 
     }
-    updatedState = {board : boardAfterMove, lastupdatedrow : i, lastupdatedcolumn : j};
+
     return updatedState;
   }
-  function nextTurn(turnIndex: number,row: number,col: number): number{
-    if((row===0 && col===0) || (row===1 && col===6)){
+  function updateEmptyHole(board:Board,row:number,col:number):IState{
+    let boardAfterMove:Board = angular.copy(board);
+    let i:number = row;
+    let j:number = col;
+    if(i===0 && boardAfterMove[1-i][j-1]>0){
+      boardAfterMove[i][j] = 0;
+      boardAfterMove[0][0] += boardAfterMove[1-i][j-1]+1;
+      boardAfterMove[1-i][j-1] = 0;
+    }
+    if(i===1 && boardAfterMove[1-i][j+1]>0){
+      boardAfterMove[i][j]=0;
+      boardAfterMove[1][6] += boardAfterMove[1-i][j+1]+1;
+      boardAfterMove[1-i][j+1] = 0;
+    }
+    let deltaBoard:Board = createDelta(boardAfterMove,board);
+    let delta:BoardDelta = {board:deltaBoard,row:row,col:col};
+    let updateState:IState = {board:boardAfterMove,delta:delta,lastupdatedrow:i,
+    lastupdatedcol:j,nextMoveType:"clickUpdate"}
+    if(isEndState(boardAfterMove)){
+      updateState.nextMoveType = "transferAll";
+    }
+    return updateState;
+  }
+  function nextTurn(turnIndex: number,row: number,col: number,nextMoveType:string): number{
+    if(((row===0 && col===0) || (row===1 && col===6)) || nextMoveType=="emptyHole"){
       return turnIndex;
     }
     else{
@@ -250,40 +282,59 @@ module gameLogic {
       stateBeforeMove = getInitialState();
     }
     let board: Board = stateBeforeMove.board;
-    console.log("Turnindexbeforemove: "+turnIndexBeforeMove+"row: "+row);
-    if (board[row][col] === 0 || (row===0 && col===0) || (row===1 && col===6) ||
-        row!==turnIndexBeforeMove) {
-      throw new Error("Making an invalid move!");
-    }
-    let updatedState = updateBoard(board,row,col);
-    let boardAfterMove = updatedState.board;
-    let endMatchScores: number[];
+    let nextMoveType = stateBeforeMove.nextMoveType;
+    console.log(stateBeforeMove.nextMoveType);
+    let endMatchScores: number[] = null;
     let turnIndex: number;
-    console.log("Just before the  check of end state");
-    if(isEndState(boardAfterMove)){
-      //Game over
-      console.log("Game's end state detected in Game Logic");
-      updatedState = transferAllLeft(boardAfterMove);
-      boardAfterMove = updatedState.board;
+
+    console.log("Turnindexbeforemove: "+turnIndexBeforeMove+"row: "+row);
+    let updatedState:IState = null;
+    if(nextMoveType=="clickUpdate"){
+      console.log("going in clickUpdate section");
+      if(row!==turnIndexBeforeMove || board[row][col] === 0
+        || (row===0 && col===0) || (row===1 && col===6)){
+        throw new Error("Making an invalid move!");
+      }
+      updatedState = updateBoard(board,row,col);
+      if(updatedState.nextMoveType!="transferAll"){
+        turnIndex = nextTurn(turnIndexBeforeMove, updatedState.lastupdatedrow,
+          updatedState.lastupdatedcol, updatedState.nextMoveType);
+
+      }
+      else{
+        turnIndex = turnIndexBeforeMove;
+      }
+
+
+    }
+    else if(nextMoveType=="emptyHole"){
+      console.log("going in emptyHole section");
+      updatedState = updateEmptyHole(board,row,col);
+      if(updatedState.nextMoveType!="transferAll"){
+        turnIndex = 1 - turnIndexBeforeMove;
+      }
+
+      else{
+        turnIndex = turnIndexBeforeMove;
+      }
+
+
+    }
+    else if(nextMoveType=="transferAll"){
+      updatedState = transferAllLeft(board);
+      let boardAfterMove:Board = updatedState.board;
       let winner = getWinner(boardAfterMove);
       turnIndex = -1;
       endMatchScores = winner === 0 ? [1, 0] : winner === 1 ? [0, 1] : [0, 0];
 
     }
     else{
-      //Game continues
-      console.log("Yo turnindex ");
-      turnIndex = nextTurn(turnIndexBeforeMove, updatedState.lastupdatedrow, updatedState.lastupdatedcolumn);
-      console.log("TurnIndex value is: "+turnIndex);
-      endMatchScores = null;
-
+      throw new Error("Invalid movetype");
     }
-    /*if (getWinner(board) !== '' || isTie(board)) {
-      throw new Error("Can only make a move if the game is not over!");
-    }*/
 
-    let delta:BoardDelta = {row:row,col:col,board:createDelta(boardAfterMove,board)};
-    let state: IState = {delta: delta, board: boardAfterMove};
+    console.log("TurnIndex value is: "+turnIndex);
+
+    let state: IState = updatedState;
     console.info("Returning createMove successfully" );
 
     return {

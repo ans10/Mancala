@@ -8,14 +8,7 @@ interface MyPosition {
   top: number;
   left: number;
 }
-var PositionStyle =
-  {
-    position:'absolute',
-    width:'20%',
-    height:'20%',
-    top: '%',
-    left:'%'
-  };
+
 
 module game {
   export let $rootScope: angular.IScope = null;
@@ -37,6 +30,8 @@ module game {
   export let turnStatus = 0;
   export let scores:Board = null;
   export let animationDone = true;
+  export let sourceImages:string[][][] = null;
+  export let positionImages:any[][][] = null;
   // For community games.
   export let proposals: number[][] = null;
   export let yourPlayerInfo: IPlayerInfo = null;
@@ -104,7 +99,7 @@ module game {
     {t: 25, l: 24},
     {t: 29, l: 43},
     {t: 36, l: 37},
-    {t: 20, l: 70},
+    {t: 20, l: 65},
     {t: 5, l: 66},
     {t: 6, l: 16},
     {t: 8, l: 19},
@@ -135,6 +130,7 @@ module game {
     translate.setTranslations(getTranslations());
     translate.setLanguage('en');
     resizeGameAreaService.setWidthToHeight(1.6);
+    initializeSource();
     gameService.setGame({
       updateUI: updateUI,
       getStateForOgImage: null,
@@ -173,7 +169,52 @@ module game {
 
 
   }
+  function getPreviousBoard(state:IState):Board{
+    let previousBoard = angular.copy(state.board);
+    for(let rowNo = 0; rowNo < 2; rowNo++){
+      for(let colNo = 0; colNo < 7; colNo++){
+        previousBoard[rowNo][colNo]-=state.delta.board[rowNo][colNo];
+      }
+    }
+    return previousBoard;
 
+  }
+  function initializeSource(){
+    console.log("In initialize source method");
+    sourceImages = [];
+    for(let rowNo=0;rowNo<2;rowNo++){
+      sourceImages[rowNo]=[];
+      for(let colNo=0;colNo<7;colNo++){
+        sourceImages[rowNo][colNo]=[];
+        for(let candyNo=0;candyNo<24;candyNo++){
+           sourceImages[rowNo][colNo][candyNo] = null;
+        }
+      }
+    }
+    for(let rowNo=0;rowNo<2;rowNo++){
+      for(let colNo=0;colNo<7;colNo++){
+        if(!((rowNo==0 && colNo==0) || (rowNo==1 && colNo==6))){
+          sourceImages[rowNo][colNo][0] = "imgs/exp6.png";
+          sourceImages[rowNo][colNo][1] = "imgs/exp7.png";
+          sourceImages[rowNo][colNo][2] = "imgs/exp8.png";
+          sourceImages[rowNo][colNo][3] = "imgs/exp9.png";
+
+        }
+      }
+    }
+
+  }
+  function initializePositionImages():void{
+    for(let rowNo=0;rowNo<2;rowNo++){
+      positionImages[rowNo] = [];
+      for(let colNo=0;colNo<7;colNo++){
+        positionImages[rowNo][colNo] = [];
+        for(let pos=0;pos<24;pos++){
+          positionImages[rowNo][colNo][pos]=angular.copy(PositionStyle);
+        }
+      }
+    }
+  }
 
   function registerServiceWorker() {
     // I prefer to use appCache over serviceWorker
@@ -236,32 +277,47 @@ module game {
      // Only one move/proposal per updateUI
     didMakeMove = playerIdToProposal && playerIdToProposal[yourPlayerInfo.playerId] != undefined;
     yourPlayerInfo = params.yourPlayerInfo;
-    /*proposals = playerIdToProposal ? getProposalsBoard(playerIdToProposal) : null;
-    if (playerIdToProposal) {
-      // If only proposals changed, then return.
-      // I don't want to disrupt the player if he's in the middle of a move.
-      // I delete playerIdToProposal field from params (and so it's also not in currentUpdateUI),
-      // and compare whether the objects are now deep-equal.
-      params.playerIdToProposal = null;
-      if (currentUpdateUI && angular.equals(currentUpdateUI, params)) return;
-    }*/
 
     currentUpdateUI = params;
     console.log("Turn index is !!!!!!!!!!!!! : " + currentUpdateUI.turnIndex + " " + isEndState);
     clearAnimationTimeout();
     animationDone = false;
     /*For computer moves, only after animation it should occur */
+    let sourceCopy:string[][][] = null;
+
     if(currentUpdateUI.state!=null && currentUpdateUI.state.delta!=null){
-      animate();
+      //scores = getPreviousBoard(currentUpdateUI.state);
+      let animateState:IState = angular.copy(currentUpdateUI.state);
+      let animateDelta:BoardDelta = angular.copy(currentUpdateUI.state.delta);
+      console.log("CurrentUpdateUI delta is: ");
+      console.log(currentUpdateUI.state.delta);
+      console.log("Params delta is: ")
+      console.log(params.state.delta);
+      sourceCopy = animate(animateState,animateDelta);
+      //sourceCopy = assignSourceCopy(animateState,animateDelta);
+      if(sourceCopy==null){
+        initializeSource();
+        sourceCopy = angular.copy(sourceImages);
+      }
+
+    }
+    if(currentUpdateUI.state!=null && currentUpdateUI.state.delta!=null){
+      console.log("After running animate: ");
+      console.log("CurrentUpdateUI delta is: ");
+      console.log(currentUpdateUI.state.delta);
+      console.log("Params delta is: ")
+      console.log(params.state.delta);
+
     }
 
+    console.log(sourceCopy);
     state = params.state;
     console.log("Step after animation");
     console.log(state);
     if (isFirstMove()) {
       console.log("Initialstate method called");
       state = gameLogic.getInitialState();
-      scores = state.board;
+      scores = angular.copy(state.board);
     }
     if (currentUpdateUI.turnIndex === -1){
       isEndState = true;
@@ -281,21 +337,39 @@ module game {
     // We calculate the AI move only after the animation finishes,
     // because if we call aiService now
     // then the animation will be paused until the javascript finishes.
-    animationEndedTimeout = $timeout(animationEndedCallback, 2000);
+    animationEndedTimeout = $timeout(function(){animationEndedCallback(sourceCopy)}, 2000);
+    //animationEndedTimeout = $timeout(function(){animationEndedCallback(sourceCopy)}, 300);
   }
 
-  function animationEndedCallback() {
+  function animationEndedCallback(sourceCopy:string[][][]) {
     log.info("Animation ended");
     setTurnStatus();
     updateScores();
-    animationDone = true;
+    updateSourceImages(sourceCopy);
+    if(state.nextMoveType==null){
+        isEndState = true;
+        animationDone = true;
+    }
+    else if(state.nextMoveType=="clickUpdate")
+      animationDone = true;
+    else{
+      console.log("In automatic move type");
+      referLogic(state.lastupdatedrow,state.lastupdatedcol);
+    }
     maybeSendComputerMove();
+  }
+  function updateSourceImages(sourceCopy:string[][][]):void{
+    if(sourceCopy!=null){
+      console.log(sourceImages);
+      sourceImages = sourceCopy;
+    }
+
   }
   function setTurnStatus():void{
     turnStatus = currentUpdateUI.turnIndex;
   }
   function updateScores(){
-    scores = state.board;
+    scores = angular.copy(state.board);
   }
   function clearAnimationTimeout() {
     if (animationEndedTimeout) {
@@ -414,11 +488,8 @@ module game {
         return arr;
 
   }
-  export function pitClicked(event:any,row: number, column: number): void{
-    // state.board[row][column]=0;
-    console.info("Cell clicked (row,col): ("+row+","+column+")");
-    if(!isHumanTurn() || !animationDone) return;
-
+  export function referLogic(row:number, column:number){
+    if(isComputerTurn() || currentUpdateUI.turnIndex==-1) return;
     let nextMove: IMove = null;
     try{
      nextMove = gameLogic.createMove(state, row, column, currentUpdateUI.turnIndex);
@@ -432,7 +503,7 @@ module game {
     gameService.makeMove(nextMove, null);
 
     if(nextMove.endMatchScores!==null){
-        isEndState = true;
+
       console.info("end state detected to be true " + isEndState);
         if(nextMove.endMatchScores[0]>nextMove.endMatchScores[1]){
           console.log("Winner is 0");
@@ -444,50 +515,45 @@ module game {
         }
 
     }
-    //currentUpdateUI.turnIndex = nextMove.turnIndex;
-    //currentUpdateUI.yourPlayerIndex = nextMove.turnIndex;
-
-    /*console.log("Current player's name is "+
-    currentUpdateUI.yourPlayerInfo.displayName);*/
 
 
   }
-  export function updatePosition(destinationElement:any,
-  currentRow:number,currentCol:number,deltaboard:Board,isStore:boolean):MyPosition{
+  export function pitClicked(event:any,row: number, column: number): void{
+    console.info("Cell clicked (row,col): ("+row+","+column+")");
+    if(!isHumanTurn() || !animationDone) return;
+    referLogic(row,column);
+
+
+  }
+  export function updatePosition(destinationElement:HTMLElement,
+  currentRow:number,currentCol:number,animateState:IState,animateDelta:BoardDelta):MyPosition{
   let newPositionTop = 0;
   let newPositionLeft = 0;
-  let stateBoard:Board = currentUpdateUI.state.board;
+  let stateBoard:Board = animateState.board;
+  let deltaBoard:Board = animateDelta.board;
   newPositionTop = destinationElement.getBoundingClientRect().top;
   newPositionLeft = destinationElement.getBoundingClientRect().left;
   let newPositionShift:any = null;
-  if(isStore){
-    console.log(giveCounts(currentRow,currentCol)+" "+deltaboard[currentRow][currentCol]);
+  if(isStore(currentRow,currentCol)){
+    console.log(stateBoard[currentRow][currentCol]+" "+deltaBoard[currentRow][currentCol]);
     newPositionShift =
-    position_arr[stateBoard[currentRow][currentCol]-deltaboard[currentRow][currentCol]-1];
+    position_arr[stateBoard[currentRow][currentCol]-deltaBoard[currentRow][currentCol]-1];
 
   }
   else{
-    console.log(giveCounts(currentRow,currentCol)+" "+deltaboard[currentRow][currentCol]);
-    newPositionShift = position_arr_pit[stateBoard[currentRow][currentCol]-deltaboard[currentRow][currentCol]-1];
+    console.log(stateBoard[currentRow][currentCol]+" "+deltaBoard[currentRow][currentCol]);
+    newPositionShift = position_arr_pit[stateBoard[currentRow][currentCol]-deltaBoard[currentRow][currentCol]-1];
 
   }
   console.log(destinationElement+" "+currentRow+" "+currentCol+" "+newPositionShift.t+" "+newPositionShift.l);
-  console.log(destinationElement.clientLeft + " "+newPositionShift.l);
   newPositionTop = newPositionTop +
   destinationElement.clientHeight*(newPositionShift.t/100);
   newPositionLeft = newPositionLeft +
   destinationElement.clientWidth*(newPositionShift.l/100);
   return {top: newPositionTop, left: newPositionLeft };
 }
-function getNewPosition(currentRow:number, currentCol:number,
-  sourceCellRow:number,sourceCellCol:number,parentArray:any[]):MyPosition{
-  let newPosition:MyPosition = null;
-  let deltaboard:Board = currentUpdateUI.state.delta.board;
-  deltaboard[currentRow][currentCol]--;
-  deltaboard[sourceCellRow][sourceCellCol]++;
-
-  let parent:any = null;
-  let isStore:boolean = true;
+function getNewParent(currentRow:number, currentCol:number):HTMLElement{
+  let parent:HTMLElement = null;
   //store two condition
 
   if(currentRow==1 && currentCol==6){
@@ -501,163 +567,175 @@ function getNewPosition(currentRow:number, currentCol:number,
   //pit condition
   else{
     parent = document.getElementById('pit-'+currentRow+currentCol);
-    isStore = false;
+
 
   }
-
-  newPosition = updatePosition(parent,
-  currentRow,currentCol,deltaboard,false);
-  parentArray.push(parent);
-  return newPosition;
+  return parent;
 
 }
-function putintoDestination(loopCount:number,children:any,currentRow:number,
-  currentCol:number,turn:number):any[]{
+function isStore(row:number,col:number):boolean{
+  let isStore:boolean = false;
+  if((row==1 && col==6) || (row==0 && col==0)){
+    isStore = true;
+  }
+
+  return isStore;
+}
+function putintoDestination(children:HTMLElement[],currentRow:number,
+  currentCol:number,turn:number,sourceCopy:string[][][],animateState:IState,
+  animateDelta:BoardDelta):void{
    let sourceCellRow = currentRow;
    let sourceCellCol = currentCol;
-   let parentArray : any[] = [];
-   let childArray : any[] = [];
-   let deltaBoard:Board = currentUpdateUI.state.delta.board;
-  //check destination cells
-  for(let loopNo=0; loopNo<loopCount; loopNo++){
-    let candyImage = children[loopNo].getElementsByTagName("img")[0];
-    let currentPositionLeft = candyImage.getBoundingClientRect().left;
-    let currentPositionTop = candyImage.getBoundingClientRect().top;
-    let updateIndex = true;
-    if(updateIndex){
-      if(currentRow == 1){
-        currentCol++;
-        if(turn==0 && currentCol==6){
-          currentRow=0;
-        }
-        if(currentCol>=7){
-          currentCol--;
-          currentRow = 0;
-        }
-      }
-      else{
-        currentCol--;
-        if(turn == 1 && currentCol==0){
-          currentRow = 1;
-        }
-        if(currentCol<0){
-          currentCol++;
-          currentRow = 1;
-        }
-      }
+   let oldParentArray:HTMLElement[] = [];
+   let newParentArray : HTMLElement[] = [];
+   let childArray : HTMLElement[] = [];
+   let deltaBoard:Board = animateDelta.board;
+   let parent:HTMLElement = null;
+   let stateBoard:Board = animateState.board;
+   let loopCount = -1 * deltaBoard[currentRow][currentCol];
+   console.log("Loop count is: "+loopCount);
+   console.log("Children's length is: "+children.length);
 
-    }
-    console.log("Moving to");
-    console.log(currentRow);
-    console.log(currentCol);
-    let newPosition:MyPosition = null;
-    if(deltaBoard[currentRow][currentCol]==1){
-      newPosition  = getNewPosition(currentRow, currentCol,
-        sourceCellRow,sourceCellCol,parentArray);
-      updateIndex = true;
+   for(let loopNo=0; loopNo<loopCount; loopNo++){
+      console.log("Loop No is:"+loopNo);
+      let candyImage = children[loopNo].getElementsByTagName("img")[0];
+      let currentPositionLeft = candyImage.getBoundingClientRect().left;
+      let currentPositionTop = candyImage.getBoundingClientRect().top;
 
-    }
-    else{
-        //handle the case when there can be case where whole circle can be completed
-        if(deltaBoard[currentRow][currentCol]>1){
-          newPosition  = getNewPosition(currentRow, currentCol,
-            sourceCellRow,sourceCellCol,parentArray);
-          updateIndex = false;
-        }
-        else{
-          if(updateIndex){
-            for(let i=0;i<deltaBoard.length;i++){
-              for(let j=0;j<deltaBoard[0].length;j++){
-                if(deltaBoard[i][j]>0){
-                  currentRow = i;
-                  currentCol = j;
-                  break;
-                }
-
-              }
+      // Find the destination cells
+      while(deltaBoard[currentRow][currentCol]<1){
+          if(currentRow == 1){
+            currentCol++;
+            if(currentCol>=7){
+              currentCol--;
+              currentRow = 0;
             }
           }
-          newPosition  = getNewPosition(currentRow, currentCol,
-            sourceCellRow,sourceCellCol,parentArray);
-          updateIndex = false;
-        }
+          else{
+            currentCol--;
+            if(currentCol<0){
+              currentCol++;
+              currentRow = 1;
+            }
+          }
+
+
+      }
+
+      // Start moving
+      console.log("Moving to "+currentRow + " "+ currentCol);
+
+      parent  = getNewParent(currentRow, currentCol);
+      deltaBoard[currentRow][currentCol]--;
+      deltaBoard[sourceCellRow][sourceCellCol]++;
+      let newPosition:MyPosition = updatePosition(parent,
+      currentRow,currentCol,animateState,animateDelta);
+      let newPositionLefttext = newPosition.left-currentPositionLeft + 'px';
+      let newPositionToptext = newPosition.top-currentPositionTop + 'px';
+      console.log("candy image: ");
+      console.log(candyImage);
+      candyImage.style.transform = "translate("+newPositionLefttext+","+newPositionToptext+")";
+      //candyImage.parentNode.removeChild(candyImage);
+      //parent.appendChild(candyImage);
+      sourceCopy[currentRow][currentCol][stateBoard[currentRow][currentCol]-deltaBoard[currentRow][currentCol]-1] =
+      candyImage.src;
+
     }
 
-    let newPositionLefttext = newPosition.left-currentPositionLeft + 'px';
-    let newPositionToptext = newPosition.top-currentPositionTop + 'px';
-    console.log("delta positions")
-    console.log(newPositionLefttext);
-    console.log(newPositionToptext);
-    candyImage.style.transform = "translate("+newPositionLefttext+","+newPositionToptext+")";
-    childArray.push(candyImage);
-
-  }
-  let resultArray:any[] = [];
-  resultArray.push(parentArray);
-  resultArray.push(childArray);
-  return resultArray;
-
 }
-function assignChildren(parent:any,child:any){
-  parent.appendChild(child);
-}
-function translateToNewPosition(secondOrderAnimate:Function):void{
-  let row:number = currentUpdateUI.state.delta.row;
-  let col:number = currentUpdateUI.state.delta.col;
-  let deltaBoard:Board = currentUpdateUI.state.delta.board;
 
-  let experimentPit = document.getElementById("pit-01");
-  console.log(experimentPit);
+function animate(animateState:IState,animateDelta:BoardDelta):string[][][]{
+  let row:number = animateDelta.row;
+  let col:number = animateDelta.col;
+  let deltaBoard:Board = animateDelta.board;
+  let sourceCopy = angular.copy(sourceImages);
   console.log(document.getElementById("gameArea"));
-  ///let pitPositions:MyPosition[] = [];
-  //let destinationPits:number[] = [];
   let positionCount = 0;
   let loopCount = 0;
   let resultArray:any[] = [];
   //check departure cell
   if(deltaBoard[row][col]<0){
     loopCount = -1 * deltaBoard[row][col];
-    let children:any = document.getElementById('pit-'+row+col).children;
+    let children:HTMLElement[] = <HTMLElement[]><any>document.getElementById('pit-'+row+col).children;
+    console.log("Deparature cell selected is pit-"+row+col);
+    console.log("Length of the children is "+children.length);
+    console.log(animateState.board);
+    console.log(animateDelta.board);
     let turn = row;
-    resultArray = putintoDestination(loopCount,children,row,col,
-      turn);
-
+    for(let candyNo=0;candyNo<children.length;candyNo++){
+      sourceCopy[row][col][candyNo] = null;
+    }
+    putintoDestination(children,row,col,
+      turn,sourceCopy,animateState,animateDelta);
   }
-  //check for other cells if there are any transfers left
 
- //secondOrderAnimate(row,deltaBoard,resultArray);
+ secondOrderAnimate(row,animateState,animateDelta,sourceCopy);
+ return sourceCopy;
 
 }
-export function secondOrderAnimate(row:number,deltaBoard:Board,stateBoard:Board,resultArray:any[]){
-  if(resultArray!=null){
-    for(let resultNo = 0 ; resultNo< resultArray[0].length;resultNo++){
-      resultArray[0][resultNo].appendChild(resultArray[1][resultNo]);
+function assignSourceCopy(animateState:IState,animateDelta:BoardDelta):string[][][]{
+  let sourceCopy = angular.copy(sourceImages);
+  let sourceCollection:string[] = [];
+  for(let rowNo=0;rowNo<2;rowNo++){
+    for(let colNo=0;colNo<7;colNo++){
+      let deltaNumber = animateDelta.board[rowNo][colNo];
+      if(deltaNumber<0){
+        console.log("delta is: "+deltaNumber);
+
+        for(let candyNo=0;candyNo<-1*deltaNumber;candyNo++){
+          sourceCollection.push(sourceCopy[rowNo][colNo][candyNo]);
+          sourceCopy[rowNo][colNo][candyNo]=null;
+
+        }
+      }
     }
-
   }
+  console.log("Source collection: ");
+  console.log(sourceCollection);
+  let srcCandyNo:number = 0;
+  for(let rowNo=0;rowNo<2;rowNo++){
+    for(let colNo=0;colNo<7;colNo++){
+      let deltaNumber:number = animateDelta.board[rowNo][colNo];
+      let cellValue:number = animateState.board[rowNo][colNo];
+      if(deltaNumber>0){
+        let destCandyNo = cellValue - deltaNumber;
+        for(;destCandyNo<cellValue;destCandyNo++){
+          sourceCopy[rowNo][colNo][destCandyNo] = sourceCollection[srcCandyNo++];
+        }
 
+      }
+
+
+
+    }
+  }
+  return sourceCopy;
+}
+function changeParents(resultArray:any[]):void{
+  let parentArray:HTMLElement[] = resultArray[0];
+  let childArray:HTMLElement[] = resultArray[1];
+  let arrayLength:number = parentArray.length;
+  for(let elementNo=0;elementNo<arrayLength;elementNo++){
+    childArray[elementNo].parentNode.removeChild(childArray[elementNo]);
+    parentArray[elementNo].appendChild(childArray[elementNo]);
+  }
+}
+export function secondOrderAnimate(row:number,animateState:IState,animateDelta:BoardDelta,sourceCopy:string[][][]){
+
+  let deltaBoard = animateDelta.board;
   for(let rowNo = 0;rowNo < 2;rowNo++){
     for(let colNo = 0;colNo < 7;colNo++){
         if(deltaBoard[rowNo][colNo]<0){
           let loopCount = -1 * deltaBoard[rowNo][colNo];
           let children:any = document.getElementById('pit-'+rowNo+colNo).children;
           let turn = row;
-          putintoDestination(loopCount,children,rowNo,colNo,
-            turn);
+          putintoDestination(children,rowNo,colNo,
+            turn,sourceCopy,animateState,animateDelta);
 
         }
 
     }
   }
-
-
-
-}
-export function animate():void{
-  //console.log("The delta of this move is: ");
-  //console.log(params.state.delta.board);
-  //console.log("The delta of this move ends");
-  translateToNewPosition(secondOrderAnimate);
 }
 
   function isEndOfGame():boolean{
@@ -741,6 +819,13 @@ export function animate():void{
   }
   export function getTurnStatus():number{
       return turnStatus;
+  }
+  export function getSource(rowNo:number,colNo:number,candyNo:number):string{
+    let imgsrc:string = sourceImages[rowNo][colNo][candyNo];
+    if(!imgsrc || imgsrc==null){
+      imgsrc = "imgs/exp6.png";
+    }
+    return imgsrc;
   }
 
 }
