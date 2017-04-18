@@ -251,7 +251,7 @@ module gameLogic {
       return 1 - turnIndex;
     }
   }
-  function createDelta(boardAfterMove:Board, boardBeforeMove:Board):Board{
+  export function createDelta(boardAfterMove:Board, boardBeforeMove:Board):Board{
     let deltaBoard:Board = [];
     console.log(boardBeforeMove);
     console.log(boardAfterMove);

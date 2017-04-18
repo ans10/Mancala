@@ -233,6 +233,7 @@ var gameLogic;
         console.log(deltaBoard);
         return deltaBoard;
     }
+    gameLogic.createDelta = createDelta;
     /**
      * Returns the move that should be performed when player
      * with index BeforeMove makes a move in cell row X col.
