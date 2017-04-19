@@ -31648,6 +31648,36 @@ var gameLogic;
 (function (gameLogic) {
     gameLogic.ROWS = 2;
     gameLogic.COLS = 7;
+    gameLogic.candy1 = "imgs/exp6.png";
+    ;
+    gameLogic.candy2 = "imgs/exp7.png";
+    gameLogic.candy3 = "imgs/exp8.png";
+    gameLogic.candy4 = "imgs/exp9.png";
+    function getInitialSource() {
+        console.log("In initialize source method");
+        var sourceImages;
+        sourceImages = [];
+        for (var rowNo = 0; rowNo < 2; rowNo++) {
+            sourceImages[rowNo] = [];
+            for (var colNo = 0; colNo < 7; colNo++) {
+                sourceImages[rowNo][colNo] = [];
+                for (var candyNo = 0; candyNo < 48; candyNo++) {
+                    sourceImages[rowNo][colNo][candyNo] = null;
+                }
+            }
+        }
+        for (var rowNo = 0; rowNo < 2; rowNo++) {
+            for (var colNo = 0; colNo < 7; colNo++) {
+                if (!((rowNo == 0 && colNo == 0) || (rowNo == 1 && colNo == 6))) {
+                    sourceImages[rowNo][colNo][0] = gameLogic.candy1;
+                    sourceImages[rowNo][colNo][1] = gameLogic.candy2;
+                    sourceImages[rowNo][colNo][2] = gameLogic.candy3;
+                    sourceImages[rowNo][colNo][3] = gameLogic.candy4;
+                }
+            }
+        }
+        return sourceImages;
+    }
     /** Returns the initial TicTacToe board, which is a ROWSxCOLS matrix containing ''. */
     function getInitialBoard() {
         var board = [];
@@ -31672,17 +31702,37 @@ var gameLogic;
             }
         }
         board[1][5] = 0;
-        board[1][4] = 0;
-        board[0][0] = 23;
+        board[1][4] = 3;
+        board[0][0] = 20;
         board[1][6] = 24;
         board[0][1] = 1;
         return board;
     }
     gameLogic.getPseudoInitialBoard = getPseudoInitialBoard;
+    // function getInitialSource():string[][][]{
+    //   console.log("In initialize source method");
+    //   let sourceImages:string[][][];
+    //   sourceImages = [];
+    //   for(let rowNo=0;rowNo<2;rowNo++){
+    //     sourceImages[rowNo]=[];
+    //     for(let colNo=0;colNo<7;colNo++){
+    //       sourceImages[rowNo][colNo]=[];
+    //       for(let candyNo=0;candyNo<48;candyNo++){
+    //          sourceImages[rowNo][colNo][candyNo] = null;
+    //       }
+    //     }
+    //   }
+    //   sourceImages[rowNo][colNo][0] = candy1;
+    //   sourceImages[rowNo][colNo][1] = candy2;
+    //   sourceImages[rowNo][colNo][2] = candy3;
+    //   sourceImages[rowNo][colNo][3] = candy4;
+    //
+    //   return sourceImages;
+    // }
     function getInitialState() {
         console.log("Initial state method called in gameLogic");
         return { board: getInitialBoard(), delta: null, lastupdatedrow: -1,
-            lastupdatedcol: -1, nextMoveType: "clickUpdate" };
+            lastupdatedcol: -1, nextMoveType: "clickUpdate", sourceImages: getInitialSource() };
     }
     gameLogic.getInitialState = getInitialState;
     /**
@@ -31728,8 +31778,11 @@ var gameLogic;
                 boardAfterMove[1][j] = 0;
             }
         }
-        var updatedState = { board: boardAfterMove, delta: null,
-            lastupdatedrow: lastupdatedr, lastupdatedcol: lastupdatedc, nextMoveType: null };
+        var deltaBoard = createDelta(boardAfterMove, board);
+        var delta = { board: deltaBoard, row: lastupdatedr, col: lastupdatedc };
+        var updatedState = { board: boardAfterMove, delta: delta,
+            lastupdatedrow: lastupdatedr, lastupdatedcol: lastupdatedc, nextMoveType: null,
+            sourceImages: null };
         return updatedState;
     }
     function getWinner(board) {
@@ -31807,15 +31860,15 @@ var gameLogic;
             ((i === 0 && boardAfterMove[1 - i][j - 1] > 0) ||
                 (i === 1 && boardAfterMove[1 - i][j + 1] > 0))) {
             updatedState = { board: boardAfterMove, delta: delta, lastupdatedrow: i,
-                lastupdatedcol: j, nextMoveType: "emptyHole" };
+                lastupdatedcol: j, nextMoveType: "emptyHole", sourceImages: null };
         }
         else if (isEndState(boardAfterMove)) {
             updatedState = { board: boardAfterMove, delta: delta, lastupdatedrow: i,
-                lastupdatedcol: j, nextMoveType: "transferAll" };
+                lastupdatedcol: j, nextMoveType: "transferAll", sourceImages: null };
         }
         else {
             updatedState = { board: boardAfterMove, delta: delta, lastupdatedrow: i,
-                lastupdatedcol: j, nextMoveType: "clickUpdate" };
+                lastupdatedcol: j, nextMoveType: "clickUpdate", sourceImages: null };
         }
         return updatedState;
     }
@@ -31836,7 +31889,7 @@ var gameLogic;
         var deltaBoard = createDelta(boardAfterMove, board);
         var delta = { board: deltaBoard, row: row, col: col };
         var updateState = { board: boardAfterMove, delta: delta, lastupdatedrow: i,
-            lastupdatedcol: j, nextMoveType: "clickUpdate" };
+            lastupdatedcol: j, nextMoveType: "clickUpdate", sourceImages: null };
         if (isEndState(boardAfterMove)) {
             updateState.nextMoveType = "transferAll";
         }
@@ -31883,10 +31936,11 @@ var gameLogic;
         console.log(stateBeforeMove.nextMoveType);
         var endMatchScores = null;
         var turnIndex;
+        var sourceImages = stateBeforeMove.sourceImages;
         console.log("Turnindexbeforemove: " + turnIndexBeforeMove + "row: " + row);
         var updatedState = null;
         if (nextMoveType == "clickUpdate") {
-            console.log("going in clickUpdate section");
+            console.log("Click movement happening");
             if (row !== turnIndexBeforeMove || board[row][col] === 0
                 || (row === 0 && col === 0) || (row === 1 && col === 6)) {
                 throw new Error("Making an invalid move!");
@@ -31900,26 +31954,26 @@ var gameLogic;
             }
         }
         else if (nextMoveType == "emptyHole") {
-            console.log("going in emptyHole section");
+            console.log("Jackpot condition");
             updatedState = updateEmptyHole(board, row, col);
             if (updatedState.nextMoveType != "transferAll") {
-                turnIndex = 1 - turnIndexBeforeMove;
+                turnIndexBeforeMove = 1 - turnIndexBeforeMove;
             }
-            else {
-                turnIndex = turnIndexBeforeMove;
-            }
+            turnIndex = turnIndexBeforeMove;
         }
         else if (nextMoveType == "transferAll") {
             updatedState = transferAllLeft(board);
             var boardAfterMove = updatedState.board;
             var winner = getWinner(boardAfterMove);
-            turnIndex = -1;
+            turnIndexBeforeMove = -1;
+            turnIndex = turnIndexBeforeMove;
             endMatchScores = winner === 0 ? [1, 0] : winner === 1 ? [0, 1] : [0, 0];
         }
         else {
             throw new Error("Invalid movetype");
         }
         console.log("TurnIndex value is: " + turnIndex);
+        updatedState.sourceImages = sourceImages;
         var state = updatedState;
         console.info("Returning createMove successfully");
         return {
@@ -32034,7 +32088,7 @@ var game;
         { t: 6, l: 16 },
         { t: 8, l: 19 },
         { t: 23, l: 36 },
-        { t: 65, l: 47 },
+        { t: 60, l: 47 },
         { t: 44, l: 45 },
         { t: 23, l: 66 },
         { t: 43, l: 68 },
@@ -32057,7 +32111,6 @@ var game;
         translate.setTranslations(getTranslations());
         translate.setLanguage('en');
         resizeGameAreaService.setWidthToHeight(1.6);
-        initializeSource();
         gameService.setGame({
             updateUI: updateUI,
             getStateForOgImage: null,
@@ -32065,75 +32118,38 @@ var game;
         console.log("INIT method over");
     }
     game.init = init;
-    function initialize_position_array() {
-        game.position_arrv = new Array(48);
-        game.position_arrv[0] = { top: 0, left: 52 };
-        console.log("{ t:" + game.position_arrv[0].top + ", l:" + game.position_arrv[0].left + "},");
-        for (var i = 1; i < 48; i++) {
-            var new_position = game.position_arrv[i - 1];
-            var lc = getRandom(-5, 5);
-            var tc = getRandom(-5, 5);
-            new_position.top = Math.round(new_position.top + tc);
-            new_position.left = Math.round(new_position.left + lc);
-            if (new_position.left >= 70) {
-                new_position.left = 65;
-            }
-            if (new_position.top <= 0) {
-                new_position.top = 7;
-            }
-            if (new_position.left <= 0) {
-                new_position.left = 5;
-            }
-            if (new_position.top >= 40) {
-                new_position.top = 40;
-            }
-            game.position_arrv[i] = new_position;
-            console.log("{ t:" + game.position_arrv[i].top + ", l:" + game.position_arrv[i].left + "},");
-        }
-    }
-    function getPreviousBoard(state) {
-        var previousBoard = angular.copy(state.board);
-        for (var rowNo = 0; rowNo < 2; rowNo++) {
-            for (var colNo = 0; colNo < 7; colNo++) {
-                previousBoard[rowNo][colNo] -= state.delta.board[rowNo][colNo];
-            }
-        }
-        return previousBoard;
-    }
-    function initializeSource() {
-        console.log("In initialize source method");
-        game.sourceImages = [];
-        for (var rowNo = 0; rowNo < 2; rowNo++) {
-            game.sourceImages[rowNo] = [];
-            for (var colNo = 0; colNo < 7; colNo++) {
-                game.sourceImages[rowNo][colNo] = [];
-                for (var candyNo = 0; candyNo < 24; candyNo++) {
-                    game.sourceImages[rowNo][colNo][candyNo] = null;
-                }
-            }
-        }
-        for (var rowNo = 0; rowNo < 2; rowNo++) {
-            for (var colNo = 0; colNo < 7; colNo++) {
-                if (!((rowNo == 0 && colNo == 0) || (rowNo == 1 && colNo == 6))) {
-                    game.sourceImages[rowNo][colNo][0] = "imgs/exp6.png";
-                    game.sourceImages[rowNo][colNo][1] = "imgs/exp7.png";
-                    game.sourceImages[rowNo][colNo][2] = "imgs/exp8.png";
-                    game.sourceImages[rowNo][colNo][3] = "imgs/exp9.png";
-                }
-            }
-        }
-    }
-    function initializePositionImages() {
-        for (var rowNo = 0; rowNo < 2; rowNo++) {
-            game.positionImages[rowNo] = [];
-            for (var colNo = 0; colNo < 7; colNo++) {
-                game.positionImages[rowNo][colNo] = [];
-                for (var pos = 0; pos < 24; pos++) {
-                    game.positionImages[rowNo][colNo][pos] = angular.copy(PositionStyle);
-                }
-            }
-        }
-    }
+    //  function initialize_position_array(){
+    //     position_arrv = new Array(48);
+    //
+    //     position_arrv[0] = {top:0,left:52};
+    //     console.log("{ t:"+position_arrv[0].top+", l:"+position_arrv[0].left+"},");
+    //     for(let i=1;i<48;i++){
+    //       let new_position:MyPosition = position_arrv[i-1];
+    //       let lc = getRandom(-5,5);
+    //       let tc = getRandom(-5,5);
+    //       new_position.top = Math.round(new_position.top + tc);
+    //       new_position.left = Math.round(new_position.left + lc);
+    //       if(new_position.left>=70){
+    //         new_position.left = 65;
+    //       }
+    //       if(new_position.top<=0){
+    //         new_position.top=7;
+    //       }
+    //       if(new_position.left<=0){
+    //         new_position.left = 5;
+    //       }
+    //       if(new_position.top>=40){
+    //         new_position.top = 40;
+    //       }
+    //       position_arrv[i] = new_position;
+    //       console.log("{ t:"+position_arrv[i].top+", l:"+position_arrv[i].left+"},");
+    //
+    //     }
+    //
+    //
+    //
+    //
+    // }
     function registerServiceWorker() {
         // I prefer to use appCache over serviceWorker
         // (because iOS doesn't support serviceWorker, so we have to use appCache)
@@ -32187,6 +32203,16 @@ var game;
         }
         return proposals;
     }
+    function boardBeforeMove(boardAfterMove, deltaBoard) {
+        var boardBeforeMove = angular.copy(boardAfterMove);
+        for (var rowNo = 0; rowNo < 2; rowNo++) {
+            for (var colNo = 0; colNo < 7; colNo++) {
+                boardBeforeMove[rowNo][colNo] = boardAfterMove[rowNo][colNo] -
+                    deltaBoard[rowNo][colNo];
+            }
+        }
+        return boardBeforeMove;
+    }
     function updateUI(params) {
         log.info("Game got updateUI:", params);
         var playerIdToProposal = params.playerIdToProposal;
@@ -32194,67 +32220,58 @@ var game;
         game.didMakeMove = playerIdToProposal && playerIdToProposal[game.yourPlayerInfo.playerId] != undefined;
         game.yourPlayerInfo = params.yourPlayerInfo;
         game.currentUpdateUI = params;
-        console.log("Turn index is !!!!!!!!!!!!! : " + game.currentUpdateUI.turnIndex + " " + game.isEndState);
+        console.log("Double checking playerindex and turn index");
+        console.log(game.currentUpdateUI.yourPlayerIndex);
+        console.log(game.currentUpdateUI.turnIndex);
         clearAnimationTimeout();
         game.animationDone = false;
         /*For computer moves, only after animation it should occur */
         var sourceCopy = null;
-        if (game.currentUpdateUI.state != null && game.currentUpdateUI.state.delta != null) {
-            //scores = getPreviousBoard(currentUpdateUI.state);
-            var animateState = angular.copy(game.currentUpdateUI.state);
-            var animateDelta = angular.copy(game.currentUpdateUI.state.delta);
-            console.log("CurrentUpdateUI delta is: ");
-            console.log(game.currentUpdateUI.state.delta);
-            console.log("Params delta is: ");
-            console.log(params.state.delta);
-            sourceCopy = animate(animateState, animateDelta);
-            //sourceCopy = assignSourceCopy(animateState,animateDelta);
-            if (sourceCopy == null) {
-                initializeSource();
-                sourceCopy = angular.copy(game.sourceImages);
-            }
+        game.state = game.currentUpdateUI.state;
+        if (game.state != null && game.state.delta != null) {
+            game.scores = boardBeforeMove(game.state.board, game.state.delta.board);
+            console.log(game.scores);
+            var animateState_1 = angular.copy(game.state);
+            var animateDelta_1 = angular.copy(game.state.delta);
+            game.$timeout(function () {
+                sourceCopy = animate(animateState_1, animateDelta_1);
+                console.log(sourceCopy);
+            }, 0);
         }
-        if (game.currentUpdateUI.state != null && game.currentUpdateUI.state.delta != null) {
-            console.log("After running animate: ");
-            console.log("CurrentUpdateUI delta is: ");
-            console.log(game.currentUpdateUI.state.delta);
-            console.log("Params delta is: ");
-            console.log(params.state.delta);
-        }
-        console.log(sourceCopy);
-        game.state = params.state;
-        console.log("Step after animation");
-        console.log(game.state);
         if (isFirstMove()) {
             console.log("Initialstate method called");
             game.state = gameLogic.getInitialState();
             game.scores = angular.copy(game.state.board);
+            game.sourceImages = angular.copy(game.state.sourceImages);
         }
-        if (game.currentUpdateUI.turnIndex === -1) {
-            game.isEndState = true;
-        }
-        else {
-            game.isEndState = false;
-        }
-        console.log("Turn index is !!!!!!!!!!!!! : " + game.currentUpdateUI.turnIndex + " " + game.isEndState);
+        setFlipDisplay();
+        // We calculate the AI move only after the animation finishes,
+        // because if we call aiService now
+        // then the animation will be paused until the javascript finishes.
+        game.animationEndedTimeout = game.$timeout(function () { animationEndedCallback(sourceCopy); }, 2100);
+    }
+    game.updateUI = updateUI;
+    function setFlipDisplay() {
         if (game.currentUpdateUI.playMode === 1 || game.currentUpdateUI.playMode === "multiplayer") {
             game.flipDisplay = true;
         }
         else {
             game.flipDisplay = false;
         }
-        console.log("flip is : ~~~~~~~~~~ " + game.flipDisplay);
-        // We calculate the AI move only after the animation finishes,
-        // because if we call aiService now
-        // then the animation will be paused until the javascript finishes.
-        game.animationEndedTimeout = game.$timeout(function () { animationEndedCallback(sourceCopy); }, 2000);
-        //animationEndedTimeout = $timeout(function(){animationEndedCallback(sourceCopy)}, 300);
     }
-    game.updateUI = updateUI;
+    function setEndState() {
+        if (getTurnStatus() === -1) {
+            game.isEndState = true;
+        }
+        else {
+            game.isEndState = false;
+        }
+    }
     function animationEndedCallback(sourceCopy) {
         log.info("Animation ended");
         setTurnStatus();
         updateScores();
+        setEndState();
         updateSourceImages(sourceCopy);
         if (game.state.nextMoveType == null) {
             game.isEndState = true;
@@ -32271,7 +32288,7 @@ var game;
     function updateSourceImages(sourceCopy) {
         if (sourceCopy != null) {
             console.log(game.sourceImages);
-            game.sourceImages = sourceCopy;
+            game.state.sourceImages = sourceCopy;
         }
     }
     function setTurnStatus() {
@@ -32392,11 +32409,16 @@ var game;
     }
     game.makeArray = makeArray;
     function referLogic(row, column) {
-        if (isComputerTurn() || game.currentUpdateUI.turnIndex == -1)
+        if (game.currentUpdateUI.turnIndex == -1) {
+            console.log("winner is already declared");
             return;
+        }
         var nextMove = null;
         try {
             nextMove = gameLogic.createMove(game.state, row, column, game.currentUpdateUI.turnIndex);
+            console.log("next move's turn index:");
+            console.log(nextMove.turnIndex);
+            console.log(game.currentUpdateUI.turnIndex);
         }
         catch (exception) {
             console.info("Problem in createMove: " + exception);
@@ -32405,17 +32427,8 @@ var game;
         gameService.makeMove(nextMove, null);
         if (nextMove.endMatchScores !== null) {
             console.info("end state detected to be true " + game.isEndState);
-            if (nextMove.endMatchScores[0] > nextMove.endMatchScores[1]) {
-                console.log("Winner is 0");
-                game.winner = 0;
-            }
-            else {
-                console.log("Winner is 1");
-                game.winner = 1;
-            }
         }
     }
-    game.referLogic = referLogic;
     function pitClicked(event, row, column) {
         console.info("Cell clicked (row,col): (" + row + "," + column + ")");
         if (!isHumanTurn() || !game.animationDone)
@@ -32511,11 +32524,7 @@ var game;
             var newPosition = updatePosition(parent, currentRow, currentCol, animateState, animateDelta);
             var newPositionLefttext = newPosition.left - currentPositionLeft + 'px';
             var newPositionToptext = newPosition.top - currentPositionTop + 'px';
-            console.log("candy image: ");
-            console.log(candyImage);
             candyImage.style.transform = "translate(" + newPositionLefttext + "," + newPositionToptext + ")";
-            //candyImage.parentNode.removeChild(candyImage);
-            //parent.appendChild(candyImage);
             sourceCopy[currentRow][currentCol][stateBoard[currentRow][currentCol] - deltaBoard[currentRow][currentCol] - 1] =
                 candyImage.src;
         }
@@ -32524,26 +32533,27 @@ var game;
         var row = animateDelta.row;
         var col = animateDelta.col;
         var deltaBoard = animateDelta.board;
-        var sourceCopy = angular.copy(game.sourceImages);
-        console.log(document.getElementById("gameArea"));
+        var sourceCopy = angular.copy(animateState.sourceImages);
         var positionCount = 0;
         var loopCount = 0;
         var resultArray = [];
         //check departure cell
-        if (deltaBoard[row][col] < 0) {
-            loopCount = -1 * deltaBoard[row][col];
-            var children = document.getElementById('pit-' + row + col).children;
-            console.log("Deparature cell selected is pit-" + row + col);
-            console.log("Length of the children is " + children.length);
-            console.log(animateState.board);
-            console.log(animateDelta.board);
-            var turn = row;
-            for (var candyNo = 0; candyNo < children.length; candyNo++) {
-                sourceCopy[row][col][candyNo] = null;
+        for (var row_1 = 0; row_1 < 2; row_1++) {
+            for (var col_1 = 0; col_1 < 7; col_1++) {
+                if (deltaBoard[row_1][col_1] < 0) {
+                    loopCount = -1 * deltaBoard[row_1][col_1];
+                    var children = document.getElementById('pit-' + row_1 + col_1).children;
+                    console.log("Deparature cell selected is pit-" + row_1 + col_1);
+                    console.log("Length of the children is " + children.length);
+                    var turn = row_1;
+                    for (var candyNo = 0; candyNo < children.length; candyNo++) {
+                        sourceCopy[row_1][col_1][candyNo] = null;
+                    }
+                    putintoDestination(children, row_1, col_1, turn, sourceCopy, animateState, animateDelta);
+                }
             }
-            putintoDestination(children, row, col, turn, sourceCopy, animateState, animateDelta);
         }
-        secondOrderAnimate(row, animateState, animateDelta, sourceCopy);
+        //secondOrderAnimate(row,animateState,animateDelta,sourceCopy);
         return sourceCopy;
     }
     function assignSourceCopy(animateState, animateDelta) {
@@ -32561,8 +32571,6 @@ var game;
                 }
             }
         }
-        console.log("Source collection: ");
-        console.log(sourceCollection);
         var srcCandyNo = 0;
         for (var rowNo = 0; rowNo < 2; rowNo++) {
             for (var colNo = 0; colNo < 7; colNo++) {
@@ -32602,13 +32610,7 @@ var game;
     }
     game.secondOrderAnimate = secondOrderAnimate;
     function isEndOfGame() {
-        console.log("is End of Game is: " + game.isEndState);
-        if (game.currentUpdateUI.turnIndex === -1) {
-            console.log("is end state is tureeeeeee");
-        }
-        else {
-            console.log("is falseeeeeeeeeeeeeeeeee");
-        }
+        console.log("End of Game is: " + game.isEndState);
         return game.isEndState;
     }
     function isDrawn() {
@@ -32620,7 +32622,7 @@ var game;
     }
     game.isDrawn = isDrawn;
     function getWinner() {
-        console.log("in give winnerrrrrrr " + game.currentUpdateUI.endMatchScores + " " + game.isEndState);
+        console.log("Getting the winner" + game.currentUpdateUI.endMatchScores + " " + game.isEndState);
         console.log("hello?");
         if (game.currentUpdateUI.endMatchScores !== null) {
             game.isEndState = true;
@@ -32665,7 +32667,6 @@ var game;
     }
     game.getPosition = getPosition;
     function flipBoard() {
-        console.log("flipdisplay in function is: " + game.flipDisplay);
         return game.flipDisplay;
     }
     game.flipBoard = flipBoard;
@@ -32686,8 +32687,9 @@ var game;
     }
     game.getTurnStatus = getTurnStatus;
     function getSource(rowNo, colNo, candyNo) {
-        var imgsrc = game.sourceImages[rowNo][colNo][candyNo];
+        var imgsrc = game.state.sourceImages[rowNo][colNo][candyNo];
         if (!imgsrc || imgsrc == null) {
+            console.log("Had to rely on default image");
             imgsrc = "imgs/exp6.png";
         }
         return imgsrc;
