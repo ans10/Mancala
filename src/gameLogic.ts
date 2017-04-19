@@ -344,12 +344,11 @@ module gameLogic {
       console.log("Jackpot condition");
       updatedState = updateEmptyHole(board,row,col);
       if(updatedState.nextMoveType!="transferAll"){
-        turnIndex = 1 - turnIndexBeforeMove;
+        turnIndexBeforeMove = 1 - turnIndexBeforeMove;
       }
 
-      else{
-        turnIndex = turnIndexBeforeMove;
-      }
+      turnIndex = turnIndexBeforeMove;
+
 
 
     }
@@ -357,7 +356,8 @@ module gameLogic {
       updatedState = transferAllLeft(board);
       let boardAfterMove:Board = updatedState.board;
       let winner = getWinner(boardAfterMove);
-      turnIndex = -1;
+      turnIndexBeforeMove = -1;
+      turnIndex = turnIndexBeforeMove;
       endMatchScores = winner === 0 ? [1, 0] : winner === 1 ? [0, 1] : [0, 0];
 
     }

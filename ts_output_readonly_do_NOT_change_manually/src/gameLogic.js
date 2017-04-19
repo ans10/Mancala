@@ -300,17 +300,16 @@ var gameLogic;
             console.log("Jackpot condition");
             updatedState = updateEmptyHole(board, row, col);
             if (updatedState.nextMoveType != "transferAll") {
-                turnIndex = 1 - turnIndexBeforeMove;
+                turnIndexBeforeMove = 1 - turnIndexBeforeMove;
             }
-            else {
-                turnIndex = turnIndexBeforeMove;
-            }
+            turnIndex = turnIndexBeforeMove;
         }
         else if (nextMoveType == "transferAll") {
             updatedState = transferAllLeft(board);
             var boardAfterMove = updatedState.board;
             var winner = getWinner(boardAfterMove);
-            turnIndex = -1;
+            turnIndexBeforeMove = -1;
+            turnIndex = turnIndexBeforeMove;
             endMatchScores = winner === 0 ? [1, 0] : winner === 1 ? [0, 1] : [0, 0];
         }
         else {
