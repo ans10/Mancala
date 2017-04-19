@@ -46,7 +46,7 @@ module gameLogic {
       sourceImages[rowNo]=[];
       for(let colNo=0;colNo<7;colNo++){
         sourceImages[rowNo][colNo]=[];
-        for(let candyNo=0;candyNo<24;candyNo++){
+        for(let candyNo=0;candyNo<48;candyNo++){
            sourceImages[rowNo][colNo][candyNo] = null;
         }
       }
@@ -88,12 +88,32 @@ module gameLogic {
       }
     }
     board[1][5] = 0;
-    board[1][4] = 0;
-    board[0][0] = 23;
+    board[1][4] = 3;
+    board[0][0] = 20;
     board[1][6] = 24;
     board[0][1] = 1;
     return board;
   }
+  // function getInitialSource():string[][][]{
+  //   console.log("In initialize source method");
+  //   let sourceImages:string[][][];
+  //   sourceImages = [];
+  //   for(let rowNo=0;rowNo<2;rowNo++){
+  //     sourceImages[rowNo]=[];
+  //     for(let colNo=0;colNo<7;colNo++){
+  //       sourceImages[rowNo][colNo]=[];
+  //       for(let candyNo=0;candyNo<48;candyNo++){
+  //          sourceImages[rowNo][colNo][candyNo] = null;
+  //       }
+  //     }
+  //   }
+  //   sourceImages[rowNo][colNo][0] = candy1;
+  //   sourceImages[rowNo][colNo][1] = candy2;
+  //   sourceImages[rowNo][colNo][2] = candy3;
+  //   sourceImages[rowNo][colNo][3] = candy4;
+  //
+  //   return sourceImages;
+  // }
 
 
   export function getInitialState(): IState {
@@ -151,9 +171,10 @@ module gameLogic {
       }
 
     }
-
+    let deltaBoard:Board = createDelta(boardAfterMove,board);
+    let delta:BoardDelta = {board:deltaBoard,row:lastupdatedr,col:lastupdatedc};
     let updatedState:IState =
-    {board : boardAfterMove, delta:null,
+    {board : boardAfterMove, delta:delta,
       lastupdatedrow : lastupdatedr,lastupdatedcol:lastupdatedc,nextMoveType:null,
       sourceImages:null};
     return updatedState;

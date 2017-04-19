@@ -250,7 +250,7 @@ var game;
         // We calculate the AI move only after the animation finishes,
         // because if we call aiService now
         // then the animation will be paused until the javascript finishes.
-        game.animationEndedTimeout = game.$timeout(function () { animationEndedCallback(sourceCopy); }, 2000);
+        game.animationEndedTimeout = game.$timeout(function () { animationEndedCallback(sourceCopy); }, 2100);
     }
     game.updateUI = updateUI;
     function setFlipDisplay() {
@@ -540,18 +540,22 @@ var game;
         var loopCount = 0;
         var resultArray = [];
         //check departure cell
-        if (deltaBoard[row][col] < 0) {
-            loopCount = -1 * deltaBoard[row][col];
-            var children = document.getElementById('pit-' + row + col).children;
-            console.log("Deparature cell selected is pit-" + row + col);
-            console.log("Length of the children is " + children.length);
-            var turn = row;
-            for (var candyNo = 0; candyNo < children.length; candyNo++) {
-                sourceCopy[row][col][candyNo] = null;
+        for (var row_1 = 0; row_1 < 2; row_1++) {
+            for (var col_1 = 0; col_1 < 7; col_1++) {
+                if (deltaBoard[row_1][col_1] < 0) {
+                    loopCount = -1 * deltaBoard[row_1][col_1];
+                    var children = document.getElementById('pit-' + row_1 + col_1).children;
+                    console.log("Deparature cell selected is pit-" + row_1 + col_1);
+                    console.log("Length of the children is " + children.length);
+                    var turn = row_1;
+                    for (var candyNo = 0; candyNo < children.length; candyNo++) {
+                        sourceCopy[row_1][col_1][candyNo] = null;
+                    }
+                    putintoDestination(children, row_1, col_1, turn, sourceCopy, animateState, animateDelta);
+                }
             }
-            putintoDestination(children, row, col, turn, sourceCopy, animateState, animateDelta);
         }
-        secondOrderAnimate(row, animateState, animateDelta, sourceCopy);
+        //secondOrderAnimate(row,animateState,animateDelta,sourceCopy);
         return sourceCopy;
     }
     function assignSourceCopy(animateState, animateDelta) {

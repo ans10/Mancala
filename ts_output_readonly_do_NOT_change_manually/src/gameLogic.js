@@ -26,7 +26,7 @@ var gameLogic;
             sourceImages[rowNo] = [];
             for (var colNo = 0; colNo < 7; colNo++) {
                 sourceImages[rowNo][colNo] = [];
-                for (var candyNo = 0; candyNo < 24; candyNo++) {
+                for (var candyNo = 0; candyNo < 48; candyNo++) {
                     sourceImages[rowNo][colNo][candyNo] = null;
                 }
             }
@@ -67,13 +67,33 @@ var gameLogic;
             }
         }
         board[1][5] = 0;
-        board[1][4] = 0;
-        board[0][0] = 23;
+        board[1][4] = 3;
+        board[0][0] = 20;
         board[1][6] = 24;
         board[0][1] = 1;
         return board;
     }
     gameLogic.getPseudoInitialBoard = getPseudoInitialBoard;
+    // function getInitialSource():string[][][]{
+    //   console.log("In initialize source method");
+    //   let sourceImages:string[][][];
+    //   sourceImages = [];
+    //   for(let rowNo=0;rowNo<2;rowNo++){
+    //     sourceImages[rowNo]=[];
+    //     for(let colNo=0;colNo<7;colNo++){
+    //       sourceImages[rowNo][colNo]=[];
+    //       for(let candyNo=0;candyNo<48;candyNo++){
+    //          sourceImages[rowNo][colNo][candyNo] = null;
+    //       }
+    //     }
+    //   }
+    //   sourceImages[rowNo][colNo][0] = candy1;
+    //   sourceImages[rowNo][colNo][1] = candy2;
+    //   sourceImages[rowNo][colNo][2] = candy3;
+    //   sourceImages[rowNo][colNo][3] = candy4;
+    //
+    //   return sourceImages;
+    // }
     function getInitialState() {
         console.log("Initial state method called in gameLogic");
         return { board: getInitialBoard(), delta: null, lastupdatedrow: -1,
@@ -123,7 +143,9 @@ var gameLogic;
                 boardAfterMove[1][j] = 0;
             }
         }
-        var updatedState = { board: boardAfterMove, delta: null,
+        var deltaBoard = createDelta(boardAfterMove, board);
+        var delta = { board: deltaBoard, row: lastupdatedr, col: lastupdatedc };
+        var updatedState = { board: boardAfterMove, delta: delta,
             lastupdatedrow: lastupdatedr, lastupdatedcol: lastupdatedc, nextMoveType: null,
             sourceImages: null };
         return updatedState;

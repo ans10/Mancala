@@ -278,7 +278,7 @@ module game {
     // We calculate the AI move only after the animation finishes,
     // because if we call aiService now
     // then the animation will be paused until the javascript finishes.
-    animationEndedTimeout = $timeout(function(){animationEndedCallback(sourceCopy)}, 2000);
+    animationEndedTimeout = $timeout(function(){animationEndedCallback(sourceCopy)}, 2100);
 
   }
   function setFlipDisplay():void{
@@ -613,20 +613,25 @@ function animate(animateState:IState,animateDelta:BoardDelta):string[][][]{
   let loopCount = 0;
   let resultArray:any[] = [];
   //check departure cell
-  if(deltaBoard[row][col]<0){
-    loopCount = -1 * deltaBoard[row][col];
-    let children:HTMLElement[] = <HTMLElement[]><any>document.getElementById('pit-'+row+col).children;
-    console.log("Deparature cell selected is pit-"+row+col);
-    console.log("Length of the children is "+children.length);
-    let turn = row;
-    for(let candyNo=0;candyNo<children.length;candyNo++){
-      sourceCopy[row][col][candyNo] = null;
+  for (let row=0;row<2;row++){
+    for( let col=0;col<7;col++){
+
+      if(deltaBoard[row][col]<0){
+        loopCount = -1 * deltaBoard[row][col];
+        let children:HTMLElement[] = <HTMLElement[]><any>document.getElementById('pit-'+row+col).children;
+        console.log("Deparature cell selected is pit-"+row+col);
+        console.log("Length of the children is "+children.length);
+        let turn = row;
+        for(let candyNo=0;candyNo<children.length;candyNo++){
+          sourceCopy[row][col][candyNo] = null;
+        }
+        putintoDestination(children,row,col,
+          turn,sourceCopy,animateState,animateDelta);
+      }
     }
-    putintoDestination(children,row,col,
-      turn,sourceCopy,animateState,animateDelta);
   }
 
- secondOrderAnimate(row,animateState,animateDelta,sourceCopy);
+ //secondOrderAnimate(row,animateState,animateDelta,sourceCopy);
  return sourceCopy;
 
 }
