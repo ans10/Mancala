@@ -90,7 +90,7 @@ var game;
         { t: 6, l: 16 },
         { t: 8, l: 19 },
         { t: 23, l: 36 },
-        { t: 65, l: 47 },
+        { t: 60, l: 47 },
         { t: 44, l: 45 },
         { t: 23, l: 66 },
         { t: 43, l: 68 },
@@ -113,7 +113,6 @@ var game;
         translate.setTranslations(getTranslations());
         translate.setLanguage('en');
         resizeGameAreaService.setWidthToHeight(1.6);
-        initializeSource();
         gameService.setGame({
             updateUI: updateUI,
             getStateForOgImage: null,
@@ -121,75 +120,38 @@ var game;
         console.log("INIT method over");
     }
     game.init = init;
-    function initialize_position_array() {
-        game.position_arrv = new Array(48);
-        game.position_arrv[0] = { top: 0, left: 52 };
-        console.log("{ t:" + game.position_arrv[0].top + ", l:" + game.position_arrv[0].left + "},");
-        for (var i = 1; i < 48; i++) {
-            var new_position = game.position_arrv[i - 1];
-            var lc = getRandom(-5, 5);
-            var tc = getRandom(-5, 5);
-            new_position.top = Math.round(new_position.top + tc);
-            new_position.left = Math.round(new_position.left + lc);
-            if (new_position.left >= 70) {
-                new_position.left = 65;
-            }
-            if (new_position.top <= 0) {
-                new_position.top = 7;
-            }
-            if (new_position.left <= 0) {
-                new_position.left = 5;
-            }
-            if (new_position.top >= 40) {
-                new_position.top = 40;
-            }
-            game.position_arrv[i] = new_position;
-            console.log("{ t:" + game.position_arrv[i].top + ", l:" + game.position_arrv[i].left + "},");
-        }
-    }
-    function getPreviousBoard(state) {
-        var previousBoard = angular.copy(state.board);
-        for (var rowNo = 0; rowNo < 2; rowNo++) {
-            for (var colNo = 0; colNo < 7; colNo++) {
-                previousBoard[rowNo][colNo] -= state.delta.board[rowNo][colNo];
-            }
-        }
-        return previousBoard;
-    }
-    function initializeSource() {
-        console.log("In initialize source method");
-        game.sourceImages = [];
-        for (var rowNo = 0; rowNo < 2; rowNo++) {
-            game.sourceImages[rowNo] = [];
-            for (var colNo = 0; colNo < 7; colNo++) {
-                game.sourceImages[rowNo][colNo] = [];
-                for (var candyNo = 0; candyNo < 24; candyNo++) {
-                    game.sourceImages[rowNo][colNo][candyNo] = null;
-                }
-            }
-        }
-        for (var rowNo = 0; rowNo < 2; rowNo++) {
-            for (var colNo = 0; colNo < 7; colNo++) {
-                if (!((rowNo == 0 && colNo == 0) || (rowNo == 1 && colNo == 6))) {
-                    game.sourceImages[rowNo][colNo][0] = "imgs/exp6.png";
-                    game.sourceImages[rowNo][colNo][1] = "imgs/exp7.png";
-                    game.sourceImages[rowNo][colNo][2] = "imgs/exp8.png";
-                    game.sourceImages[rowNo][colNo][3] = "imgs/exp9.png";
-                }
-            }
-        }
-    }
-    function initializePositionImages() {
-        for (var rowNo = 0; rowNo < 2; rowNo++) {
-            game.positionImages[rowNo] = [];
-            for (var colNo = 0; colNo < 7; colNo++) {
-                game.positionImages[rowNo][colNo] = [];
-                for (var pos = 0; pos < 24; pos++) {
-                    game.positionImages[rowNo][colNo][pos] = angular.copy(PositionStyle);
-                }
-            }
-        }
-    }
+    //  function initialize_position_array(){
+    //     position_arrv = new Array(48);
+    //
+    //     position_arrv[0] = {top:0,left:52};
+    //     console.log("{ t:"+position_arrv[0].top+", l:"+position_arrv[0].left+"},");
+    //     for(let i=1;i<48;i++){
+    //       let new_position:MyPosition = position_arrv[i-1];
+    //       let lc = getRandom(-5,5);
+    //       let tc = getRandom(-5,5);
+    //       new_position.top = Math.round(new_position.top + tc);
+    //       new_position.left = Math.round(new_position.left + lc);
+    //       if(new_position.left>=70){
+    //         new_position.left = 65;
+    //       }
+    //       if(new_position.top<=0){
+    //         new_position.top=7;
+    //       }
+    //       if(new_position.left<=0){
+    //         new_position.left = 5;
+    //       }
+    //       if(new_position.top>=40){
+    //         new_position.top = 40;
+    //       }
+    //       position_arrv[i] = new_position;
+    //       console.log("{ t:"+position_arrv[i].top+", l:"+position_arrv[i].left+"},");
+    //
+    //     }
+    //
+    //
+    //
+    //
+    // }
     function registerServiceWorker() {
         // I prefer to use appCache over serviceWorker
         // (because iOS doesn't support serviceWorker, so we have to use appCache)
@@ -243,6 +205,16 @@ var game;
         }
         return proposals;
     }
+    function boardBeforeMove(boardAfterMove, deltaBoard) {
+        var boardBeforeMove = angular.copy(boardAfterMove);
+        for (var rowNo = 0; rowNo < 2; rowNo++) {
+            for (var colNo = 0; colNo < 7; colNo++) {
+                boardBeforeMove[rowNo][colNo] = boardAfterMove[rowNo][colNo] -
+                    deltaBoard[rowNo][colNo];
+            }
+        }
+        return boardBeforeMove;
+    }
     function updateUI(params) {
         log.info("Game got updateUI:", params);
         var playerIdToProposal = params.playerIdToProposal;
@@ -250,67 +222,58 @@ var game;
         game.didMakeMove = playerIdToProposal && playerIdToProposal[game.yourPlayerInfo.playerId] != undefined;
         game.yourPlayerInfo = params.yourPlayerInfo;
         game.currentUpdateUI = params;
-        console.log("Turn index is !!!!!!!!!!!!! : " + game.currentUpdateUI.turnIndex + " " + game.isEndState);
+        console.log("Double checking playerindex and turn index");
+        console.log(game.currentUpdateUI.yourPlayerIndex);
+        console.log(game.currentUpdateUI.turnIndex);
         clearAnimationTimeout();
         game.animationDone = false;
         /*For computer moves, only after animation it should occur */
         var sourceCopy = null;
-        if (game.currentUpdateUI.state != null && game.currentUpdateUI.state.delta != null) {
-            //scores = getPreviousBoard(currentUpdateUI.state);
-            var animateState = angular.copy(game.currentUpdateUI.state);
-            var animateDelta = angular.copy(game.currentUpdateUI.state.delta);
-            console.log("CurrentUpdateUI delta is: ");
-            console.log(game.currentUpdateUI.state.delta);
-            console.log("Params delta is: ");
-            console.log(params.state.delta);
-            sourceCopy = animate(animateState, animateDelta);
-            //sourceCopy = assignSourceCopy(animateState,animateDelta);
-            if (sourceCopy == null) {
-                initializeSource();
-                sourceCopy = angular.copy(game.sourceImages);
-            }
+        game.state = game.currentUpdateUI.state;
+        if (game.state != null && game.state.delta != null) {
+            game.scores = boardBeforeMove(game.state.board, game.state.delta.board);
+            console.log(game.scores);
+            var animateState_1 = angular.copy(game.state);
+            var animateDelta_1 = angular.copy(game.state.delta);
+            game.$timeout(function () {
+                sourceCopy = animate(animateState_1, animateDelta_1);
+                console.log(sourceCopy);
+            }, 0);
         }
-        if (game.currentUpdateUI.state != null && game.currentUpdateUI.state.delta != null) {
-            console.log("After running animate: ");
-            console.log("CurrentUpdateUI delta is: ");
-            console.log(game.currentUpdateUI.state.delta);
-            console.log("Params delta is: ");
-            console.log(params.state.delta);
-        }
-        console.log(sourceCopy);
-        game.state = params.state;
-        console.log("Step after animation");
-        console.log(game.state);
         if (isFirstMove()) {
             console.log("Initialstate method called");
             game.state = gameLogic.getInitialState();
             game.scores = angular.copy(game.state.board);
+            game.sourceImages = angular.copy(game.state.sourceImages);
         }
-        if (game.currentUpdateUI.turnIndex === -1) {
-            game.isEndState = true;
-        }
-        else {
-            game.isEndState = false;
-        }
-        console.log("Turn index is !!!!!!!!!!!!! : " + game.currentUpdateUI.turnIndex + " " + game.isEndState);
+        setFlipDisplay();
+        // We calculate the AI move only after the animation finishes,
+        // because if we call aiService now
+        // then the animation will be paused until the javascript finishes.
+        game.animationEndedTimeout = game.$timeout(function () { animationEndedCallback(sourceCopy); }, 2000);
+    }
+    game.updateUI = updateUI;
+    function setFlipDisplay() {
         if (game.currentUpdateUI.playMode === 1 || game.currentUpdateUI.playMode === "multiplayer") {
             game.flipDisplay = true;
         }
         else {
             game.flipDisplay = false;
         }
-        console.log("flip is : ~~~~~~~~~~ " + game.flipDisplay);
-        // We calculate the AI move only after the animation finishes,
-        // because if we call aiService now
-        // then the animation will be paused until the javascript finishes.
-        game.animationEndedTimeout = game.$timeout(function () { animationEndedCallback(sourceCopy); }, 2000);
-        //animationEndedTimeout = $timeout(function(){animationEndedCallback(sourceCopy)}, 300);
     }
-    game.updateUI = updateUI;
+    function setEndState() {
+        if (getTurnStatus() === -1) {
+            game.isEndState = true;
+        }
+        else {
+            game.isEndState = false;
+        }
+    }
     function animationEndedCallback(sourceCopy) {
         log.info("Animation ended");
         setTurnStatus();
         updateScores();
+        setEndState();
         updateSourceImages(sourceCopy);
         if (game.state.nextMoveType == null) {
             game.isEndState = true;
@@ -327,7 +290,7 @@ var game;
     function updateSourceImages(sourceCopy) {
         if (sourceCopy != null) {
             console.log(game.sourceImages);
-            game.sourceImages = sourceCopy;
+            game.state.sourceImages = sourceCopy;
         }
     }
     function setTurnStatus() {
@@ -448,11 +411,16 @@ var game;
     }
     game.makeArray = makeArray;
     function referLogic(row, column) {
-        if (isComputerTurn() || game.currentUpdateUI.turnIndex == -1)
+        if (game.currentUpdateUI.turnIndex == -1) {
+            console.log("winner is already declared");
             return;
+        }
         var nextMove = null;
         try {
             nextMove = gameLogic.createMove(game.state, row, column, game.currentUpdateUI.turnIndex);
+            console.log("next move's turn index:");
+            console.log(nextMove.turnIndex);
+            console.log(game.currentUpdateUI.turnIndex);
         }
         catch (exception) {
             console.info("Problem in createMove: " + exception);
@@ -461,17 +429,8 @@ var game;
         gameService.makeMove(nextMove, null);
         if (nextMove.endMatchScores !== null) {
             console.info("end state detected to be true " + game.isEndState);
-            if (nextMove.endMatchScores[0] > nextMove.endMatchScores[1]) {
-                console.log("Winner is 0");
-                game.winner = 0;
-            }
-            else {
-                console.log("Winner is 1");
-                game.winner = 1;
-            }
         }
     }
-    game.referLogic = referLogic;
     function pitClicked(event, row, column) {
         console.info("Cell clicked (row,col): (" + row + "," + column + ")");
         if (!isHumanTurn() || !game.animationDone)
@@ -567,11 +526,7 @@ var game;
             var newPosition = updatePosition(parent, currentRow, currentCol, animateState, animateDelta);
             var newPositionLefttext = newPosition.left - currentPositionLeft + 'px';
             var newPositionToptext = newPosition.top - currentPositionTop + 'px';
-            console.log("candy image: ");
-            console.log(candyImage);
             candyImage.style.transform = "translate(" + newPositionLefttext + "," + newPositionToptext + ")";
-            //candyImage.parentNode.removeChild(candyImage);
-            //parent.appendChild(candyImage);
             sourceCopy[currentRow][currentCol][stateBoard[currentRow][currentCol] - deltaBoard[currentRow][currentCol] - 1] =
                 candyImage.src;
         }
@@ -580,8 +535,7 @@ var game;
         var row = animateDelta.row;
         var col = animateDelta.col;
         var deltaBoard = animateDelta.board;
-        var sourceCopy = angular.copy(game.sourceImages);
-        console.log(document.getElementById("gameArea"));
+        var sourceCopy = angular.copy(animateState.sourceImages);
         var positionCount = 0;
         var loopCount = 0;
         var resultArray = [];
@@ -591,8 +545,6 @@ var game;
             var children = document.getElementById('pit-' + row + col).children;
             console.log("Deparature cell selected is pit-" + row + col);
             console.log("Length of the children is " + children.length);
-            console.log(animateState.board);
-            console.log(animateDelta.board);
             var turn = row;
             for (var candyNo = 0; candyNo < children.length; candyNo++) {
                 sourceCopy[row][col][candyNo] = null;
@@ -617,8 +569,6 @@ var game;
                 }
             }
         }
-        console.log("Source collection: ");
-        console.log(sourceCollection);
         var srcCandyNo = 0;
         for (var rowNo = 0; rowNo < 2; rowNo++) {
             for (var colNo = 0; colNo < 7; colNo++) {
@@ -658,13 +608,7 @@ var game;
     }
     game.secondOrderAnimate = secondOrderAnimate;
     function isEndOfGame() {
-        console.log("is End of Game is: " + game.isEndState);
-        if (game.currentUpdateUI.turnIndex === -1) {
-            console.log("is end state is tureeeeeee");
-        }
-        else {
-            console.log("is falseeeeeeeeeeeeeeeeee");
-        }
+        console.log("End of Game is: " + game.isEndState);
         return game.isEndState;
     }
     function isDrawn() {
@@ -676,7 +620,7 @@ var game;
     }
     game.isDrawn = isDrawn;
     function getWinner() {
-        console.log("in give winnerrrrrrr " + game.currentUpdateUI.endMatchScores + " " + game.isEndState);
+        console.log("Getting the winner" + game.currentUpdateUI.endMatchScores + " " + game.isEndState);
         console.log("hello?");
         if (game.currentUpdateUI.endMatchScores !== null) {
             game.isEndState = true;
@@ -721,7 +665,6 @@ var game;
     }
     game.getPosition = getPosition;
     function flipBoard() {
-        console.log("flipdisplay in function is: " + game.flipDisplay);
         return game.flipDisplay;
     }
     game.flipBoard = flipBoard;
@@ -742,8 +685,9 @@ var game;
     }
     game.getTurnStatus = getTurnStatus;
     function getSource(rowNo, colNo, candyNo) {
-        var imgsrc = game.sourceImages[rowNo][colNo][candyNo];
+        var imgsrc = game.state.sourceImages[rowNo][colNo][candyNo];
         if (!imgsrc || imgsrc == null) {
+            console.log("Had to rely on default image");
             imgsrc = "imgs/exp6.png";
         }
         return imgsrc;

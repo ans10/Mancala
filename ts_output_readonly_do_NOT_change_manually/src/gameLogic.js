@@ -13,6 +13,36 @@ var gameLogic;
 (function (gameLogic) {
     gameLogic.ROWS = 2;
     gameLogic.COLS = 7;
+    gameLogic.candy1 = "imgs/exp6.png";
+    ;
+    gameLogic.candy2 = "imgs/exp7.png";
+    gameLogic.candy3 = "imgs/exp8.png";
+    gameLogic.candy4 = "imgs/exp9.png";
+    function getInitialSource() {
+        console.log("In initialize source method");
+        var sourceImages;
+        sourceImages = [];
+        for (var rowNo = 0; rowNo < 2; rowNo++) {
+            sourceImages[rowNo] = [];
+            for (var colNo = 0; colNo < 7; colNo++) {
+                sourceImages[rowNo][colNo] = [];
+                for (var candyNo = 0; candyNo < 24; candyNo++) {
+                    sourceImages[rowNo][colNo][candyNo] = null;
+                }
+            }
+        }
+        for (var rowNo = 0; rowNo < 2; rowNo++) {
+            for (var colNo = 0; colNo < 7; colNo++) {
+                if (!((rowNo == 0 && colNo == 0) || (rowNo == 1 && colNo == 6))) {
+                    sourceImages[rowNo][colNo][0] = gameLogic.candy1;
+                    sourceImages[rowNo][colNo][1] = gameLogic.candy2;
+                    sourceImages[rowNo][colNo][2] = gameLogic.candy3;
+                    sourceImages[rowNo][colNo][3] = gameLogic.candy4;
+                }
+            }
+        }
+        return sourceImages;
+    }
     /** Returns the initial TicTacToe board, which is a ROWSxCOLS matrix containing ''. */
     function getInitialBoard() {
         var board = [];
@@ -47,7 +77,7 @@ var gameLogic;
     function getInitialState() {
         console.log("Initial state method called in gameLogic");
         return { board: getInitialBoard(), delta: null, lastupdatedrow: -1,
-            lastupdatedcol: -1, nextMoveType: "clickUpdate" };
+            lastupdatedcol: -1, nextMoveType: "clickUpdate", sourceImages: getInitialSource() };
     }
     gameLogic.getInitialState = getInitialState;
     /**
@@ -94,7 +124,8 @@ var gameLogic;
             }
         }
         var updatedState = { board: boardAfterMove, delta: null,
-            lastupdatedrow: lastupdatedr, lastupdatedcol: lastupdatedc, nextMoveType: null };
+            lastupdatedrow: lastupdatedr, lastupdatedcol: lastupdatedc, nextMoveType: null,
+            sourceImages: null };
         return updatedState;
     }
     function getWinner(board) {
@@ -172,15 +203,15 @@ var gameLogic;
             ((i === 0 && boardAfterMove[1 - i][j - 1] > 0) ||
                 (i === 1 && boardAfterMove[1 - i][j + 1] > 0))) {
             updatedState = { board: boardAfterMove, delta: delta, lastupdatedrow: i,
-                lastupdatedcol: j, nextMoveType: "emptyHole" };
+                lastupdatedcol: j, nextMoveType: "emptyHole", sourceImages: null };
         }
         else if (isEndState(boardAfterMove)) {
             updatedState = { board: boardAfterMove, delta: delta, lastupdatedrow: i,
-                lastupdatedcol: j, nextMoveType: "transferAll" };
+                lastupdatedcol: j, nextMoveType: "transferAll", sourceImages: null };
         }
         else {
             updatedState = { board: boardAfterMove, delta: delta, lastupdatedrow: i,
-                lastupdatedcol: j, nextMoveType: "clickUpdate" };
+                lastupdatedcol: j, nextMoveType: "clickUpdate", sourceImages: null };
         }
         return updatedState;
     }
@@ -201,7 +232,7 @@ var gameLogic;
         var deltaBoard = createDelta(boardAfterMove, board);
         var delta = { board: deltaBoard, row: row, col: col };
         var updateState = { board: boardAfterMove, delta: delta, lastupdatedrow: i,
-            lastupdatedcol: j, nextMoveType: "clickUpdate" };
+            lastupdatedcol: j, nextMoveType: "clickUpdate", sourceImages: null };
         if (isEndState(boardAfterMove)) {
             updateState.nextMoveType = "transferAll";
         }
@@ -248,10 +279,11 @@ var gameLogic;
         console.log(stateBeforeMove.nextMoveType);
         var endMatchScores = null;
         var turnIndex;
+        var sourceImages = stateBeforeMove.sourceImages;
         console.log("Turnindexbeforemove: " + turnIndexBeforeMove + "row: " + row);
         var updatedState = null;
         if (nextMoveType == "clickUpdate") {
-            console.log("going in clickUpdate section");
+            console.log("Click movement happening");
             if (row !== turnIndexBeforeMove || board[row][col] === 0
                 || (row === 0 && col === 0) || (row === 1 && col === 6)) {
                 throw new Error("Making an invalid move!");
@@ -265,7 +297,7 @@ var gameLogic;
             }
         }
         else if (nextMoveType == "emptyHole") {
-            console.log("going in emptyHole section");
+            console.log("Jackpot condition");
             updatedState = updateEmptyHole(board, row, col);
             if (updatedState.nextMoveType != "transferAll") {
                 turnIndex = 1 - turnIndexBeforeMove;
@@ -285,6 +317,7 @@ var gameLogic;
             throw new Error("Invalid movetype");
         }
         console.log("TurnIndex value is: " + turnIndex);
+        updatedState.sourceImages = sourceImages;
         var state = updatedState;
         console.info("Returning createMove successfully");
         return {

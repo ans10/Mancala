@@ -20,6 +20,7 @@ interface IState {
   nextMoveType:string;
   lastupdatedrow:number;
   lastupdatedcol:number;
+  sourceImages:string[][][];
 }
 
 
@@ -33,6 +34,36 @@ import dragAndDropService = gamingPlatform.dragAndDropService;
 module gameLogic {
   export const ROWS = 2;
   export const COLS = 7;
+  export const candy1 = "imgs/exp6.png";;
+  export const candy2 = "imgs/exp7.png";
+  export const candy3 = "imgs/exp8.png";
+  export const candy4 = "imgs/exp9.png";
+  function getInitialSource():string[][][]{
+    console.log("In initialize source method");
+    let sourceImages:string[][][];
+    sourceImages = [];
+    for(let rowNo=0;rowNo<2;rowNo++){
+      sourceImages[rowNo]=[];
+      for(let colNo=0;colNo<7;colNo++){
+        sourceImages[rowNo][colNo]=[];
+        for(let candyNo=0;candyNo<24;candyNo++){
+           sourceImages[rowNo][colNo][candyNo] = null;
+        }
+      }
+    }
+    for(let rowNo=0;rowNo<2;rowNo++){
+      for(let colNo=0;colNo<7;colNo++){
+        if(!((rowNo==0 && colNo==0) || (rowNo==1 && colNo==6))){
+          sourceImages[rowNo][colNo][0] = candy1;
+          sourceImages[rowNo][colNo][1] = candy2;
+          sourceImages[rowNo][colNo][2] = candy3;
+          sourceImages[rowNo][colNo][3] = candy4;
+
+        }
+      }
+    }
+    return sourceImages;
+  }
 
   /** Returns the initial TicTacToe board, which is a ROWSxCOLS matrix containing ''. */
   export function getInitialBoard(): Board {
@@ -69,7 +100,7 @@ module gameLogic {
     console.log("Initial state method called in gameLogic");
 
     return {board: getInitialBoard(), delta: null,lastupdatedrow:-1,
-      lastupdatedcol:-1,nextMoveType:"clickUpdate"};
+      lastupdatedcol:-1,nextMoveType:"clickUpdate",sourceImages:getInitialSource()};
   }
 
 
@@ -123,7 +154,8 @@ module gameLogic {
 
     let updatedState:IState =
     {board : boardAfterMove, delta:null,
-      lastupdatedrow : lastupdatedr,lastupdatedcol:lastupdatedc,nextMoveType:null};
+      lastupdatedrow : lastupdatedr,lastupdatedcol:lastupdatedc,nextMoveType:null,
+      sourceImages:null};
     return updatedState;
 
 
@@ -205,15 +237,15 @@ module gameLogic {
       ((i===0 && boardAfterMove[1-i][j-1]>0) ||
       (i===1 && boardAfterMove[1-i][j+1]>0))){
         updatedState = {board : boardAfterMove, delta : delta,lastupdatedrow : i,
-          lastupdatedcol : j,nextMoveType:"emptyHole"};
+          lastupdatedcol : j,nextMoveType:"emptyHole",sourceImages:null};
     }
     else if(isEndState(boardAfterMove)){
       updatedState = {board : boardAfterMove, delta : delta,lastupdatedrow : i,
-        lastupdatedcol : j,nextMoveType:"transferAll"};
+        lastupdatedcol : j,nextMoveType:"transferAll",sourceImages:null};
     }
     else{
         updatedState = {board : boardAfterMove, delta : delta,lastupdatedrow : i,
-        lastupdatedcol : j,nextMoveType:"clickUpdate"};
+        lastupdatedcol : j,nextMoveType:"clickUpdate",sourceImages:null};
 
     }
 
@@ -236,7 +268,7 @@ module gameLogic {
     let deltaBoard:Board = createDelta(boardAfterMove,board);
     let delta:BoardDelta = {board:deltaBoard,row:row,col:col};
     let updateState:IState = {board:boardAfterMove,delta:delta,lastupdatedrow:i,
-    lastupdatedcol:j,nextMoveType:"clickUpdate"}
+    lastupdatedcol:j,nextMoveType:"clickUpdate",sourceImages:null}
     if(isEndState(boardAfterMove)){
       updateState.nextMoveType = "transferAll";
     }
@@ -286,11 +318,12 @@ module gameLogic {
     console.log(stateBeforeMove.nextMoveType);
     let endMatchScores: number[] = null;
     let turnIndex: number;
+    let sourceImages:string[][][] = stateBeforeMove.sourceImages;
 
     console.log("Turnindexbeforemove: "+turnIndexBeforeMove+"row: "+row);
     let updatedState:IState = null;
     if(nextMoveType=="clickUpdate"){
-      console.log("going in clickUpdate section");
+      console.log("Click movement happening");
       if(row!==turnIndexBeforeMove || board[row][col] === 0
         || (row===0 && col===0) || (row===1 && col===6)){
         throw new Error("Making an invalid move!");
@@ -308,7 +341,7 @@ module gameLogic {
 
     }
     else if(nextMoveType=="emptyHole"){
-      console.log("going in emptyHole section");
+      console.log("Jackpot condition");
       updatedState = updateEmptyHole(board,row,col);
       if(updatedState.nextMoveType!="transferAll"){
         turnIndex = 1 - turnIndexBeforeMove;
@@ -333,8 +366,9 @@ module gameLogic {
     }
 
     console.log("TurnIndex value is: "+turnIndex);
-
+    updatedState.sourceImages = sourceImages;
     let state: IState = updatedState;
+
     console.info("Returning createMove successfully" );
 
     return {

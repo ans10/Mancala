@@ -9,7 +9,7 @@ describe("In TicTacToe", function () {
     function expectException(turnIndexBeforeMove, boardBeforeMove, row, col, previousMoveType) {
         var stateBeforeMove = { board: boardBeforeMove, delta: null,
             lastupdatedrow: null, lastupdatedcol: null,
-            nextMoveType: previousMoveType };
+            nextMoveType: previousMoveType, sourceImages: null };
         // We expect an exception to be thrown :)
         var didThrowException = false;
         try {
@@ -30,12 +30,12 @@ describe("In TicTacToe", function () {
             endMatchScores: endMatchScores,
             state: { board: boardAfterMove, delta: deltaBoard,
                 lastupdatedrow: lastupdatedrow, lastupdatedcol: lastupdatedcol,
-                nextMoveType: nextMoveType }
+                nextMoveType: nextMoveType, sourceImages: null }
         };
         //let stateBeforeMove: IState = boardBeforeMove ? {board: boardBeforeMove, delta: null} : null;
         var stateBeforeMove = { board: boardBeforeMove, delta: null,
             lastupdatedrow: null, lastupdatedcol: null,
-            nextMoveType: previousMoveType };
+            nextMoveType: previousMoveType, sourceImages: null };
         var move = gameLogic.createMove(stateBeforeMove, row, col, turnIndexBeforeMove);
         console.log(move.state.board);
         expect(angular.equals(move, expectedMove)).toBe(true);
@@ -51,6 +51,7 @@ describe("In TicTacToe", function () {
                 nextMoveType: "clickUpdate",
                 lastupdatedrow: -1,
                 lastupdatedcol: -1,
+                sourceImages: null
             }
         };
         expect(angular.equals(move, expectedMove)).toBe(true);
