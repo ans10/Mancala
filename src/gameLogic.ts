@@ -34,10 +34,10 @@ import dragAndDropService = gamingPlatform.dragAndDropService;
 module gameLogic {
   export const ROWS = 2;
   export const COLS = 7;
-  export const candy1 = "imgs/exp6.png";;
-  export const candy2 = "imgs/exp7.png";
-  export const candy3 = "imgs/exp8.png";
-  export const candy4 = "imgs/exp9.png";
+  export const candy1 = "imgs/purplecandy.png";;
+  export const candy2 = "imgs/bluecandy.png";
+  export const candy3 = "imgs/greencandy.png";
+  export const candy4 = "imgs/redcandy.png";
   function getInitialSource():string[][][]{
     console.log("In initialize source method");
     let sourceImages:string[][][];

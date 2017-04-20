@@ -429,6 +429,14 @@ var game;
         gameService.makeMove(nextMove, null);
         if (nextMove.endMatchScores !== null) {
             console.info("end state detected to be true " + game.isEndState);
+            /*if(nextMove.endMatchScores[0]>nextMove.endMatchScores[1]){
+              console.log("Winner is 0");
+              winner= 0;
+            }
+            else{
+              console.log("Winner is 1");
+              winner= 1;
+            }*/
         }
     }
     function pitClicked(event, row, column) {
@@ -692,7 +700,7 @@ var game;
         var imgsrc = game.state.sourceImages[rowNo][colNo][candyNo];
         if (!imgsrc || imgsrc == null) {
             console.log("Had to rely on default image");
-            imgsrc = "imgs/exp6.png";
+            imgsrc = "imgs/redcandy.png";
         }
         return imgsrc;
     }

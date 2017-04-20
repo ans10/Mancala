@@ -13,11 +13,11 @@ var gameLogic;
 (function (gameLogic) {
     gameLogic.ROWS = 2;
     gameLogic.COLS = 7;
-    gameLogic.candy1 = "imgs/exp6.png";
+    gameLogic.candy1 = "imgs/purplecandy.png";
     ;
-    gameLogic.candy2 = "imgs/exp7.png";
-    gameLogic.candy3 = "imgs/exp8.png";
-    gameLogic.candy4 = "imgs/exp9.png";
+    gameLogic.candy2 = "imgs/bluecandy.png";
+    gameLogic.candy3 = "imgs/greencandy.png";
+    gameLogic.candy4 = "imgs/redcandy.png";
     function getInitialSource() {
         console.log("In initialize source method");
         var sourceImages;

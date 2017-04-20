@@ -777,7 +777,7 @@ export function secondOrderAnimate(row:number,animateState:IState,animateDelta:B
     let imgsrc:string = state.sourceImages[rowNo][colNo][candyNo];
     if(!imgsrc || imgsrc==null){
       console.log("Had to rely on default image");
-      imgsrc = "imgs/exp6.png";
+      imgsrc = "imgs/redcandy.png";
     }
     return imgsrc;
   }
