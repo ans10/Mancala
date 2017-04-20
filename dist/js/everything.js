@@ -31648,11 +31648,11 @@ var gameLogic;
 (function (gameLogic) {
     gameLogic.ROWS = 2;
     gameLogic.COLS = 7;
-    gameLogic.candy1 = "imgs/exp6.png";
+    gameLogic.candy1 = "imgs/purplecandy.png";
     ;
-    gameLogic.candy2 = "imgs/exp7.png";
-    gameLogic.candy3 = "imgs/exp8.png";
-    gameLogic.candy4 = "imgs/exp9.png";
+    gameLogic.candy2 = "imgs/bluecandy.png";
+    gameLogic.candy3 = "imgs/greencandy.png";
+    gameLogic.candy4 = "imgs/redcandy.png";
     function getInitialSource() {
         console.log("In initialize source method");
         var sourceImages;
@@ -32427,6 +32427,14 @@ var game;
         gameService.makeMove(nextMove, null);
         if (nextMove.endMatchScores !== null) {
             console.info("end state detected to be true " + game.isEndState);
+            /*if(nextMove.endMatchScores[0]>nextMove.endMatchScores[1]){
+              console.log("Winner is 0");
+              winner= 0;
+            }
+            else{
+              console.log("Winner is 1");
+              winner= 1;
+            }*/
         }
     }
     function pitClicked(event, row, column) {
@@ -32690,7 +32698,7 @@ var game;
         var imgsrc = game.state.sourceImages[rowNo][colNo][candyNo];
         if (!imgsrc || imgsrc == null) {
             console.log("Had to rely on default image");
-            imgsrc = "imgs/exp6.png";
+            imgsrc = "imgs/redcandy.png";
         }
         return imgsrc;
     }
@@ -32725,6 +32733,7 @@ var aiService;
                     possibleMoves.push(gameLogic.createMove(state, i, j, turnIndexBeforeMove));
                 }
                 catch (e) {
+                    // The cell in that position was full.
                 }
             }
         }
