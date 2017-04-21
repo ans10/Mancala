@@ -32663,18 +32663,18 @@ var game;
     // function getRandom(min:number, max:number):number{
     //   return Math.random() * (max - min) + min;
     // }
-    // export function getPosition(pos: number,store:number) {
-    //
-    //   if(store==1){
-    //     PositionStyle.top = position_arr[pos].t.toString()+'%';
-    //     PositionStyle.left = position_arr[pos].l.toString()+'%';
-    //   }
-    //   else{
-    //     PositionStyle.top = position_arr_pit[pos].t.toString()+'%';
-    //     PositionStyle.left = position_arr_pit[pos].l.toString()+'%';
-    //   }
-    //   return PositionStyle;
-    // }
+    function getPosition(pos, store) {
+        if (store == 1) {
+            PositionStyle.top = position_arr[pos].t.toString() + '%';
+            PositionStyle.left = position_arr[pos].l.toString() + '%';
+        }
+        else {
+            PositionStyle.top = position_arr_pit[pos].t.toString() + '%';
+            PositionStyle.left = position_arr_pit[pos].l.toString() + '%';
+        }
+        return PositionStyle;
+    }
+    game.getPosition = getPosition;
     function flipBoard() {
         return game.flipDisplay;
     }

@@ -744,18 +744,18 @@ function animate(animateState:IState,animateDelta:BoardDelta):string[][][]{
   // function getRandom(min:number, max:number):number{
   //   return Math.random() * (max - min) + min;
   // }
-  // export function getPosition(pos: number,store:number) {
-  //
-  //   if(store==1){
-  //     PositionStyle.top = position_arr[pos].t.toString()+'%';
-  //     PositionStyle.left = position_arr[pos].l.toString()+'%';
-  //   }
-  //   else{
-  //     PositionStyle.top = position_arr_pit[pos].t.toString()+'%';
-  //     PositionStyle.left = position_arr_pit[pos].l.toString()+'%';
-  //   }
-  //   return PositionStyle;
-  // }
+  export function getPosition(pos: number,store:number) {
+
+    if(store==1){
+      PositionStyle.top = position_arr[pos].t.toString()+'%';
+      PositionStyle.left = position_arr[pos].l.toString()+'%';
+    }
+    else{
+      PositionStyle.top = position_arr_pit[pos].t.toString()+'%';
+      PositionStyle.left = position_arr_pit[pos].l.toString()+'%';
+    }
+    return PositionStyle;
+  }
 
   export function flipBoard(){
     return flipDisplay;
