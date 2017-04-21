@@ -30,25 +30,25 @@ var game;
         left: '%'
     };
     var position_arr = [
-        { t: 10, l: 52 },
-        { t: 19, l: 23 },
-        { t: 23, l: 44 },
+        { t: 10, l: 50 },
+        { t: 18, l: 30 },
+        { t: 18, l: 40 },
         { t: 20, l: 35 },
         { t: 25, l: 37 },
-        { t: 35, l: 56 },
+        { t: 25, l: 70 },
         { t: 18, l: 66 },
         { t: 20, l: 16 },
         { t: 14, l: 19 },
         { t: 7, l: 36 },
         { t: 10, l: 47 },
-        { t: 25, l: 45 },
-        { t: 30, l: 72 },
+        { t: 25, l: 55 },
+        { t: 30, l: 67 },
         { t: 20, l: 75 },
         { t: 14, l: 72 },
         { t: 15, l: 43 },
         { t: 27, l: 37 },
-        { t: 37, l: 23 },
-        { t: 40, l: 13 },
+        { t: 32, l: 23 },
+        { t: 37, l: 13 },
         { t: 24, l: 19 },
         { t: 18, l: 25 },
         { t: 24, l: 27 },
@@ -56,23 +56,23 @@ var game;
         { t: 20, l: 32 },
         { t: 17, l: 41 },
         { t: 36, l: 42 },
-        { t: 42, l: 48 },
+        { t: 32, l: 48 },
         { t: 31, l: 49 },
         { t: 31, l: 58 },
         { t: 27, l: 56 },
         { t: 29, l: 14 },
         { t: 27, l: 62 },
-        { t: 43, l: 67 },
+        { t: 38, l: 67 },
         { t: 33, l: 20 },
         { t: 40, l: 8 },
         { t: 33, l: 8 },
         { t: 32, l: 72 },
         { t: 16, l: 67 },
-        { t: 46, l: 13 },
+        { t: 16, l: 13 },
         { t: 32, l: 31 },
         { t: 23, l: 14 },
         { t: 29, l: 19 },
-        { t: 44, l: 27 },
+        { t: 40, l: 34 },
         { t: 30, l: 42 },
         { t: 24, l: 35 },
         { t: 12, l: 30 },
@@ -80,30 +80,30 @@ var game;
         { t: 12, l: 76 }
     ];
     var position_arr_pit = [
-        { t: 0, l: 52 },
-        { t: 12, l: 23 },
+        { t: 2, l: 50 },
+        { t: 0, l: 25 },
         { t: 25, l: 24 },
-        { t: 29, l: 43 },
-        { t: 36, l: 37 },
-        { t: 20, l: 65 },
-        { t: 5, l: 66 },
+        { t: 29, l: 45 },
+        { t: 46, l: 30 },
+        { t: 20, l: 61 },
+        { t: 5, l: 63 },
         { t: 6, l: 16 },
-        { t: 8, l: 19 },
+        { t: 8, l: 29 },
         { t: 23, l: 36 },
-        { t: 60, l: 47 },
-        { t: 44, l: 45 },
-        { t: 23, l: 66 },
-        { t: 43, l: 68 },
-        { t: 56, l: 56 },
+        { t: 50, l: 47 },
+        { t: 34, l: 45 },
+        { t: 23, l: 60 },
+        { t: 33, l: 64 },
+        { t: 15, l: 56 },
         { t: 19, l: 43 },
-        { t: 44, l: 37 },
+        { t: 15, l: 37 },
         { t: 57, l: 23 },
         { t: 62, l: 23 },
         { t: 11, l: 19 },
         { t: 33, l: 25 },
         { t: 53, l: 27 },
-        { t: 44, l: 37 },
-        { t: 37, l: 32 },
+        { t: 47, l: 39 },
+        { t: 40, l: 32 },
         { t: 17, l: 41 }
     ];
     function init($rootScope_, $timeout_) {
@@ -293,6 +293,7 @@ var game;
         if (sourceCopy != null) {
             //console.log(sourceImages);
             game.state.sourceImages = angular.copy(sourceCopy);
+            //state.sourceImages = angular.copy(sourceImages);
         }
     }
     function setTurnStatus() {
@@ -431,6 +432,14 @@ var game;
         gameService.makeMove(nextMove, null);
         if (nextMove.endMatchScores !== null) {
             console.info("end state detected to be true " + game.isEndState);
+            /*if(nextMove.endMatchScores[0]>nextMove.endMatchScores[1]){
+              console.log("Winner is 0");
+              winner= 0;
+            }
+            else{
+              console.log("Winner is 1");
+              winner= 1;
+            }*/
         }
     }
     function pitClicked(event, row, column) {
