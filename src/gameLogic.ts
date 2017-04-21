@@ -34,7 +34,7 @@ import dragAndDropService = gamingPlatform.dragAndDropService;
 module gameLogic {
   export const ROWS = 2;
   export const COLS = 7;
-  export const candy1 = "imgs/purplecandy.png";;
+  export const candy1 = "imgs/purplecandy.png";
   export const candy2 = "imgs/bluecandy.png";
   export const candy3 = "imgs/greencandy.png";
   export const candy4 = "imgs/redcandy.png";
@@ -47,7 +47,7 @@ module gameLogic {
       for(let colNo=0;colNo<7;colNo++){
         sourceImages[rowNo][colNo]=[];
         for(let candyNo=0;candyNo<48;candyNo++){
-           sourceImages[rowNo][colNo][candyNo] = null;
+           sourceImages[rowNo][colNo][candyNo] = candy1;
         }
       }
     }

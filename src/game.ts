@@ -30,7 +30,7 @@ module game {
   export let turnStatus = 0;
   export let scores:Board = null;
   export let animationDone = true;
-  export let sourceImages:string[][][] = null;
+  //export let sourceImages:string[][][] = null;
   export let positionImages:any[][][] = null;
   // For community games.
   export let proposals: number[][] = null;
@@ -248,11 +248,12 @@ module game {
     console.log(currentUpdateUI.turnIndex);
     clearAnimationTimeout();
     animationDone = false;
+    isEndState = false;
     /*For computer moves, only after animation it should occur */
     let sourceCopy:string[][][] = null;
     state = currentUpdateUI.state;
     if(state!=null && state.delta!=null){
-
+      sourceCopy = angular.copy(state.sourceImages);
       scores = boardBeforeMove(state.board,state.delta.board);
       console.log(scores);
       let animateState:IState = angular.copy(state);
@@ -268,7 +269,7 @@ module game {
       console.log("Initialstate method called");
       state = gameLogic.getInitialState();
       scores = angular.copy(state.board);
-      sourceImages = angular.copy(state.sourceImages);
+      sourceCopy = angular.copy(state.sourceImages);
     }
 
 
@@ -313,12 +314,13 @@ module game {
       console.log("In automatic move type");
       referLogic(state.lastupdatedrow,state.lastupdatedcol);
     }
-    maybeSendComputerMove();
+    $timeout(function(){maybeSendComputerMove()},100);
   }
   function updateSourceImages(sourceCopy:string[][][]):void{
     if(sourceCopy!=null){
-      console.log(sourceImages);
-      state.sourceImages = sourceCopy;
+      //console.log(sourceImages);
+      state.sourceImages = angular.copy(sourceCopy);
+      //state.sourceImages = angular.copy(sourceImages);
     }
 
   }
@@ -631,72 +633,72 @@ function animate(animateState:IState,animateDelta:BoardDelta):string[][][]{
     }
   }
 
- //secondOrderAnimate(row,animateState,animateDelta,sourceCopy);
+
  return sourceCopy;
 
 }
-function assignSourceCopy(animateState:IState,animateDelta:BoardDelta):string[][][]{
-  let sourceCopy = angular.copy(sourceImages);
-  let sourceCollection:string[] = [];
-  for(let rowNo=0;rowNo<2;rowNo++){
-    for(let colNo=0;colNo<7;colNo++){
-      let deltaNumber = animateDelta.board[rowNo][colNo];
-      if(deltaNumber<0){
-        console.log("delta is: "+deltaNumber);
-
-        for(let candyNo=0;candyNo<-1*deltaNumber;candyNo++){
-          sourceCollection.push(sourceCopy[rowNo][colNo][candyNo]);
-          sourceCopy[rowNo][colNo][candyNo]=null;
-
-        }
-      }
-    }
-  }
-  let srcCandyNo:number = 0;
-  for(let rowNo=0;rowNo<2;rowNo++){
-    for(let colNo=0;colNo<7;colNo++){
-      let deltaNumber:number = animateDelta.board[rowNo][colNo];
-      let cellValue:number = animateState.board[rowNo][colNo];
-      if(deltaNumber>0){
-        let destCandyNo = cellValue - deltaNumber;
-        for(;destCandyNo<cellValue;destCandyNo++){
-          sourceCopy[rowNo][colNo][destCandyNo] = sourceCollection[srcCandyNo++];
-        }
-
-      }
-
-
-
-    }
-  }
-  return sourceCopy;
-}
-function changeParents(resultArray:any[]):void{
-  let parentArray:HTMLElement[] = resultArray[0];
-  let childArray:HTMLElement[] = resultArray[1];
-  let arrayLength:number = parentArray.length;
-  for(let elementNo=0;elementNo<arrayLength;elementNo++){
-    childArray[elementNo].parentNode.removeChild(childArray[elementNo]);
-    parentArray[elementNo].appendChild(childArray[elementNo]);
-  }
-}
-export function secondOrderAnimate(row:number,animateState:IState,animateDelta:BoardDelta,sourceCopy:string[][][]){
-
-  let deltaBoard = animateDelta.board;
-  for(let rowNo = 0;rowNo < 2;rowNo++){
-    for(let colNo = 0;colNo < 7;colNo++){
-        if(deltaBoard[rowNo][colNo]<0){
-          let loopCount = -1 * deltaBoard[rowNo][colNo];
-          let children:any = document.getElementById('pit-'+rowNo+colNo).children;
-          let turn = row;
-          putintoDestination(children,rowNo,colNo,
-            turn,sourceCopy,animateState,animateDelta);
-
-        }
-
-    }
-  }
-}
+// function assignSourceCopy(animateState:IState,animateDelta:BoardDelta):string[][][]{
+//   let sourceCopy = angular.copy(animateState.sourceImages);
+//   let sourceCollection:string[] = [];
+//   for(let rowNo=0;rowNo<2;rowNo++){
+//     for(let colNo=0;colNo<7;colNo++){
+//       let deltaNumber = animateDelta.board[rowNo][colNo];
+//       if(deltaNumber<0){
+//         console.log("delta is: "+deltaNumber);
+//
+//         for(let candyNo=0;candyNo<-1*deltaNumber;candyNo++){
+//           sourceCollection.push(sourceCopy[rowNo][colNo][candyNo]);
+//           sourceCopy[rowNo][colNo][candyNo]=null;
+//
+//         }
+//       }
+//     }
+//   }
+//   let srcCandyNo:number = 0;
+//   for(let rowNo=0;rowNo<2;rowNo++){
+//     for(let colNo=0;colNo<7;colNo++){
+//       let deltaNumber:number = animateDelta.board[rowNo][colNo];
+//       let cellValue:number = animateState.board[rowNo][colNo];
+//       if(deltaNumber>0){
+//         let destCandyNo = cellValue - deltaNumber;
+//         for(;destCandyNo<cellValue;destCandyNo++){
+//           sourceCopy[rowNo][colNo][destCandyNo] = sourceCollection[srcCandyNo++];
+//         }
+//
+//       }
+//
+//
+//
+//     }
+//   }
+//   return sourceCopy;
+// }
+// function changeParents(resultArray:any[]):void{
+//   let parentArray:HTMLElement[] = resultArray[0];
+//   let childArray:HTMLElement[] = resultArray[1];
+//   let arrayLength:number = parentArray.length;
+//   for(let elementNo=0;elementNo<arrayLength;elementNo++){
+//     childArray[elementNo].parentNode.removeChild(childArray[elementNo]);
+//     parentArray[elementNo].appendChild(childArray[elementNo]);
+//   }
+// }
+// export function secondOrderAnimate(row:number,animateState:IState,animateDelta:BoardDelta,sourceCopy:string[][][]){
+//
+//   let deltaBoard = animateDelta.board;
+//   for(let rowNo = 0;rowNo < 2;rowNo++){
+//     for(let colNo = 0;colNo < 7;colNo++){
+//         if(deltaBoard[rowNo][colNo]<0){
+//           let loopCount = -1 * deltaBoard[rowNo][colNo];
+//           let children:any = document.getElementById('pit-'+rowNo+colNo).children;
+//           let turn = row;
+//           putintoDestination(children,rowNo,colNo,
+//             turn,sourceCopy,animateState,animateDelta);
+//
+//         }
+//
+//     }
+//   }
+// }
 
   function isEndOfGame():boolean{
     console.log("End of Game is: "+isEndState);
@@ -739,21 +741,21 @@ export function secondOrderAnimate(row:number,animateState:IState,animateDelta:B
     return "Draw!!! ";
   }
   }
-  function getRandom(min:number, max:number):number{
-    return Math.random() * (max - min) + min;
-  }
-  export function getPosition(pos: number,store:number) {
-
-    if(store==1){
-      PositionStyle.top = position_arr[pos].t.toString()+'%';
-      PositionStyle.left = position_arr[pos].l.toString()+'%';
-    }
-    else{
-      PositionStyle.top = position_arr_pit[pos].t.toString()+'%';
-      PositionStyle.left = position_arr_pit[pos].l.toString()+'%';
-    }
-    return PositionStyle;
-  }
+  // function getRandom(min:number, max:number):number{
+  //   return Math.random() * (max - min) + min;
+  // }
+  // export function getPosition(pos: number,store:number) {
+  //
+  //   if(store==1){
+  //     PositionStyle.top = position_arr[pos].t.toString()+'%';
+  //     PositionStyle.left = position_arr[pos].l.toString()+'%';
+  //   }
+  //   else{
+  //     PositionStyle.top = position_arr_pit[pos].t.toString()+'%';
+  //     PositionStyle.left = position_arr_pit[pos].l.toString()+'%';
+  //   }
+  //   return PositionStyle;
+  // }
 
   export function flipBoard(){
     return flipDisplay;
@@ -777,7 +779,7 @@ export function secondOrderAnimate(row:number,animateState:IState,animateDelta:B
     let imgsrc:string = state.sourceImages[rowNo][colNo][candyNo];
     if(!imgsrc || imgsrc==null){
       console.log("Had to rely on default image");
-      imgsrc = "imgs/redcandy.png";
+      imgsrc = gameLogic.candy1;
     }
     return imgsrc;
   }

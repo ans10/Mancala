@@ -14,7 +14,6 @@ var gameLogic;
     gameLogic.ROWS = 2;
     gameLogic.COLS = 7;
     gameLogic.candy1 = "imgs/purplecandy.png";
-    ;
     gameLogic.candy2 = "imgs/bluecandy.png";
     gameLogic.candy3 = "imgs/greencandy.png";
     gameLogic.candy4 = "imgs/redcandy.png";
@@ -27,7 +26,7 @@ var gameLogic;
             for (var colNo = 0; colNo < 7; colNo++) {
                 sourceImages[rowNo][colNo] = [];
                 for (var candyNo = 0; candyNo < 48; candyNo++) {
-                    sourceImages[rowNo][colNo][candyNo] = null;
+                    sourceImages[rowNo][colNo][candyNo] = gameLogic.candy1;
                 }
             }
         }
