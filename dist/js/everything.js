@@ -31731,7 +31731,7 @@ var gameLogic;
     function getInitialState() {
         console.log("Initial state method called in gameLogic");
         return { board: getInitialBoard(), delta: null, lastupdatedrow: -1,
-            lastupdatedcol: -1, nextMoveType: "clickUpdate", sourceImages: getInitialSource() };
+            lastupdatedcol: -1, nextMoveType: "clickUpdate", sourceImages: getInitialSource(), previousTurnIndex: null };
     }
     gameLogic.getInitialState = getInitialState;
     /**
@@ -31781,7 +31781,7 @@ var gameLogic;
         var delta = { board: deltaBoard, row: lastupdatedr, col: lastupdatedc };
         var updatedState = { board: boardAfterMove, delta: delta,
             lastupdatedrow: lastupdatedr, lastupdatedcol: lastupdatedc, nextMoveType: null,
-            sourceImages: null };
+            sourceImages: null, previousTurnIndex: null };
         return updatedState;
     }
     function getWinner(board) {
@@ -31859,15 +31859,15 @@ var gameLogic;
             ((i === 0 && boardAfterMove[1 - i][j - 1] > 0) ||
                 (i === 1 && boardAfterMove[1 - i][j + 1] > 0))) {
             updatedState = { board: boardAfterMove, delta: delta, lastupdatedrow: i,
-                lastupdatedcol: j, nextMoveType: "emptyHole", sourceImages: null };
+                lastupdatedcol: j, nextMoveType: "emptyHole", sourceImages: null, previousTurnIndex: null };
         }
         else if (isEndState(boardAfterMove)) {
             updatedState = { board: boardAfterMove, delta: delta, lastupdatedrow: i,
-                lastupdatedcol: j, nextMoveType: "transferAll", sourceImages: null };
+                lastupdatedcol: j, nextMoveType: "transferAll", sourceImages: null, previousTurnIndex: null };
         }
         else {
             updatedState = { board: boardAfterMove, delta: delta, lastupdatedrow: i,
-                lastupdatedcol: j, nextMoveType: "clickUpdate", sourceImages: null };
+                lastupdatedcol: j, nextMoveType: "clickUpdate", sourceImages: null, previousTurnIndex: null };
         }
         return updatedState;
     }
@@ -31888,7 +31888,7 @@ var gameLogic;
         var deltaBoard = createDelta(boardAfterMove, board);
         var delta = { board: deltaBoard, row: row, col: col };
         var updateState = { board: boardAfterMove, delta: delta, lastupdatedrow: i,
-            lastupdatedcol: j, nextMoveType: "clickUpdate", sourceImages: null };
+            lastupdatedcol: j, nextMoveType: "clickUpdate", sourceImages: null, previousTurnIndex: null };
         if (isEndState(boardAfterMove)) {
             updateState.nextMoveType = "transferAll";
         }
@@ -31955,6 +31955,7 @@ var gameLogic;
         else if (nextMoveType == "emptyHole") {
             console.log("Jackpot condition");
             updatedState = updateEmptyHole(board, row, col);
+            updatedState.previousTurnIndex = turnIndexBeforeMove;
             if (updatedState.nextMoveType != "transferAll") {
                 turnIndexBeforeMove = 1 - turnIndexBeforeMove;
             }
@@ -31973,6 +31974,9 @@ var gameLogic;
         }
         console.log("TurnIndex value is: " + turnIndex);
         updatedState.sourceImages = angular.copy(sourceImages);
+        if (updatedState.previousTurnIndex === null) {
+            updatedState.previousTurnIndex = turnIndexBeforeMove;
+        }
         var state = updatedState;
         console.info("Returning createMove successfully");
         return {
@@ -32014,6 +32018,8 @@ var game;
     game.isEndState = false;
     game.position_arrv = null;
     game.turnStatus = 0;
+    game.previousTurnIndex = -1;
+    game.currentMoveType = null;
     game.scores = null;
     game.animationDone = true;
     game.sourceImages = null;
@@ -32290,10 +32296,17 @@ var game;
         if (sourceCopy != null) {
             //console.log(sourceImages);
             game.state.sourceImages = angular.copy(sourceCopy);
+            //state.sourceImages = angular.copy(sourceImages);
         }
     }
     function setTurnStatus() {
         game.turnStatus = game.currentUpdateUI.turnIndex;
+        console.log("Before: " + game.turnStatus + " " + game.previousTurnIndex);
+        if (game.currentUpdateUI.state !== null) {
+            game.previousTurnIndex = game.currentUpdateUI.state.previousTurnIndex;
+            game.currentMoveType = game.currentUpdateUI.state.nextMoveType;
+        }
+        console.log("After: " + game.turnStatus + " " + game.previousTurnIndex);
     }
     function updateScores() {
         game.scores = angular.copy(game.state.board);
@@ -32428,6 +32441,14 @@ var game;
         gameService.makeMove(nextMove, null);
         if (nextMove.endMatchScores !== null) {
             console.info("end state detected to be true " + game.isEndState);
+            /*if(nextMove.endMatchScores[0]>nextMove.endMatchScores[1]){
+              console.log("Winner is 0");
+              winner= 0;
+            }
+            else{
+              console.log("Winner is 1");
+              winner= 1;
+            }*/
         }
     }
     function pitClicked(event, row, column) {
@@ -32653,7 +32674,7 @@ var game;
                 game.currentUpdateUI.playersInfo[game.winner].displayName != null) {
                 return game.currentUpdateUI.playersInfo[game.winner].displayName + "'s turn";
             }
-            return "Player " + game.winner + " is winner";
+            return "Player " + (game.winner + 1) + " is winner";
         }
         else {
             return "Draw!!! ";
@@ -32688,9 +32709,30 @@ var game;
                 game.currentUpdateUI.playersInfo[turn].displayName);
             return game.currentUpdateUI.playersInfo[turn].displayName + "'s turn";
         }
-        return "Player " + turn + "'s turn";
+        return "Player " + (turn + 1) + "'s turn";
     }
     game.printStatus = printStatus;
+    function sameTurnAgain() {
+        if (game.turnStatus === game.previousTurnIndex) {
+            console.log("same turn!");
+            if (game.currentMoveType === "clickUpdate") {
+                console.log("clickupdate!");
+                return true;
+            }
+        }
+        console.log("Not same turn");
+        return false;
+    }
+    game.sameTurnAgain = sameTurnAgain;
+    function isCapture() {
+        if (game.turnStatus === game.previousTurnIndex) {
+            if (game.currentMoveType === "emptyHole") {
+                return true;
+            }
+        }
+        return false;
+    }
+    game.isCapture = isCapture;
     function getTurnStatus() {
         return game.turnStatus;
     }
@@ -32734,6 +32776,7 @@ var aiService;
                     possibleMoves.push(gameLogic.createMove(state, i, j, turnIndexBeforeMove));
                 }
                 catch (e) {
+                    // The cell in that position was full.
                 }
             }
         }
