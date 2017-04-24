@@ -337,7 +337,7 @@ var gameLogic;
             throw new Error("Invalid movetype");
         }
         console.log("TurnIndex value is: " + turnIndex);
-        updatedState.sourceImages = sourceImages;
+        updatedState.sourceImages = angular.copy(sourceImages);
         var state = updatedState;
         console.info("Returning createMove successfully");
         return {

@@ -387,7 +387,7 @@ module gameLogic {
     }
 
     console.log("TurnIndex value is: "+turnIndex);
-    updatedState.sourceImages = sourceImages;
+    updatedState.sourceImages = angular.copy(sourceImages);
     let state: IState = updatedState;
 
     console.info("Returning createMove successfully" );

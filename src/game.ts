@@ -30,7 +30,7 @@ module game {
   export let turnStatus = 0;
   export let scores:Board = null;
   export let animationDone = true;
-  //export let sourceImages:string[][][] = null;
+  export let sourceImages:string[][][] = null;
   export let positionImages:any[][][] = null;
   // For community games.
   export let proposals: number[][] = null;
