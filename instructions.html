@@ -9,12 +9,13 @@
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   <link href="https://fonts.googleapis.com/css?family=Love+Ya+Like+A+Sister" rel="stylesheet">
   <style>
-  html,body{height:100%;}
+  body{position:relative; height:100%;overflow:auto;}
   .carousel,.item,.active{height:100%;}
   .carousel-inner{height:100%;}
   .carousel-inner > .item > img,
   .carousel-inner > .item > a > img {
       width: 100%;
+      height:100%;
       max-width: 100%;
       margin: auto;
       height: auto;
@@ -42,12 +43,13 @@
     .carousel .item {
        background-color: white;
     }
+    
+   
  </style>
 </head>
 <body>
 
 <div class="container">
-  <br>
   <div id="myCarousel" class="carousel slide" "="">
   <!--
     <ol class="carousel-indicators">
@@ -60,18 +62,18 @@
 
     <!-- Wrapper for slides -->
     <div class="carousel-inner" role="listbox">
-        <div class="item active">
+     <div class="item active">
 		  <div class="carousel-caption">
-             <h1>HOW TO PLAY MANCALA</h1>           
-                <h3>1. The goal of the game is to capture more candies than your opponent. The board has six small pits on each side and a store at each end. At the beginning of the game an equal number of candies are placed in each pit. The number on top of each pit/store indicates the number of candies in that pit/store.</h3>
-                 <img src="https://ans10.github.io/Mancala/dist/imgs/board30.png"> 
-                 <h3>You control the six pits on your side of the board. Your score is the number of candies in your store.</h3>                             
-        </div>
-	 </div>
+        <h1>HOW TO PLAY MANCALA</h1>           
+        <h3>1. The goal of the game is to capture more candies than your opponent. The board has six small pits on each side and a store at each end. At the beginning of the game an equal number of candies are placed in each pit. The number on top of each pit/store indicates the number of candies in that pit/store.</h3>
+        <img src="https://ans10.github.io/Mancala/dist/imgs/board30.png"> 
+        <h3>You control the six pits on your side of the board. Your score is the number of candies in your store.</h3>                             
+      </div>
+	  </div>
     
       <div class="item">
          <div class="carousel-caption">
-           <h1>HOW TO PLAY MANCALA</h1>
+            <h1>HOW TO PLAY MANCALA</h1>
             <h3>2. Players take turns making moves. On your turn, you have to empty one of your pits.</h3>
             <h3>For instance, let's assume Player 1 chooses to empty the following pit: </h3>
             <img src="https://ans10.github.io/Mancala/dist/imgs/board12.png">
@@ -91,8 +93,7 @@
           <h1>HOW TO PLAY MANCALA</h1>
             <h3>3. In your move, if the last dropped candy lands in your store, you get an additional move.</h3>
             <h3> For instance, let's assume Player 1 chooses to empty the following pit:</h3>
-            <img src="https://ans10.github.io/Mancala/dist/imgs/board14.png">            
-           
+            <img src="https://ans10.github.io/Mancala/dist/imgs/board14.png">
         </div>
       </div>
 
@@ -107,18 +108,17 @@
       <div class="item">
        <div class="carousel-caption">
           <h1>HOW TO PLAY MANCALA</h1>
-           <h3>4. Let's assume Player 1 chooses to empty the following pit:</h3>
-           <img src="https://ans10.github.io/Mancala/dist/imgs/board16.png">
-                  
-          </div>
+          <h3>4. Let's assume Player 1 chooses to empty the following pit:</h3>
+          <img src="https://ans10.github.io/Mancala/dist/imgs/board16.png">                  
+        </div>
       </div>  
 
        <div class="item">
        <div class="carousel-caption">
           <h1>HOW TO PLAY MANCALA</h1>
           <h3>The last dropped candy has landed in an empty pit owned by Player 1 himself, and the pit in the opposite side of the board contains candies.</h3>
-           <img src="https://ans10.github.io/Mancala/dist/imgs/board17.png">          
-          </div>
+          <img src="https://ans10.github.io/Mancala/dist/imgs/board17.png">          
+        </div>
       </div>  
 
       <div class="item">
@@ -135,18 +135,17 @@
           <h1>HOW TO PLAY MANCALA</h1>
             <h3>5. The game ends when all six pits on either side of the board are empty.</h3>
             <h3>For instance, let's assume Player 2 chooses to empty the following pit:</h3>
-            <img src="https://ans10.github.io/Mancala/dist/imgs/board22.png">
-           
+            <img src="https://ans10.github.io/Mancala/dist/imgs/board22.png">           
           </div>
       </div>   
   
     <div class="item">
        <div class="carousel-caption">
           <h1>HOW TO PLAY MANCALA</h1>
-          <h3>All remaining candies of Player 1 automatically move to his store and the game ends. </h3>
-          <h3> Since Player 1's score is more than Player 2's, Player 1 is the winner.</h3>
-            <img src="https://ans10.github.io/Mancala/dist/imgs/board23.png">            
-          </div>
+          <h3>All remaining candies of Player 1 automatically move to his store and the game ends.</h3>
+          <h3>Since Player 1's score is more than Player 2's, Player 1 is the winner.</h3>
+          <img src="https://ans10.github.io/Mancala/dist/imgs/board23.png">            
+        </div>
       </div>   
     </div>
 

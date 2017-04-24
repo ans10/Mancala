@@ -28,6 +28,8 @@ module game {
   export let isEndState: boolean = false;
   export let position_arrv: MyPosition[] = null;
   export let turnStatus = 0;
+  export let previousTurnIndex = -1;
+  export let currentMoveType: string = null;
   export let scores:Board = null;
   export let animationDone = true;
   export let sourceImages:string[][][] = null;
@@ -326,6 +328,12 @@ module game {
   }
   function setTurnStatus():void{
     turnStatus = currentUpdateUI.turnIndex;
+    console.log("Before: "+turnStatus + " " + previousTurnIndex);
+    if(currentUpdateUI.state !== null){
+      previousTurnIndex=currentUpdateUI.state.previousTurnIndex;
+      currentMoveType=currentUpdateUI.state.nextMoveType;
+    }
+    console.log("After: " + turnStatus + " "+previousTurnIndex);
   }
   function updateScores(){
     scores = angular.copy(state.board);
@@ -735,7 +743,7 @@ function animate(animateState:IState,animateDelta:BoardDelta):string[][][]{
           return currentUpdateUI.playersInfo[winner].displayName+"'s turn"
         }
 
-    return "Player " + winner + " is winner";
+    return "Player " + (winner+1) + " is winner";
   }
   else{
     return "Draw!!! ";
@@ -769,8 +777,27 @@ function animate(animateState:IState,animateDelta:BoardDelta):string[][][]{
           currentUpdateUI.playersInfo[turn].displayName);
           return currentUpdateUI.playersInfo[turn].displayName+"'s turn"
         }
-    return "Player "+turn+"'s turn";
+    return "Player "+(turn+1)+"'s turn";
 
+  }
+  export function sameTurnAgain(){
+    if (turnStatus === previousTurnIndex){
+      console.log("same turn!");
+      if (currentMoveType === "clickUpdate"){
+        console.log("clickupdate!");
+        return true;
+      }
+    }
+    console.log("Not same turn");
+    return false;
+  }
+  export function isCapture(){
+     if (turnStatus === previousTurnIndex){
+      if (currentMoveType === "emptyHole"){
+        return true;
+      }
+    }
+    return false;
   }
   export function getTurnStatus():number{
       return turnStatus;

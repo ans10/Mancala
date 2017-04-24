@@ -100,6 +100,62 @@ font-family: 'Indie Flower', cursive;*/
  font-family: 'Love Ya Like A Sister', cursive;
 }
 
+.displayLeft {
+  height: 50%;
+  width: 100%;
+  margin-top: 18%;
+  font-family: 'Lobster', cursive;
+  font-size: 500%;
+  position: absolute;
+  z-index: 500;
+  display: flex;
+  text-align: left;
+  justify-content: flex-start;
+  align-content: left;
+  padding: 5px;
+  opacity:0;
+  animation: shimmy 2s;
+}
+
+@keyframes shimmy {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0);    
+  }
+  100% {  
+   opacity:1;
+   transform: translate(35%, 0);
+  }
+}
+
+.displayRight {
+  height: 50%;
+  width: 100%;
+  margin-top: 28%;
+  font-family: 'Lobster', cursive;
+  font-size: 500%;
+  display: flex;
+  text-align: right;
+  justify-content: flex-end;
+  align-content: right;
+  padding: 5px;
+  position: absolute;
+  z-index: 500;
+  opacity:0;
+  animation: shimmyRight 2s;
+}
+
+@keyframes shimmyRight {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0);    
+  }
+  100% {  
+   opacity:1;
+   transform: translate(-35%, 0);
+  }
+}
+
 .board {
 	margin-top: 70px;
 	display: flex;
@@ -167,9 +223,6 @@ font-family: 'Indie Flower', cursive;*/
 	flex: 1;
 	display: flex;
 	opacity: 0.75;
-	&.player-two {
-		flex-direction: row-reverse;
-	}
 }
 
 @-webkit-keyframes wiggle
@@ -284,15 +337,6 @@ font-family: 'Indie Flower', cursive;*/
 	min-width: 100%;
 	min-height: 80%;*/
 	position: relative;
-
-
-	p {
-		cursor: inherit;
-	}
-
-	p::selection {
-		background: transparent;
-	}
 }
 
 .pit {
