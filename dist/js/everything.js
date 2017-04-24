@@ -31972,7 +31972,7 @@ var gameLogic;
             throw new Error("Invalid movetype");
         }
         console.log("TurnIndex value is: " + turnIndex);
-        updatedState.sourceImages = sourceImages;
+        updatedState.sourceImages = angular.copy(sourceImages);
         var state = updatedState;
         console.info("Returning createMove successfully");
         return {
@@ -32016,7 +32016,7 @@ var game;
     game.turnStatus = 0;
     game.scores = null;
     game.animationDone = true;
-    //export let sourceImages:string[][][] = null;
+    game.sourceImages = null;
     game.positionImages = null;
     // For community games.
     game.proposals = null;
@@ -32290,7 +32290,6 @@ var game;
         if (sourceCopy != null) {
             //console.log(sourceImages);
             game.state.sourceImages = angular.copy(sourceCopy);
-            //state.sourceImages = angular.copy(sourceImages);
         }
     }
     function setTurnStatus() {
@@ -32429,14 +32428,6 @@ var game;
         gameService.makeMove(nextMove, null);
         if (nextMove.endMatchScores !== null) {
             console.info("end state detected to be true " + game.isEndState);
-            /*if(nextMove.endMatchScores[0]>nextMove.endMatchScores[1]){
-              console.log("Winner is 0");
-              winner= 0;
-            }
-            else{
-              console.log("Winner is 1");
-              winner= 1;
-            }*/
         }
     }
     function pitClicked(event, row, column) {
@@ -32743,7 +32734,6 @@ var aiService;
                     possibleMoves.push(gameLogic.createMove(state, i, j, turnIndexBeforeMove));
                 }
                 catch (e) {
-                    // The cell in that position was full.
                 }
             }
         }
