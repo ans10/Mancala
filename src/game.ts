@@ -732,7 +732,7 @@ function animate(animateState:IState,animateDelta:BoardDelta):string[][][]{
   if(winner === 1 || winner === 0) {
     if(currentUpdateUI.playersInfo[winner].displayName &&
         currentUpdateUI.playersInfo[winner].displayName!=null){
-          return currentUpdateUI.playersInfo[winner].displayName+" is Winner!"
+          return currentUpdateUI.playersInfo[winner].displayName+" is Winner!";
         }
 
     return "Player " + winner + " is winner";
