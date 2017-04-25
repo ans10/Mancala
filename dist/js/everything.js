@@ -32018,8 +32018,6 @@ var game;
     game.isEndState = false;
     game.position_arrv = null;
     game.turnStatus = 0;
-    game.previousTurnIndex = -1;
-    game.currentMoveType = null;
     game.scores = null;
     game.animationDone = true;
     game.sourceImages = null;
@@ -32296,17 +32294,10 @@ var game;
         if (sourceCopy != null) {
             //console.log(sourceImages);
             game.state.sourceImages = angular.copy(sourceCopy);
-            //state.sourceImages = angular.copy(sourceImages);
         }
     }
     function setTurnStatus() {
         game.turnStatus = game.currentUpdateUI.turnIndex;
-        console.log("Before: " + game.turnStatus + " " + game.previousTurnIndex);
-        if (game.currentUpdateUI.state !== null) {
-            game.previousTurnIndex = game.currentUpdateUI.state.previousTurnIndex;
-            game.currentMoveType = game.currentUpdateUI.state.nextMoveType;
-        }
-        console.log("After: " + game.turnStatus + " " + game.previousTurnIndex);
     }
     function updateScores() {
         game.scores = angular.copy(game.state.board);
@@ -32441,14 +32432,6 @@ var game;
         gameService.makeMove(nextMove, null);
         if (nextMove.endMatchScores !== null) {
             console.info("end state detected to be true " + game.isEndState);
-            /*if(nextMove.endMatchScores[0]>nextMove.endMatchScores[1]){
-              console.log("Winner is 0");
-              winner= 0;
-            }
-            else{
-              console.log("Winner is 1");
-              winner= 1;
-            }*/
         }
     }
     function pitClicked(event, row, column) {
@@ -32672,9 +32655,9 @@ var game;
         if (game.winner === 1 || game.winner === 0) {
             if (game.currentUpdateUI.playersInfo[game.winner].displayName &&
                 game.currentUpdateUI.playersInfo[game.winner].displayName != null) {
-                return game.currentUpdateUI.playersInfo[game.winner].displayName + "'s turn";
+                return game.currentUpdateUI.playersInfo[game.winner].displayName + " is Winner!";
             }
-            return "Player " + (game.winner + 1) + " is winner";
+            return "Player " + game.winner + " is winner";
         }
         else {
             return "Draw!!! ";
@@ -32709,30 +32692,9 @@ var game;
                 game.currentUpdateUI.playersInfo[turn].displayName);
             return game.currentUpdateUI.playersInfo[turn].displayName + "'s turn";
         }
-        return "Player " + (turn + 1) + "'s turn";
+        return "Player " + turn + "'s turn";
     }
     game.printStatus = printStatus;
-    function sameTurnAgain() {
-        if (game.turnStatus === game.previousTurnIndex) {
-            console.log("same turn!");
-            if (game.currentMoveType === "clickUpdate") {
-                console.log("clickupdate!");
-                return true;
-            }
-        }
-        console.log("Not same turn");
-        return false;
-    }
-    game.sameTurnAgain = sameTurnAgain;
-    function isCapture() {
-        if (game.turnStatus === game.previousTurnIndex) {
-            if (game.currentMoveType === "emptyHole") {
-                return true;
-            }
-        }
-        return false;
-    }
-    game.isCapture = isCapture;
     function getTurnStatus() {
         return game.turnStatus;
     }
@@ -32776,7 +32738,6 @@ var aiService;
                     possibleMoves.push(gameLogic.createMove(state, i, j, turnIndexBeforeMove));
                 }
                 catch (e) {
-                    // The cell in that position was full.
                 }
             }
         }
