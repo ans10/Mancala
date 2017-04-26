@@ -293,6 +293,7 @@ var game;
         if (sourceCopy != null) {
             //console.log(sourceImages);
             game.state.sourceImages = angular.copy(sourceCopy);
+            //state.sourceImages = angular.copy(sourceImages);
         }
     }
     function setTurnStatus() {
@@ -431,6 +432,14 @@ var game;
         gameService.makeMove(nextMove, null);
         if (nextMove.endMatchScores !== null) {
             console.info("end state detected to be true " + game.isEndState);
+            /*if(nextMove.endMatchScores[0]>nextMove.endMatchScores[1]){
+              console.log("Winner is 0");
+              winner= 0;
+            }
+            else{
+              console.log("Winner is 1");
+              winner= 1;
+            }*/
         }
     }
     function pitClicked(event, row, column) {
