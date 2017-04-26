@@ -28,8 +28,6 @@ module game {
   export let isEndState: boolean = false;
   export let position_arrv: MyPosition[] = null;
   export let turnStatus = 0;
-  export let previousTurnIndex = -1;
-  export let currentMoveType: string = null;
   export let scores:Board = null;
   export let animationDone = true;
   export let sourceImages:string[][][] = null;
@@ -328,10 +326,6 @@ module game {
   }
   function setTurnStatus():void{
     turnStatus = currentUpdateUI.turnIndex;
-    if(currentUpdateUI.state!==null){
-      previousTurnIndex=currentUpdateUI.state.previousTurnIndex;
-      currentMoveType=currentUpdateUI.state.nextMoveType;
-    }
   }
   function updateScores(){
     scores = angular.copy(state.board);
@@ -741,32 +735,12 @@ function animate(animateState:IState,animateDelta:BoardDelta):string[][][]{
           return currentUpdateUI.playersInfo[winner].displayName+" is Winner!";
         }
 
-    return "Player " + (winner+1) + " is winner";
+    return "Player " + winner + " is winner";
   }
   else{
     return "Draw!!! ";
   }
-}
-
-export function sameTurnAgain(){
-  if (turnStatus === previousTurnIndex){
-    if (currentMoveType === "clickUpdate"){
-      console.log("in clickupdate");
-      return true;
-    }
   }
-  return false;
-}
-
-export function isCapture(){
-   if (turnStatus === previousTurnIndex){
-    if (currentMoveType === "emptyHole"){
-      console.log("in clickupdate");
-      return true;
-    }
-  }
-  return false;
-}
   // function getRandom(min:number, max:number):number{
   //   return Math.random() * (max - min) + min;
   // }
@@ -795,7 +769,7 @@ export function isCapture(){
           currentUpdateUI.playersInfo[turn].displayName);
           return currentUpdateUI.playersInfo[turn].displayName+"'s turn";
         }
-    return "Player "+(turn+1)+"'s turn";
+    return "Player "+turn+"'s turn";
 
   }
   export function getTurnStatus():number{
