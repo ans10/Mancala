@@ -17,6 +17,8 @@ var game;
     game.isEndState = false;
     game.position_arrv = null;
     game.turnStatus = 0;
+    game.previousTurnIndex = -1;
+    game.currentMoveType = null;
     game.scores = null;
     game.animationDone = true;
     game.sourceImages = null;
@@ -298,6 +300,10 @@ var game;
     }
     function setTurnStatus() {
         game.turnStatus = game.currentUpdateUI.turnIndex;
+        if (game.currentUpdateUI.state !== null) {
+            game.previousTurnIndex = game.currentUpdateUI.state.previousTurnIndex;
+            game.currentMoveType = game.currentUpdateUI.state.nextMoveType;
+        }
     }
     function updateScores() {
         game.scores = angular.copy(game.state.board);
@@ -665,13 +671,33 @@ var game;
                 game.currentUpdateUI.playersInfo[game.winner].displayName != null) {
                 return game.currentUpdateUI.playersInfo[game.winner].displayName + " is Winner!";
             }
-            return "Player " + game.winner + " is winner";
+            return "Player " + (game.winner + 1) + " is winner";
         }
         else {
             return "Draw!!! ";
         }
     }
     game.getWinner = getWinner;
+    function sameTurnAgain() {
+        if (game.turnStatus === game.previousTurnIndex) {
+            if (game.currentMoveType === "clickUpdate") {
+                console.log("in clickupdate");
+                return true;
+            }
+        }
+        return false;
+    }
+    game.sameTurnAgain = sameTurnAgain;
+    function isCapture() {
+        if (game.turnStatus === game.previousTurnIndex) {
+            if (game.currentMoveType === "emptyHole") {
+                console.log("in clickupdate");
+                return true;
+            }
+        }
+        return false;
+    }
+    game.isCapture = isCapture;
     // function getRandom(min:number, max:number):number{
     //   return Math.random() * (max - min) + min;
     // }
@@ -700,7 +726,7 @@ var game;
                 game.currentUpdateUI.playersInfo[turn].displayName);
             return game.currentUpdateUI.playersInfo[turn].displayName + "'s turn";
         }
-        return "Player " + turn + "'s turn";
+        return "Player " + (turn + 1) + "'s turn";
     }
     game.printStatus = printStatus;
     function getTurnStatus() {
