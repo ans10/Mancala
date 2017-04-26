@@ -17,6 +17,8 @@ var game;
     game.isEndState = false;
     game.position_arrv = null;
     game.turnStatus = 0;
+    game.previousTurnIndex = -1;
+    game.currentMoveType = null;
     game.scores = null;
     game.animationDone = true;
     game.sourceImages = null;
@@ -298,6 +300,10 @@ var game;
     }
     function setTurnStatus() {
         game.turnStatus = game.currentUpdateUI.turnIndex;
+        if (game.currentUpdateUI.state !== null) {
+            game.previousTurnIndex = game.currentUpdateUI.state.previousTurnIndex;
+            game.currentMoveType = game.currentUpdateUI.state.nextMoveType;
+        }
     }
     function updateScores() {
         game.scores = angular.copy(game.state.board);
@@ -663,12 +669,12 @@ var game;
         if (game.winner === 1 || game.winner === 0) {
             if (game.currentUpdateUI.playersInfo[game.winner].displayName &&
                 game.currentUpdateUI.playersInfo[game.winner].displayName != null) {
-                return game.currentUpdateUI.playersInfo[game.winner].displayName + " is Winner!";
+                return game.currentUpdateUI.playersInfo[game.winner].displayName + " is winner!";
             }
-            return "Player " + game.winner + " is winner";
+            return "Player " + (game.winner + 1) + " is winner!";
         }
         else {
-            return "Draw!!! ";
+            return "Draw!";
         }
     }
     game.getWinner = getWinner;
@@ -700,13 +706,32 @@ var game;
                 game.currentUpdateUI.playersInfo[turn].displayName);
             return game.currentUpdateUI.playersInfo[turn].displayName + "'s turn";
         }
-        return "Player " + turn + "'s turn";
+        return "Player " + (turn + 1) + "'s turn";
     }
     game.printStatus = printStatus;
     function getTurnStatus() {
         return game.turnStatus;
     }
     game.getTurnStatus = getTurnStatus;
+    function sameTurnAgain() {
+        if (game.turnStatus === game.previousTurnIndex) {
+            if (game.currentMoveType === "clickUpdate") {
+                console.log("In click update");
+                return true;
+            }
+        }
+        return false;
+    }
+    game.sameTurnAgain = sameTurnAgain;
+    function isCapture() {
+        if (game.turnStatus === game.previousTurnIndex) {
+            if (game.currentMoveType === "emptyHole") {
+                return true;
+            }
+        }
+        return false;
+    }
+    game.isCapture = isCapture;
     function getSource(rowNo, colNo, candyNo) {
         var imgsrc = game.state.sourceImages[rowNo][colNo][candyNo];
         if (!imgsrc || imgsrc == null) {
