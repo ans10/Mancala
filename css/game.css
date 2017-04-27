@@ -39,7 +39,7 @@ textarea, input {
 	box-sizing: inherit;
 }*/
 
-html { 
+html {
   /*background:  url(https://media.giphy.com/media/26uf7VYVUt6cBelCo/giphy.gif) no-repeat center center fixed; */
   background-size: cover;
 }
@@ -63,10 +63,10 @@ body {
 	background: url(../imgs/bg102.jpg) no-repeat center center fixed;
    /*background-repeat:repeat-x;*/
 	background-size: cover;
-	/*background-position: 50% 50%;	
-	image-rendering: -webkit-optimize-contrast; 
+	/*background-position: 50% 50%;
+	image-rendering: -webkit-optimize-contrast;
 	image-rendering: pixelated;*/
-	font-size: 1.8vw;
+	font-size: 2.0vw;
 	margin-top: 1em;
 }
 
@@ -78,7 +78,7 @@ h1 {
 
 p{
 
-	font-size: 25px;
+	font-size: 2.8vw;
 	line-height: 20px;
 	color: brown;
 /*font-family: 'Indie Flower', cursive;
@@ -120,9 +120,9 @@ font-family: 'Indie Flower', cursive;*/
 @keyframes shimmy {
   0% {
     opacity: 0;
-    transform: translate(0, 0);    
+    transform: translate(0, 0);
   }
-  100% {  
+  100% {
    opacity:1;
    transform: translate(35%, 0);
   }
@@ -148,22 +148,22 @@ font-family: 'Indie Flower', cursive;*/
 @keyframes shimmyRight {
   0% {
     opacity: 0;
-    transform: translate(0, 0);    
+    transform: translate(0, 0);
   }
-  100% {  
+  100% {
    opacity:1;
    transform: translate(-35%, 0);
   }
 }
 
 .board {
-	margin-top: 70px;
+	margin-top: 50px;
 	display: flex;
 	flex: 1;
 	justify-content: center;
 	width: 100%;
 	max-width: 100%;
-	height: 60%;
+	height: 75%;
 	overflow: hidden;
 	background: url(../imgs/board102.jpg);
 	border-radius: 20px;
@@ -174,7 +174,7 @@ font-family: 'Indie Flower', cursive;*/
 	flex: 7;
 	display: flex;
 	flex-direction: column;
-	margin-bottom: 5px;
+	/*margin-bottom: 5px;*/
 
 
 }
@@ -223,6 +223,7 @@ font-family: 'Indie Flower', cursive;*/
 	flex: 1;
 	display: flex;
 	opacity: 0.75;
+  margin-bottom: 10px;
 }
 
 @-webkit-keyframes wiggle
