@@ -433,9 +433,6 @@ module game {
   }
   export function givePreviousCounts(row: number, column: number): number{
     let previousCellValue:number = scores[row][column];
-    /*if(state.delta && state.delta!=null){
-      previousCellValue = previousCellValue - state.delta.board[row][column];
-    }*/
     return previousCellValue;
   }
 
@@ -476,14 +473,6 @@ module game {
     if(nextMove.endMatchScores!==null){
 
       console.info("end state detected to be true " + isEndState);
-        /*if(nextMove.endMatchScores[0]>nextMove.endMatchScores[1]){
-          console.log("Winner is 0");
-          winner= 0;
-        }
-        else{
-          console.log("Winner is 1");
-          winner= 1;
-        }*/
 
     }
 
@@ -783,19 +772,15 @@ function animate(animateState:IState,animateDelta:BoardDelta):string[][][]{
   }
 
   export function sameTurnAgain(){
-    if(turnStatus===previousTurnIndex){
-      if(currentMoveType==="clickUpdate"){
+    if(turnStatus===previousTurnIndex && currentMoveType==="clickUpdate"){
         console.log("In click update");
         return true;
-      }
     }
     return false;
   }
   export function isCapture(){
-     if(turnStatus===previousTurnIndex){
-      if(currentMoveType==="emptyHole"){
+     if(turnStatus===previousTurnIndex && currentMoveType==="emptyHole"){
         return true;
-      }
     }
     return false;
   }
