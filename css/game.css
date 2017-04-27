@@ -41,7 +41,13 @@ textarea, input {
 
 html {
   /*background:  url(https://media.giphy.com/media/26uf7VYVUt6cBelCo/giphy.gif) no-repeat center center fixed; */
+  background: url(../imgs/bg102.jpg) no-repeat center center fixed;
   background-size: cover;
+  background-size: cover;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+
 }
 html {
 	font-size: 20px;
@@ -60,9 +66,10 @@ body {
 
 	text-align: center;
 /*	color: #555;*/
-	background: url(../imgs/bg102.jpg) no-repeat center center fixed;
+
    /*background-repeat:repeat-x;*/
-	background-size: cover;
+
+
 	/*background-position: 50% 50%;
 	image-rendering: -webkit-optimize-contrast;
 	image-rendering: pixelated;*/
