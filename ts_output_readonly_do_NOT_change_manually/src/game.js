@@ -397,9 +397,6 @@ var game;
     game.giveCounts = giveCounts;
     function givePreviousCounts(row, column) {
         var previousCellValue = game.scores[row][column];
-        /*if(state.delta && state.delta!=null){
-          previousCellValue = previousCellValue - state.delta.board[row][column];
-        }*/
         return previousCellValue;
     }
     game.givePreviousCounts = givePreviousCounts;
@@ -438,14 +435,6 @@ var game;
         gameService.makeMove(nextMove, null);
         if (nextMove.endMatchScores !== null) {
             console.info("end state detected to be true " + game.isEndState);
-            /*if(nextMove.endMatchScores[0]>nextMove.endMatchScores[1]){
-              console.log("Winner is 0");
-              winner= 0;
-            }
-            else{
-              console.log("Winner is 1");
-              winner= 1;
-            }*/
         }
     }
     function pitClicked(event, row, column) {
@@ -714,20 +703,16 @@ var game;
     }
     game.getTurnStatus = getTurnStatus;
     function sameTurnAgain() {
-        if (game.turnStatus === game.previousTurnIndex) {
-            if (game.currentMoveType === "clickUpdate") {
-                console.log("In click update");
-                return true;
-            }
+        if (game.turnStatus === game.previousTurnIndex && game.currentMoveType === "clickUpdate") {
+            console.log("In click update");
+            return true;
         }
         return false;
     }
     game.sameTurnAgain = sameTurnAgain;
     function isCapture() {
-        if (game.turnStatus === game.previousTurnIndex) {
-            if (game.currentMoveType === "emptyHole") {
-                return true;
-            }
+        if (game.turnStatus === game.previousTurnIndex && game.currentMoveType === "emptyHole") {
+            return true;
         }
         return false;
     }
