@@ -5,6 +5,24 @@ CACHE MANIFEST
 CACHE:
 js/everything.min.js
 css/everything.min.css
+imgs/purplecandy.png
+imgs/redcandy.png
+imgs/bluecandy.png
+imgs/greencandy.png
+imgs/board102.jpg
+imgs/bg102.jpg
+https://fonts.googleapis.com/css?family=Lobster|Love+Ya+Like+A+Sister
+https://ans10.github.io/Mancala/dist/imgs/board30.png
+https://ans10.github.io/Mancala/dist/imgs/board12.png
+https://ans10.github.io/Mancala/dist/imgs/board13.png
+https://ans10.github.io/Mancala/dist/imgs/board14.png
+https://ans10.github.io/Mancala/dist/imgs/board15.png
+https://ans10.github.io/Mancala/dist/imgs/board16.png
+https://ans10.github.io/Mancala/dist/imgs/board17.png
+https://ans10.github.io/Mancala/dist/imgs/board18.png
+https://ans10.github.io/Mancala/dist/imgs/board22.png
+https://ans10.github.io/Mancala/dist/imgs/board23.png
 
 NETWORK:
-*
+js/everything.min.js.map
+js/everything.js
