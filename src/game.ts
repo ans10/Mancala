@@ -9,7 +9,6 @@ interface MyPosition {
   left: number;
 }
 
-
 module game {
   export let $rootScope: angular.IScope = null;
   export let $timeout: angular.ITimeoutService = null;
@@ -138,38 +137,7 @@ module game {
     });
     console.log("INIT method over");
   }
-  //  function initialize_position_array(){
-  //     position_arrv = new Array(48);
-  //
-  //     position_arrv[0] = {top:0,left:52};
-  //     console.log("{ t:"+position_arrv[0].top+", l:"+position_arrv[0].left+"},");
-  //     for(let i=1;i<48;i++){
-  //       let new_position:MyPosition = position_arrv[i-1];
-  //       let lc = getRandom(-5,5);
-  //       let tc = getRandom(-5,5);
-  //       new_position.top = Math.round(new_position.top + tc);
-  //       new_position.left = Math.round(new_position.left + lc);
-  //       if(new_position.left>=70){
-  //         new_position.left = 65;
-  //       }
-  //       if(new_position.top<=0){
-  //         new_position.top=7;
-  //       }
-  //       if(new_position.left<=0){
-  //         new_position.left = 5;
-  //       }
-  //       if(new_position.top>=40){
-  //         new_position.top = 40;
-  //       }
-  //       position_arrv[i] = new_position;
-  //       console.log("{ t:"+position_arrv[i].top+", l:"+position_arrv[i].left+"},");
-  //
-  //     }
-  //
-  //
-  //
-  //
-  // }
+ 
 
   function registerServiceWorker() {
     // I prefer to use appCache over serviceWorker
@@ -231,12 +199,9 @@ module game {
       for(let colNo=0;colNo<7;colNo++){
         boardBeforeMove[rowNo][colNo] = boardAfterMove[rowNo][colNo] -
         deltaBoard[rowNo][colNo];
-
       }
     }
-
     return boardBeforeMove;
-
   }
   export function updateUI(params: IUpdateUI): void {
     log.info("Game got updateUI:", params);
@@ -245,7 +210,7 @@ module game {
     didMakeMove = playerIdToProposal && playerIdToProposal[yourPlayerInfo.playerId] != undefined;
     yourPlayerInfo = params.yourPlayerInfo;
     currentUpdateUI = params;
-    console.log("Double checking playerindex and turn index")
+    console.log("Double checking playerindex and turn index");
     console.log(currentUpdateUI.yourPlayerIndex);
     console.log(currentUpdateUI.turnIndex);
     clearAnimationTimeout();
@@ -274,15 +239,12 @@ module game {
       sourceCopy = angular.copy(state.sourceImages);
     }
 
-
     setFlipDisplay();
-
 
     // We calculate the AI move only after the animation finishes,
     // because if we call aiService now
     // then the animation will be paused until the javascript finishes.
     animationEndedTimeout = $timeout(function(){animationEndedCallback(sourceCopy)}, 2100);
-
   }
   function setFlipDisplay():void{
     if (currentUpdateUI.playMode === 1 || currentUpdateUI.playMode === "multiplayer"){
@@ -627,73 +589,8 @@ function animate(animateState:IState,animateDelta:BoardDelta):string[][][]{
       }
     }
   }
-
-
  return sourceCopy;
-
 }
-// function assignSourceCopy(animateState:IState,animateDelta:BoardDelta):string[][][]{
-//   let sourceCopy = angular.copy(animateState.sourceImages);
-//   let sourceCollection:string[] = [];
-//   for(let rowNo=0;rowNo<2;rowNo++){
-//     for(let colNo=0;colNo<7;colNo++){
-//       let deltaNumber = animateDelta.board[rowNo][colNo];
-//       if(deltaNumber<0){
-//         console.log("delta is: "+deltaNumber);
-//
-//         for(let candyNo=0;candyNo<-1*deltaNumber;candyNo++){
-//           sourceCollection.push(sourceCopy[rowNo][colNo][candyNo]);
-//           sourceCopy[rowNo][colNo][candyNo]=null;
-//
-//         }
-//       }
-//     }
-//   }
-//   let srcCandyNo:number = 0;
-//   for(let rowNo=0;rowNo<2;rowNo++){
-//     for(let colNo=0;colNo<7;colNo++){
-//       let deltaNumber:number = animateDelta.board[rowNo][colNo];
-//       let cellValue:number = animateState.board[rowNo][colNo];
-//       if(deltaNumber>0){
-//         let destCandyNo = cellValue - deltaNumber;
-//         for(;destCandyNo<cellValue;destCandyNo++){
-//           sourceCopy[rowNo][colNo][destCandyNo] = sourceCollection[srcCandyNo++];
-//         }
-//
-//       }
-//
-//
-//
-//     }
-//   }
-//   return sourceCopy;
-// }
-// function changeParents(resultArray:any[]):void{
-//   let parentArray:HTMLElement[] = resultArray[0];
-//   let childArray:HTMLElement[] = resultArray[1];
-//   let arrayLength:number = parentArray.length;
-//   for(let elementNo=0;elementNo<arrayLength;elementNo++){
-//     childArray[elementNo].parentNode.removeChild(childArray[elementNo]);
-//     parentArray[elementNo].appendChild(childArray[elementNo]);
-//   }
-// }
-// export function secondOrderAnimate(row:number,animateState:IState,animateDelta:BoardDelta,sourceCopy:string[][][]){
-//
-//   let deltaBoard = animateDelta.board;
-//   for(let rowNo = 0;rowNo < 2;rowNo++){
-//     for(let colNo = 0;colNo < 7;colNo++){
-//         if(deltaBoard[rowNo][colNo]<0){
-//           let loopCount = -1 * deltaBoard[rowNo][colNo];
-//           let children:any = document.getElementById('pit-'+rowNo+colNo).children;
-//           let turn = row;
-//           putintoDestination(children,rowNo,colNo,
-//             turn,sourceCopy,animateState,animateDelta);
-//
-//         }
-//
-//     }
-//   }
-// }
 
   function isEndOfGame():boolean{
     console.log("End of Game is: "+isEndState);
@@ -708,7 +605,6 @@ function animate(animateState:IState,animateDelta:BoardDelta):string[][][]{
   }
   export function getWinner():string{
     console.log("Getting the winner" + currentUpdateUI.endMatchScores + " " + isEndState);
-       console.log("hello?");
        if(currentUpdateUI.endMatchScores!==null){
         isEndState = true;
       console.info("end state detected to be true " + isEndState);
@@ -736,9 +632,7 @@ function animate(animateState:IState,animateDelta:BoardDelta):string[][][]{
     return "Draw!";
   }
   }
-  // function getRandom(min:number, max:number):number{
-  //   return Math.random() * (max - min) + min;
-  // }
+ 
   export function getPosition(pos: number,store:number) {
 
     if(store==1){

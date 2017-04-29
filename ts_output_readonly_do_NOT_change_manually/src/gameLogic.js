@@ -42,7 +42,6 @@ var gameLogic;
         }
         return sourceImages;
     }
-    /** Returns the initial TicTacToe board, which is a ROWSxCOLS matrix containing ''. */
     function getInitialBoard() {
         var board = [];
         for (var i = 0; i < gameLogic.ROWS; i++) {
@@ -73,54 +72,12 @@ var gameLogic;
         return board;
     }
     gameLogic.getPseudoInitialBoard = getPseudoInitialBoard;
-    // function getInitialSource():string[][][]{
-    //   console.log("In initialize source method");
-    //   let sourceImages:string[][][];
-    //   sourceImages = [];
-    //   for(let rowNo=0;rowNo<2;rowNo++){
-    //     sourceImages[rowNo]=[];
-    //     for(let colNo=0;colNo<7;colNo++){
-    //       sourceImages[rowNo][colNo]=[];
-    //       for(let candyNo=0;candyNo<48;candyNo++){
-    //          sourceImages[rowNo][colNo][candyNo] = null;
-    //       }
-    //     }
-    //   }
-    //   sourceImages[rowNo][colNo][0] = candy1;
-    //   sourceImages[rowNo][colNo][1] = candy2;
-    //   sourceImages[rowNo][colNo][2] = candy3;
-    //   sourceImages[rowNo][colNo][3] = candy4;
-    //
-    //   return sourceImages;
-    // }
     function getInitialState() {
         console.log("Initial state method called in gameLogic");
         return { board: getInitialBoard(), delta: null, lastupdatedrow: -1,
             lastupdatedcol: -1, nextMoveType: "clickUpdate", sourceImages: getInitialSource(), previousTurnIndex: null };
     }
     gameLogic.getInitialState = getInitialState;
-    /**
-     * Returns true if the game ended in a tie because there are no empty cells.
-     * E.g., isTie returns true for the following board:
-     *     [['X', 'O', 'X'],
-     *      ['X', 'O', 'O'],
-     *      ['O', 'X', 'X']]
-     */
-    function isTie(board) {
-        if (board[0][0] === board[1][6]) {
-            return true;
-        }
-        // No empty cells, so we have a tie!
-        return false;
-    }
-    /**
-     * Return the winner (either 'X' or 'O') or '' if there is no winner.
-     * The board is a matrix of size 3x3 containing either 'X', 'O', or ''.
-     * E.g., getWinner returns 'X' for the following board:
-     *     [['X', 'O', ''],
-     *      ['X', 'O', ''],
-     *      ['X', '', '']]
-     */
     function transferAllLeft(board) {
         console.log("Transferring the remaining stuff into appropriate store");
         var lastupdatedr = 0;

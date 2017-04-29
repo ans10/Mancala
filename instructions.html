@@ -4,112 +4,62 @@
   <title>Instructions</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
- <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>-->
   <link href="https://fonts.googleapis.com/css?family=Love+Ya+Like+A+Sister" rel="stylesheet">
   <style>
-  .container{overflow:auto;background-color: white}
-  /*.carousel,.item,.active{height:100%;}
-  .carousel-inner{height:100%;}
-  .carousel-inner > .item > img,
-  .carousel-inner > .item > a > img {
-      width: 100%;
-      height:100%;
-      max-width: 100%;
-      margin: auto;
-      height: auto;
-      display: block;
-      line-height: 1;
-    }
-  */
-    h1,h3 {
+  .container{
+    overflow:auto;background-color: white
+  }
+  h1,h3 {
       font-family: 'Love Ya Like A Sister', cursive;
-      color: brown;	
-    }
-    h1{
-        text-align: center;
-        font-size: 1.7rem;
-    }
-    h3{
-      font-size:1.3rem;
-      margin-left:10px;
-      margin-right:10px;
-      /*  margin-left:120px;
-        margin-right:120px;*/
-    }
-    
-  /*  .carousel-caption { 
-        position:static;
-    }
-    .carousel .item {
-       background-color: white;
-    }*/
-    .display{
-      width: 60%;
-      height:50%;
-      display: block;
-      margin-left: auto;
-      margin-right: auto;
-    }
-   
+      color: brown;
+  }
+  h1{
+    text-align: center;
+    font-size: 1.7rem;
+  }
+  h3{
+    font-size:1.3rem;
+    margin-left:15px;
+    margin-right:15px;
+  }
+  .display{
+    width: 60%;
+    height:50%;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+  }
  </style>
 </head>
 <body>
-
-<div class="container">
-  <!--<div id="myCarousel" class="carousel slide" "="">
-  <!--
-    <ol class="carousel-indicators">
-      <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
-      <li data-target="#myCarousel" data-slide-to="1"></li>
-      <li data-target="#myCarousel" data-slide-to="2"></li>
-      <li data-target="#myCarousel" data-slide-to="3"></li>
-      <li data-target="#myCarousel" data-slide-to="4"></li>
-    </ol>   -->
-
-    <!-- Wrapper for slides -->
+  <div class="container">
     <h1>HOW TO PLAY MANCALA</h1>
-        <h3>The goal of the game is to capture more candies than your opponent. The board has six small pits on each side and a store at each end. At the beginning of the game an equal number of candies are placed in each pit. The number on top of each pit/store indicates the number of candies in that pit/store.</h3>
-        <img class="display" src="https://ans10.github.io/Mancala/dist/imgs/board30.png"> 
-        <h3>You control the six pits on your side of the board. Your score is the number of candies in your store.</h3>                             
-            <h3>Players take turns making moves. On your turn, you have to empty one of your pits.</h3>
-            <h3>For instance, let's assume Player 1 chooses to empty the following pit: </h3>
+        <h3>Mancala is a 2-player game in which players take turns, one by one, to make a move.
+        The board has six small pits on each side and a store at left and right end of the board.
+        At the beginning of the game 4 candies are placed in each pit.
+        The number on top of each pit/store indicates the number of candies in that pit/store.
+        You control the six pits on your side of the board.
+        Your score is the number of candies in your store.
+        The goal of the game is to capture more candies in the store than your opponent. </h3>
+        <img class="display" src="https://ans10.github.io/Mancala/dist/imgs/board30.png">
+            <h3>In your turn, you choose a pit in your control. The chosen pit is emptied. The chosen pit's candies are dropped one by one into subsequent pits and store except for opponent's store, in a counter-clockwise direction, until the candies run out.</h3>
+            <h3>An instance has been shown below:</h3>
             <img class="display" src="https://ans10.github.io/Mancala/dist/imgs/board12.png">
-            <h3>Upon making his selection, the chosen pit is emptied. The emptied pit's candies are then dropped one-by-one into subsequent pits, in a counter-clockwise direction, until the candies run out.</h3>
-            <h3>It is now Player 2's turn to make a move.</h3>
-            <img class="display" src="https://ans10.github.io/Mancala/dist/imgs/board13.png">         
-            <h3>In your move, if the last dropped candy lands in your store, you get an additional move.</h3>
-            <h3> For instance, let's assume Player 1 chooses to empty the following pit:</h3>
-            <img class="display" src="https://ans10.github.io/Mancala/dist/imgs/board14.png">
-          <h3>The last candy drops in his store. Thus, Player 1 gets an extra turn to play.</h3>
-          <img class="display" src="https://ans10.github.io/Mancala/dist/imgs/board15.png">
-          <h3>Now let's assume Player 1 chooses to empty the following pit:</h3>
-          <img class="display" src="https://ans10.github.io/Mancala/dist/imgs/board16.png">                  
-          <h3>The last dropped candy has landed in an empty pit owned by Player 1 himself, and the pit in the opposite side of the board contains candies.</h3>
-          <img class="display" src="https://ans10.github.io/Mancala/dist/imgs/board17.png">          
-          <h3> In this case, both the last dropped candy and the opposite pit's candies are captured and placed in Player 1's store.</h3>
-          <h3> Player 1's score now becomes 10.</h3>
+            <img class="display" src="https://ans10.github.io/Mancala/dist/imgs/board13.png">
+            <h3>After player 1's turn, it is now Player 2's turn to make a move.
+              Remember, in your turn, if the last candy lands in your store,
+              you get an Extra Turn!</h3>
+          <h3>In another case, let's assume Player 1 chooses to empty the following pit:</h3>
+          <img class="display" src="https://ans10.github.io/Mancala/dist/imgs/board16.png">
+          <h3>The last dropped candy has landed in an empty pit owned by Player 1, and notice that the pit in the opposite side of the board contains 5 candies.</h3>
+          <img class="display" src="https://ans10.github.io/Mancala/dist/imgs/board17.png">
+          <h3> The last dropped candy and all the 5 candies in opposite pit are captured and placed in Player 1's store and hence the score increases by 6.</h3>
           <img class="display" src="https://ans10.github.io/Mancala/dist/imgs/board18.png">
-            <h3>The game ends when all six pits on either side of the board are empty.</h3>
+            <h3>The game ends when all the six pits on either side of the board are empty.</h3>
             <h3>For instance, let's assume Player 2 chooses to empty the following pit:</h3>
-            <img class="display" src="https://ans10.github.io/Mancala/dist/imgs/board22.png">           
-          <h3>All remaining candies of Player 1 automatically move to his store and the game ends.</h3>
-          <h3>Since Player 1's score is more than Player 2's, Player 1 is the winner.</h3>
-          <img class="display" src="https://ans10.github.io/Mancala/dist/imgs/board23.png">            
-       
-    <!-- Left and right controls -->
-    <!--<a class="left carousel-control" href="#myCarousel" role="button" data-slide="prev">
-      <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
-      <span class="sr-only">Previous</span>
-    </a>
-    <a class="right carousel-control" href="#myCarousel" role="button" data-slide="next">
-      <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
-      <span class="sr-only">Next</span>
-    </a>-->
-</div>
-
-
-
-</body>
+            <img class="display" src="https://ans10.github.io/Mancala/dist/imgs/board22.png">
+          <h3>All remaining candies of Player 1 automatically move to Player 1's store and the game ends. Now, Player 1's score is more than Player 2's, Player 1 is the winner.</h3>
+          <img class="display" src="https://ans10.github.io/Mancala/dist/imgs/board23.png">
+    </div>
+  </body>
 </html>

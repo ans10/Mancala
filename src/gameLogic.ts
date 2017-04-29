@@ -66,7 +66,6 @@ module gameLogic {
     return sourceImages;
   }
 
-  /** Returns the initial TicTacToe board, which is a ROWSxCOLS matrix containing ''. */
   export function getInitialBoard(): Board {
     let board: Board = [];
     for (let i = 0; i < ROWS; i++) {
@@ -95,28 +94,7 @@ module gameLogic {
     board[0][1] = 1;
     return board;
   }
-  // function getInitialSource():string[][][]{
-  //   console.log("In initialize source method");
-  //   let sourceImages:string[][][];
-  //   sourceImages = [];
-  //   for(let rowNo=0;rowNo<2;rowNo++){
-  //     sourceImages[rowNo]=[];
-  //     for(let colNo=0;colNo<7;colNo++){
-  //       sourceImages[rowNo][colNo]=[];
-  //       for(let candyNo=0;candyNo<48;candyNo++){
-  //          sourceImages[rowNo][colNo][candyNo] = null;
-  //       }
-  //     }
-  //   }
-  //   sourceImages[rowNo][colNo][0] = candy1;
-  //   sourceImages[rowNo][colNo][1] = candy2;
-  //   sourceImages[rowNo][colNo][2] = candy3;
-  //   sourceImages[rowNo][colNo][3] = candy4;
-  //
-  //   return sourceImages;
-  // }
-
-
+  
   export function getInitialState(): IState {
     console.log("Initial state method called in gameLogic");
 
@@ -125,30 +103,6 @@ module gameLogic {
   }
 
 
-  /**
-   * Returns true if the game ended in a tie because there are no empty cells.
-   * E.g., isTie returns true for the following board:
-   *     [['X', 'O', 'X'],
-   *      ['X', 'O', 'O'],
-   *      ['O', 'X', 'X']]
-   */
-  function isTie(board: Board): boolean {
-
-    if (board[0][0] === board[1][6]){
-      return true;
-    }
-    // No empty cells, so we have a tie!
-    return false;
-  }
-
-  /**
-   * Return the winner (either 'X' or 'O') or '' if there is no winner.
-   * The board is a matrix of size 3x3 containing either 'X', 'O', or ''.
-   * E.g., getWinner returns 'X' for the following board:
-   *     [['X', 'O', ''],
-   *      ['X', 'O', ''],
-   *      ['X', '', '']]
-   */
   function transferAllLeft(board:Board):IState{
     console.log("Transferring the remaining stuff into appropriate store");
     let lastupdatedr = 0;
@@ -359,8 +313,6 @@ module gameLogic {
       else{
         turnIndex = turnIndexBeforeMove;
       }
-
-
     }
     else if(nextMoveType=="emptyHole"){
       console.log("Jackpot condition");
@@ -371,10 +323,7 @@ module gameLogic {
       }
 
       turnIndex = turnIndexBeforeMove;
-
-
-
-    }
+        }
     else if(nextMoveType=="transferAll"){
       updatedState = transferAllLeft(board);
       let boardAfterMove:Board = updatedState.board;
@@ -382,7 +331,6 @@ module gameLogic {
       turnIndexBeforeMove = -1;
       turnIndex = turnIndexBeforeMove;
       endMatchScores = winner === 0 ? [1, 0] : winner === 1 ? [0, 1] : [0, 0];
-
     }
     else{
       throw new Error("Invalid movetype");
