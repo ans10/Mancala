@@ -11,8 +11,6 @@ https://fonts.googleapis.com/css?family=Lobster|Love+Ya+Like+A+Sister
 https://ans10.github.io/Mancala/dist/imgs/board30.png
 https://ans10.github.io/Mancala/dist/imgs/board12.png
 https://ans10.github.io/Mancala/dist/imgs/board13.png
-https://ans10.github.io/Mancala/dist/imgs/board14.png
-https://ans10.github.io/Mancala/dist/imgs/board15.png
 https://ans10.github.io/Mancala/dist/imgs/board16.png
 https://ans10.github.io/Mancala/dist/imgs/board17.png
 https://ans10.github.io/Mancala/dist/imgs/board18.png

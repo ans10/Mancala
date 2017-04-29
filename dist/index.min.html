@@ -4,23 +4,15 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <title>Mancala</title>
-  <meta name="description" content="Mancala game">
-  <!--<link rel="shortcut icon" type="image/x-icon" href="data:image/x-icon;,"><!-- Suppress browser request for favicon.ico -->
-
-  <!-- To ensure CSS files are downloaded in parallel, always include external CSS before external JavaScript. -->
-  <link rel="stylesheet" type="text/css" href="css/everything.min.css">
-   
-  <!--<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-  <link rel="manifest" href="/manifest.json">
-  <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
-  <meta name="theme-color" content="#ffffff">-->
+  <meta name="description" content="Mancala Game">
 
   <link rel="icon" href="https://ans10.github.io/Mancala/favicon.ico" type="image/x-icon"> 
   <link rel="shortcut icon" href="https://ans10.github.io/Mancala/favicon.ico" type="image/x-icon"> 
 
- <link href="https://fonts.googleapis.com/css?family=Amatic+SC|Architects+Daughter|Lobster|Covered+By+Your+Grace|Dancing+Script|Gloria+Hallelujah|Grand+Hotel|Indie+Flower|Love+Ya+Like+A+Sister|Pacifico|Satisfy|Schoolbell|Shadows+Into+Light" rel="stylesheet">
+  <!-- To ensure CSS files are downloaded in parallel, always include external CSS before external JavaScript. -->
+  <link rel="stylesheet" type="text/css" href="css/everything.min.css">
+   
+  <link href="https://fonts.googleapis.com/css?family=Lobster|Love+Ya+Like+A+Sister" rel="stylesheet">
   <script src="js/everything.min.js"></script>
 </head>
 <body ng-cloak>
@@ -40,7 +32,6 @@
               <div ng-repeat="x in game.makeArray(game.currentCount)" ng-class="{candyStore: true}">
                   <img ng-src = "{{game.getSource(1,6,x)}}" onerror="this.src='imgs/redcandy.png'" alt ="candy" ng-class = "{imgClassStore: true}" ng-style="{{game.getPosition(x,1)}}" >
               </div>
-
     			</div>
     		</div>
 
@@ -62,7 +53,6 @@
   			</div>
 
         <p ng-if ="game.isEndState" ng-class="{status: true}">{{game.getWinner()}}</p>
-
         <p ng-if ="!game.isEndState" ng-class="{status: true}">{{game.printStatus()}}</p>
 
        	<div ng-class="{row:true}">
@@ -80,7 +70,6 @@
   			</div>
 
       </div>
-
       <div ng-class = "{parent:true}">
   		  <div ng-class ="{score:true}">
   			   {{game.currentCount = game.givePreviousCounts(0,0)}}
@@ -89,13 +78,11 @@
           <div ng-repeat="x in game.makeArray(game.currentCount)" ng-class="{candyStore: true}">
             <img ng-src = "{{game.getSource(0,0,x)}}" onerror="this.src='imgs/redcandy.png'" alt ="candy" ng-class = "{imgClassStore: true}" ng-style="{{game.getPosition(x,1)}}">
           </div>
-
   			</div>
   		</div>
-
   	</div>
 
-    <div  ng-if="game.flipBoard()" ng-class="{board:true}">
+    <div ng-if="game.flipBoard()" ng-class="{board:true}">
 
            <div ng-class = "{parent:true}">
   				<div ng-class ="{score:true}">
@@ -105,12 +92,10 @@
             <div ng-repeat="x in game.makeArray(game.currentCount)" ng-class="{candyStore: true}">
                 <img ng-src = "{{game.getSource(0,0,x)}}" onerror="this.src='imgs/redcandy.png'" alt ="candy" ng-class = "{imgClassStore: true}" ng-style="{{game.getPosition(x,1)}}">
             </div>
-
   			</div>
   		</div>
 
      	<div ng-class="{rows:true}">
-
           <div ng-class="{row:true}">
           <div ng-repeat="pitIndex in [1,2,3,4,5,6]"  ng-class="{'parentWiggle': game.getTurnStatus() == 0,
           'parentStill': game.getTurnStatus() == 1 || -1 }" ng-click=game.pitClicked($event,0,pitIndex)>
@@ -126,7 +111,6 @@
         </div>
 
         <p ng-if ="game.isEndState" ng-class="{status: true}">{{game.getWinner()}}</p>
-
         <p ng-if ="!game.isEndState" ng-class="{status: true}">{{game.printStatus()}}</p>
 
 
@@ -144,11 +128,7 @@
   		        </div>
           </div>
   			</div>
-
-
-
       </div>
-
 
  	<div ng-class = "{parent:true}">
     				<div ng-class ="{score:true}">
@@ -161,11 +141,6 @@
 
     			</div>
     		</div>
-
-
-
-
-
       </div>
 </div>
 </body>

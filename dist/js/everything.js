@@ -31078,7 +31078,7 @@ var gamingPlatform;
         var lastUpdateUiMessage = null;
         function makeMove(move, proposal) {
             checkMakeMove(lastUpdateUiMessage, move, proposal);
-            console.log("In make moveeeeeeeeeee");
+            console.log("In make move");
             // I'm sending the move even in local testing to make sure it's simple json (or postMessage will fail).
             sendMessage({ move: move, proposal: proposal, lastMessage: { updateUI: lastUpdateUiMessage } });
             lastUpdateUiMessage = null; // to make sure you don't call makeMove until you get the next updateUI.
@@ -31677,7 +31677,6 @@ var gameLogic;
         }
         return sourceImages;
     }
-    /** Returns the initial TicTacToe board, which is a ROWSxCOLS matrix containing ''. */
     function getInitialBoard() {
         var board = [];
         for (var i = 0; i < gameLogic.ROWS; i++) {
@@ -31708,54 +31707,12 @@ var gameLogic;
         return board;
     }
     gameLogic.getPseudoInitialBoard = getPseudoInitialBoard;
-    // function getInitialSource():string[][][]{
-    //   console.log("In initialize source method");
-    //   let sourceImages:string[][][];
-    //   sourceImages = [];
-    //   for(let rowNo=0;rowNo<2;rowNo++){
-    //     sourceImages[rowNo]=[];
-    //     for(let colNo=0;colNo<7;colNo++){
-    //       sourceImages[rowNo][colNo]=[];
-    //       for(let candyNo=0;candyNo<48;candyNo++){
-    //          sourceImages[rowNo][colNo][candyNo] = null;
-    //       }
-    //     }
-    //   }
-    //   sourceImages[rowNo][colNo][0] = candy1;
-    //   sourceImages[rowNo][colNo][1] = candy2;
-    //   sourceImages[rowNo][colNo][2] = candy3;
-    //   sourceImages[rowNo][colNo][3] = candy4;
-    //
-    //   return sourceImages;
-    // }
     function getInitialState() {
         console.log("Initial state method called in gameLogic");
         return { board: getInitialBoard(), delta: null, lastupdatedrow: -1,
             lastupdatedcol: -1, nextMoveType: "clickUpdate", sourceImages: getInitialSource(), previousTurnIndex: null };
     }
     gameLogic.getInitialState = getInitialState;
-    /**
-     * Returns true if the game ended in a tie because there are no empty cells.
-     * E.g., isTie returns true for the following board:
-     *     [['X', 'O', 'X'],
-     *      ['X', 'O', 'O'],
-     *      ['O', 'X', 'X']]
-     */
-    function isTie(board) {
-        if (board[0][0] === board[1][6]) {
-            return true;
-        }
-        // No empty cells, so we have a tie!
-        return false;
-    }
-    /**
-     * Return the winner (either 'X' or 'O') or '' if there is no winner.
-     * The board is a matrix of size 3x3 containing either 'X', 'O', or ''.
-     * E.g., getWinner returns 'X' for the following board:
-     *     [['X', 'O', ''],
-     *      ['X', 'O', ''],
-     *      ['X', '', '']]
-     */
     function transferAllLeft(board) {
         console.log("Transferring the remaining stuff into appropriate store");
         var lastupdatedr = 0;
@@ -32123,38 +32080,6 @@ var game;
         console.log("INIT method over");
     }
     game.init = init;
-    //  function initialize_position_array(){
-    //     position_arrv = new Array(48);
-    //
-    //     position_arrv[0] = {top:0,left:52};
-    //     console.log("{ t:"+position_arrv[0].top+", l:"+position_arrv[0].left+"},");
-    //     for(let i=1;i<48;i++){
-    //       let new_position:MyPosition = position_arrv[i-1];
-    //       let lc = getRandom(-5,5);
-    //       let tc = getRandom(-5,5);
-    //       new_position.top = Math.round(new_position.top + tc);
-    //       new_position.left = Math.round(new_position.left + lc);
-    //       if(new_position.left>=70){
-    //         new_position.left = 65;
-    //       }
-    //       if(new_position.top<=0){
-    //         new_position.top=7;
-    //       }
-    //       if(new_position.left<=0){
-    //         new_position.left = 5;
-    //       }
-    //       if(new_position.top>=40){
-    //         new_position.top = 40;
-    //       }
-    //       position_arrv[i] = new_position;
-    //       console.log("{ t:"+position_arrv[i].top+", l:"+position_arrv[i].left+"},");
-    //
-    //     }
-    //
-    //
-    //
-    //
-    // }
     function registerServiceWorker() {
         // I prefer to use appCache over serviceWorker
         // (because iOS doesn't support serviceWorker, so we have to use appCache)
@@ -32564,68 +32489,6 @@ var game;
         }
         return sourceCopy;
     }
-    // function assignSourceCopy(animateState:IState,animateDelta:BoardDelta):string[][][]{
-    //   let sourceCopy = angular.copy(animateState.sourceImages);
-    //   let sourceCollection:string[] = [];
-    //   for(let rowNo=0;rowNo<2;rowNo++){
-    //     for(let colNo=0;colNo<7;colNo++){
-    //       let deltaNumber = animateDelta.board[rowNo][colNo];
-    //       if(deltaNumber<0){
-    //         console.log("delta is: "+deltaNumber);
-    //
-    //         for(let candyNo=0;candyNo<-1*deltaNumber;candyNo++){
-    //           sourceCollection.push(sourceCopy[rowNo][colNo][candyNo]);
-    //           sourceCopy[rowNo][colNo][candyNo]=null;
-    //
-    //         }
-    //       }
-    //     }
-    //   }
-    //   let srcCandyNo:number = 0;
-    //   for(let rowNo=0;rowNo<2;rowNo++){
-    //     for(let colNo=0;colNo<7;colNo++){
-    //       let deltaNumber:number = animateDelta.board[rowNo][colNo];
-    //       let cellValue:number = animateState.board[rowNo][colNo];
-    //       if(deltaNumber>0){
-    //         let destCandyNo = cellValue - deltaNumber;
-    //         for(;destCandyNo<cellValue;destCandyNo++){
-    //           sourceCopy[rowNo][colNo][destCandyNo] = sourceCollection[srcCandyNo++];
-    //         }
-    //
-    //       }
-    //
-    //
-    //
-    //     }
-    //   }
-    //   return sourceCopy;
-    // }
-    // function changeParents(resultArray:any[]):void{
-    //   let parentArray:HTMLElement[] = resultArray[0];
-    //   let childArray:HTMLElement[] = resultArray[1];
-    //   let arrayLength:number = parentArray.length;
-    //   for(let elementNo=0;elementNo<arrayLength;elementNo++){
-    //     childArray[elementNo].parentNode.removeChild(childArray[elementNo]);
-    //     parentArray[elementNo].appendChild(childArray[elementNo]);
-    //   }
-    // }
-    // export function secondOrderAnimate(row:number,animateState:IState,animateDelta:BoardDelta,sourceCopy:string[][][]){
-    //
-    //   let deltaBoard = animateDelta.board;
-    //   for(let rowNo = 0;rowNo < 2;rowNo++){
-    //     for(let colNo = 0;colNo < 7;colNo++){
-    //         if(deltaBoard[rowNo][colNo]<0){
-    //           let loopCount = -1 * deltaBoard[rowNo][colNo];
-    //           let children:any = document.getElementById('pit-'+rowNo+colNo).children;
-    //           let turn = row;
-    //           putintoDestination(children,rowNo,colNo,
-    //             turn,sourceCopy,animateState,animateDelta);
-    //
-    //         }
-    //
-    //     }
-    //   }
-    // }
     function isEndOfGame() {
         console.log("End of Game is: " + game.isEndState);
         return game.isEndState;
@@ -32640,7 +32503,6 @@ var game;
     game.isDrawn = isDrawn;
     function getWinner() {
         console.log("Getting the winner" + game.currentUpdateUI.endMatchScores + " " + game.isEndState);
-        console.log("hello?");
         if (game.currentUpdateUI.endMatchScores !== null) {
             game.isEndState = true;
             console.info("end state detected to be true " + game.isEndState);
@@ -32668,9 +32530,6 @@ var game;
         }
     }
     game.getWinner = getWinner;
-    // function getRandom(min:number, max:number):number{
-    //   return Math.random() * (max - min) + min;
-    // }
     function getPosition(pos, store) {
         if (store == 1) {
             PositionStyle.top = position_arr[pos].t.toString() + '%';
