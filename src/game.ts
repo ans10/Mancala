@@ -307,6 +307,7 @@ module game {
 
   function maybeSendComputerMove() {
     if (!isComputerTurn()) return;
+    if(isComputerTurn() && state.previousTurnIndex===1 && state.nextMoveType==="emptyHole") return;
     let currentMove:IMove = {
       endMatchScores: currentUpdateUI.endMatchScores,
       state: currentUpdateUI.state,
@@ -650,18 +651,24 @@ function animate(animateState:IState,animateDelta:BoardDelta):string[][][]{
     return flipDisplay;
   }
   export function printStatus(){
-    let turn:number = turnStatus;
+  let turn:number = turnStatus;
+  if(turn>-1){
     if(currentUpdateUI.playersInfo[turn] && currentUpdateUI.playersInfo[turn].displayName &&
         currentUpdateUI.playersInfo[turn].displayName!=null &&
         currentUpdateUI.playersInfo[turn].displayName!=''){
           console.log("Reaching here to display the name"+
           currentUpdateUI.playersInfo[turn].displayName);
           return currentUpdateUI.playersInfo[turn].displayName+"'s turn";
-        }
-    return "Player "+(turn+1)+"'s turn";
-
+      }
+      else{
+        return "Player "+(turn+1)+"'s turn";
+      }
+    }
+    else{
+      return "";
+    }
   }
-  export function getTurnStatus():number{
+export function getTurnStatus():number{
       return turnStatus;
   }
 

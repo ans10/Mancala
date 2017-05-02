@@ -7,6 +7,7 @@ interface BoardDelta {
   row: number;
   col: number;
   board:Board;
+  sourceImages:string[][][];
 }
 var MoveType = {
   1:"clickUpdate",
@@ -17,6 +18,7 @@ type IProposalData = BoardDelta;
 interface IState {
   board: Board;
   delta: BoardDelta;
+  deltaArray: BoardDelta[];
   nextMoveType:string;
   lastupdatedrow:number;
   lastupdatedcol:number;
@@ -98,7 +100,7 @@ module gameLogic {
   export function getInitialState(): IState {
     console.log("Initial state method called in gameLogic");
 
-    return {board: getInitialBoard(), delta: null,lastupdatedrow:-1,
+    return {board: getInitialBoard(), delta: null,deltaArray: null,lastupdatedrow:-1,
       lastupdatedcol:-1,nextMoveType:"clickUpdate",sourceImages:getInitialSource(), previousTurnIndex: null};
   }
 
@@ -127,9 +129,9 @@ module gameLogic {
 
     }
     let deltaBoard:Board = createDelta(boardAfterMove,board);
-    let delta:BoardDelta = {board:deltaBoard,row:lastupdatedr,col:lastupdatedc};
+    let delta:BoardDelta = {board:deltaBoard,row:lastupdatedr,col:lastupdatedc,sourceImages:null};
     let updatedState:IState =
-    {board : boardAfterMove, delta:delta,
+    {board : boardAfterMove, delta:delta,deltaArray:null,
       lastupdatedrow : lastupdatedr,lastupdatedcol:lastupdatedc,nextMoveType:null,
       sourceImages:null,previousTurnIndex:null};
     return updatedState;
@@ -206,21 +208,21 @@ module gameLogic {
       val--;
     }
     let deltaBoard:Board = createDelta(boardAfterMove,board);
-    let delta:BoardDelta = {board:deltaBoard,row:row,col:col};
+    let delta:BoardDelta = {board:deltaBoard,row:row,col:col,sourceImages:null};
     // empty hole on last chance handled
     if(boardAfterMove[i][j]===1 && row===i &&
       !((i===0 && j===0) || (i===1 && j===6)) &&
       ((i===0 && boardAfterMove[1-i][j-1]>0) ||
       (i===1 && boardAfterMove[1-i][j+1]>0))){
-        updatedState = {board : boardAfterMove, delta : delta,lastupdatedrow : i,
+        updatedState = {board : boardAfterMove, delta : delta,deltaArray:null,lastupdatedrow : i,
           lastupdatedcol : j,nextMoveType:"emptyHole",sourceImages:null,previousTurnIndex:null};
     }
     else if(isEndState(boardAfterMove)){
-      updatedState = {board : boardAfterMove, delta : delta,lastupdatedrow : i,
+      updatedState = {board : boardAfterMove, delta : delta,deltaArray:null,lastupdatedrow : i,
         lastupdatedcol : j,nextMoveType:"transferAll",sourceImages:null,previousTurnIndex:null};
     }
     else{
-        updatedState = {board : boardAfterMove, delta : delta,lastupdatedrow : i,
+        updatedState = {board : boardAfterMove, delta : delta,deltaArray:null,lastupdatedrow : i,
         lastupdatedcol : j,nextMoveType:"clickUpdate",sourceImages:null,previousTurnIndex:null};
 
     }
@@ -242,8 +244,8 @@ module gameLogic {
       boardAfterMove[1-i][j+1] = 0;
     }
     let deltaBoard:Board = createDelta(boardAfterMove,board);
-    let delta:BoardDelta = {board:deltaBoard,row:row,col:col};
-    let updateState:IState = {board:boardAfterMove,delta:delta,lastupdatedrow:i,
+    let delta:BoardDelta = {board:deltaBoard,row:row,col:col,sourceImages:null};
+    let updateState:IState = {board:boardAfterMove,delta:delta,deltaArray:null,lastupdatedrow:i,
     lastupdatedcol:j,nextMoveType:"clickUpdate",sourceImages:null,previousTurnIndex:null}
     if(isEndState(boardAfterMove)){
       updateState.nextMoveType = "transferAll";
@@ -305,6 +307,7 @@ module gameLogic {
         throw new Error("Making an invalid move!");
       }
       updatedState = updateBoard(board,row,col);
+      
       if(updatedState.nextMoveType!="transferAll"){
         turnIndex = nextTurn(turnIndexBeforeMove, updatedState.lastupdatedrow,
           updatedState.lastupdatedcol, updatedState.nextMoveType);
@@ -337,12 +340,20 @@ module gameLogic {
     }
 
     console.log("TurnIndex value is: "+turnIndex);
+    
     updatedState.sourceImages = angular.copy(sourceImages);
+    updatedState.delta.sourceImages = angular.copy(sourceImages);
     if(updatedState.previousTurnIndex === null){
       updatedState.previousTurnIndex=turnIndexBeforeMove;
     }
+    updatedState.deltaArray = [];    
+    if(stateBeforeMove.deltaArray !== null){
+      let tempDeltaArray:BoardDelta[] = angular.copy(stateBeforeMove.deltaArray);
+      updatedState.deltaArray=tempDeltaArray;
+    }
+    updatedState.deltaArray.push(updatedState.delta);
+    
     let state: IState = updatedState;
-
     console.info("Returning createMove successfully" );
 
     return {

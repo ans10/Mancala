@@ -285,6 +285,8 @@ var game;
     function maybeSendComputerMove() {
         if (!isComputerTurn())
             return;
+        if (isComputerTurn() && game.state.previousTurnIndex === 1 && game.state.nextMoveType === "emptyHole")
+            return;
         var currentMove = {
             endMatchScores: game.currentUpdateUI.endMatchScores,
             state: game.currentUpdateUI.state,
@@ -590,14 +592,21 @@ var game;
     game.flipBoard = flipBoard;
     function printStatus() {
         var turn = game.turnStatus;
-        if (game.currentUpdateUI.playersInfo[turn] && game.currentUpdateUI.playersInfo[turn].displayName &&
-            game.currentUpdateUI.playersInfo[turn].displayName != null &&
-            game.currentUpdateUI.playersInfo[turn].displayName != '') {
-            console.log("Reaching here to display the name" +
-                game.currentUpdateUI.playersInfo[turn].displayName);
-            return game.currentUpdateUI.playersInfo[turn].displayName + "'s turn";
+        if (turn > -1) {
+            if (game.currentUpdateUI.playersInfo[turn] && game.currentUpdateUI.playersInfo[turn].displayName &&
+                game.currentUpdateUI.playersInfo[turn].displayName != null &&
+                game.currentUpdateUI.playersInfo[turn].displayName != '') {
+                console.log("Reaching here to display the name" +
+                    game.currentUpdateUI.playersInfo[turn].displayName);
+                return game.currentUpdateUI.playersInfo[turn].displayName + "'s turn";
+            }
+            else {
+                return "Player " + (turn + 1) + "'s turn";
+            }
         }
-        return "Player " + (turn + 1) + "'s turn";
+        else {
+            return "";
+        }
     }
     game.printStatus = printStatus;
     function getTurnStatus() {
