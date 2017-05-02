@@ -276,7 +276,7 @@ module game {
           }
 
           (function(ind) {
-                setTimeout(function(){
+                $timeout(function(){
                   console.log(ind); 
                   setFlipDisplay();
                   setTurnStatus();
@@ -292,11 +292,11 @@ module game {
             console.log("Beginning replay loop");
             inReplayLoop = true;
             let boardArray:Board[] = [];
-            let stateArray:IState[] = [];
+            let stateArray:IState= null;
             let moveArray:IMove[] = [];
             for(var i = currentUpdateUI.state.deltaArray.length-1; i>=0; i--){
               (function(index) {
-                setTimeout(function(){
+                $timeout(function(){
                   console.log("Loop: " +index);
                   if(index === currentUpdateUI.state.deltaArray.length-1){
                     boardArray[index] = state.board;
@@ -305,16 +305,16 @@ module game {
                     boardArray[index] = boardBeforeMove(boardArray[index+1],currentUpdateUI.state.deltaArray[index+1].board);
                   }
                   console.log("Board for: " +index + " loop is: "+ boardArray[index]);
-                  stateArray[index] = {board: boardArray[index], delta: currentUpdateUI.state.deltaArray[index],deltaArray:null,nextMoveType:"clickUpdate",lastupdatedcol:-1,lastupdatedrow:-1,sourceImages:currentUpdateUI.state.deltaArray[index].sourceImages,previousTurnIndex:previousTurnIndex};
-                  moveArray[index] = {state:stateArray[index], turnIndex:currentUpdateUI.turnIndex, endMatchScores:null};
+                  stateArray = {board: boardArray[index], delta: currentUpdateUI.state.deltaArray[index],deltaArray:null,nextMoveType:"clickUpdate",lastupdatedcol:-1,lastupdatedrow:-1,sourceImages:currentUpdateUI.state.deltaArray[index].sourceImages,previousTurnIndex:previousTurnIndex};
+                  moveArray[index] = {state:stateArray, turnIndex:currentUpdateUI.turnIndex, endMatchScores:null};
                   },2300*currentUpdateUI.state.deltaArray.length);
                 })(i);        
               }
             (function(ind) {
-                setTimeout(function(){
+                $timeout(function(){
                 for(var i = 0; i<moveArray.length; i++){
                 (function(index) {
-                setTimeout(function(){
+                $timeout(function(){
                 console.log("Making move for loop : "+ index + " with move:" + moveArray[index]); 
                 if(moveArray[index]){                 
                   gameService.makeMove(moveArray[index],null);
@@ -326,7 +326,7 @@ module game {
               })(1);              
           
             (function(ind) {
-            setTimeout(function(){
+            $timeout(function(){
               console.log(ind); 
               currentUpdateUI.state.deltaArray=[];
               inReplayLoop=false;

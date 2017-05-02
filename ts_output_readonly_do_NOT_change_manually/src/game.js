@@ -252,7 +252,7 @@ var game;
                     }, 0);
                 }
                 (function (ind) {
-                    setTimeout(function () {
+                    game.$timeout(function () {
                         console.log(ind);
                         setFlipDisplay();
                         setTurnStatus();
@@ -267,11 +267,11 @@ var game;
                 console.log("Beginning replay loop");
                 game.inReplayLoop = true;
                 var boardArray_1 = [];
-                var stateArray_1 = [];
+                var stateArray_1 = null;
                 var moveArray_1 = [];
                 for (var i = game.currentUpdateUI.state.deltaArray.length - 1; i >= 0; i--) {
                     (function (index) {
-                        setTimeout(function () {
+                        game.$timeout(function () {
                             console.log("Loop: " + index);
                             if (index === game.currentUpdateUI.state.deltaArray.length - 1) {
                                 boardArray_1[index] = game.state.board;
@@ -280,16 +280,16 @@ var game;
                                 boardArray_1[index] = boardBeforeMove(boardArray_1[index + 1], game.currentUpdateUI.state.deltaArray[index + 1].board);
                             }
                             console.log("Board for: " + index + " loop is: " + boardArray_1[index]);
-                            stateArray_1[index] = { board: boardArray_1[index], delta: game.currentUpdateUI.state.deltaArray[index], deltaArray: null, nextMoveType: "clickUpdate", lastupdatedcol: -1, lastupdatedrow: -1, sourceImages: game.currentUpdateUI.state.deltaArray[index].sourceImages, previousTurnIndex: game.previousTurnIndex };
-                            moveArray_1[index] = { state: stateArray_1[index], turnIndex: game.currentUpdateUI.turnIndex, endMatchScores: null };
+                            stateArray_1 = { board: boardArray_1[index], delta: game.currentUpdateUI.state.deltaArray[index], deltaArray: null, nextMoveType: "clickUpdate", lastupdatedcol: -1, lastupdatedrow: -1, sourceImages: game.currentUpdateUI.state.deltaArray[index].sourceImages, previousTurnIndex: game.previousTurnIndex };
+                            moveArray_1[index] = { state: stateArray_1, turnIndex: game.currentUpdateUI.turnIndex, endMatchScores: null };
                         }, 2300 * game.currentUpdateUI.state.deltaArray.length);
                     })(i);
                 }
                 (function (ind) {
-                    setTimeout(function () {
+                    game.$timeout(function () {
                         for (var i = 0; i < moveArray_1.length; i++) {
                             (function (index) {
-                                setTimeout(function () {
+                                game.$timeout(function () {
                                     console.log("Making move for loop : " + index + " with move:" + moveArray_1[index]);
                                     if (moveArray_1[index]) {
                                         gameService.makeMove(moveArray_1[index], null);
@@ -300,7 +300,7 @@ var game;
                     }, 2300 * game.currentUpdateUI.state.deltaArray.length);
                 })(1);
                 (function (ind) {
-                    setTimeout(function () {
+                    game.$timeout(function () {
                         console.log(ind);
                         game.currentUpdateUI.state.deltaArray = [];
                         game.inReplayLoop = false;
