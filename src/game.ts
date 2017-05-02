@@ -27,12 +27,14 @@ module game {
   export let isEndState: boolean = false;
   export let position_arrv: MyPosition[] = null;
   export let turnStatus = 0;
-  export let previousTurnIndex = -1;
+  export let previousTurnIndex = 0;
   export let currentMoveType: string = null;
   export let scores:Board = null;
   export let animationDone = true;
   export let sourceImages:string[][][] = null;
   export let positionImages:any[][][] = null;
+  export let replayForMultiplayer:boolean = false;
+  export let inReplayLoop: boolean = false;
   // For community games.
   export let proposals: number[][] = null;
   export let yourPlayerInfo: IPlayerInfo = null;
@@ -219,35 +221,125 @@ module game {
     /*For computer moves, only after animation it should occur */
     let sourceCopy:string[][][] = null;
     state = currentUpdateUI.state;
-    if(state!=null && state.delta!=null){
-      sourceCopy = angular.copy(state.sourceImages);
-      scores = boardBeforeMove(state.board,state.delta.board);
-      console.log(scores);
-      let animateState:IState = angular.copy(state);
-      let animateDelta:BoardDelta = angular.copy(state.delta);
-      $timeout(()=>{
-        sourceCopy = animate(animateState,animateDelta);
-        console.log(sourceCopy);
-      }, 0);
+   
+     if(currentUpdateUI.playMode===1 || currentUpdateUI.playMode==="pingPongMultiplayer"){
+        if(!replayForMultiplayer && previousTurnIndex !== currentUpdateUI.turnIndex && yourPlayerIndex() !== previousTurnIndex){
+        console.log("Setting replay to true");
+        replayForMultiplayer = true;
+       }
+     }
 
+    if(!replayForMultiplayer){
+      console.log("In replay multiplayer false");
+      if(state!=null && state.delta!=null){
+        sourceCopy = angular.copy(state.sourceImages);
+        scores = boardBeforeMove(state.board,state.delta.board);
+        console.log(scores);
+        let animateState:IState = angular.copy(state);
+        let animateDelta:BoardDelta = angular.copy(state.delta);
+        console.log(state.delta);
+        console.log(animateDelta);
+        $timeout(()=>{
+          sourceCopy = animate(animateState,animateDelta);
+          console.log(sourceCopy);
+        }, 0);
+
+      }
+
+      if (isFirstMove()) {
+        console.log("Initialstate method called");
+        state = gameLogic.getInitialState();
+        scores = angular.copy(state.board);
+        sourceCopy = angular.copy(state.sourceImages);
+      }
+
+      setFlipDisplay();
+        // We calculate the AI move only after the animation finishes,
+        // because if we call aiService now
+        // then the animation will be paused until the javascript finishes.
+      animationEndedTimeout = $timeout(function(){animationEndedCallback(sourceCopy)},2100);
     }
+    else{
+        console.log("In replay multiplayer true");
+        if(inReplayLoop){
+          if(state!=null && state.delta!=null){
+            sourceCopy = angular.copy(state.delta.sourceImages);
+            scores = boardBeforeMove(state.board,state.delta.board);
+            console.log("Replay scores are : " +scores);
+            let animateState:IState = angular.copy(state);
+            let animateDelta:BoardDelta = angular.copy(state.delta);
+            console.log(animateDelta);         
+            $timeout(()=>{
+              sourceCopy = animate(animateState,animateDelta);
+              console.log(sourceCopy);
+            }, 0);
+          }
 
-    if (isFirstMove()) {
-      console.log("Initialstate method called");
-      state = gameLogic.getInitialState();
-      scores = angular.copy(state.board);
-      sourceCopy = angular.copy(state.sourceImages);
-    }
-
-    setFlipDisplay();
-
-    // We calculate the AI move only after the animation finishes,
-    // because if we call aiService now
-    // then the animation will be paused until the javascript finishes.
-    animationEndedTimeout = $timeout(function(){animationEndedCallback(sourceCopy)}, 2100);
+          (function(ind) {
+                setTimeout(function(){
+                  console.log(ind); 
+                  setFlipDisplay();
+                  setTurnStatus();
+                  updateScores();
+                  setEndState();
+                  updateSourceImages(sourceCopy);
+                  console.log("After replay scores : " +scores);
+                }, 2100);
+            })(1);
+          }
+    
+         if(!inReplayLoop ){
+            console.log("Beginning replay loop");
+            inReplayLoop = true;
+            let boardArray:Board[] = [];
+            let stateArray:IState[] = [];
+            let moveArray:IMove[] = [];
+            for(var i = currentUpdateUI.state.deltaArray.length-1; i>=0; i--){
+              (function(index) {
+                setTimeout(function(){
+                  console.log("Loop: " +index);
+                  if(index === currentUpdateUI.state.deltaArray.length-1){
+                    boardArray[index] = state.board;
+                  }
+                  else{
+                    boardArray[index] = boardBeforeMove(boardArray[index+1],currentUpdateUI.state.deltaArray[index+1].board);
+                  }
+                  console.log("Board for: " +index + " loop is: "+ boardArray[index]);
+                  stateArray[index] = {board: boardArray[index], delta: currentUpdateUI.state.deltaArray[index],deltaArray:null,nextMoveType:"clickUpdate",lastupdatedcol:-1,lastupdatedrow:-1,sourceImages:currentUpdateUI.state.deltaArray[index].sourceImages,previousTurnIndex:previousTurnIndex};
+                  moveArray[index] = {state:stateArray[index], turnIndex:currentUpdateUI.turnIndex, endMatchScores:null};
+                  },2300*currentUpdateUI.state.deltaArray.length);
+                })(i);        
+              }
+            (function(ind) {
+                setTimeout(function(){
+                for(var i = 0; i<moveArray.length; i++){
+                (function(index) {
+                setTimeout(function(){
+                console.log("Making move for loop : "+ index + " with move:" + moveArray[index]); 
+                if(moveArray[index]){                 
+                  gameService.makeMove(moveArray[index],null);
+                }
+                }, 2400*index);
+              })(i);
+            }  
+                }, 2300*currentUpdateUI.state.deltaArray.length);
+              })(1);              
+          
+            (function(ind) {
+            setTimeout(function(){
+              console.log(ind); 
+              currentUpdateUI.state.deltaArray=[];
+              inReplayLoop=false;
+              console.log("Setting replay multiplayer to false");
+              animationDone=true;
+              replayForMultiplayer = false;              
+            }, 2500*currentUpdateUI.state.deltaArray.length*3);
+            })(1);
+        }
+      }
   }
   function setFlipDisplay():void{
-    if (currentUpdateUI.playMode === 1 || currentUpdateUI.playMode === "multiplayer"){
+    if (currentUpdateUI.playMode === 1 || currentUpdateUI.playMode === "pingPongMultiplayer" || currentUpdateUI.playMode === "speedMultiplayer"){
       flipDisplay = true;
     }
     else{
@@ -263,7 +355,7 @@ module game {
     }
   }
   function animationEndedCallback(sourceCopy:string[][][]) {
-    log.info("Animation ended");
+    console.log("Aanimation ended");
     setTurnStatus();
     updateScores();
     setEndState();
@@ -297,6 +389,7 @@ module game {
   }
   function updateScores(){
     scores = angular.copy(state.board);
+    console.log("after updatescores: " + scores + " for player" + currentUpdateUI.yourPlayerIndex);
   }
   function clearAnimationTimeout() {
     if (animationEndedTimeout) {
@@ -313,6 +406,7 @@ module game {
       state: currentUpdateUI.state,
       turnIndex: currentUpdateUI.turnIndex,
     }
+    console.log("Starting computer move calculation..");
     let move = aiService.findComputerMove(currentMove);
     log.info("Computer move: ", move);
     makeMove(move);
@@ -583,7 +677,7 @@ function animate(animateState:IState,animateDelta:BoardDelta):string[][][]{
         console.log("Length of the children is "+children.length);
         let turn = row;
         for(let candyNo=0;candyNo<children.length;candyNo++){
-          sourceCopy[row][col][candyNo] = null;
+          sourceCopy[row][col][candyNo] = "";
         }
         putintoDestination(children,row,col,
           turn,sourceCopy,animateState,animateDelta);
@@ -651,14 +745,14 @@ function animate(animateState:IState,animateDelta:BoardDelta):string[][][]{
     return flipDisplay;
   }
   export function printStatus(){
-  let turn:number = turnStatus;
-  if(turn>-1){
-    if(currentUpdateUI.playersInfo[turn] && currentUpdateUI.playersInfo[turn].displayName &&
-        currentUpdateUI.playersInfo[turn].displayName!=null &&
-        currentUpdateUI.playersInfo[turn].displayName!=''){
-          console.log("Reaching here to display the name"+
-          currentUpdateUI.playersInfo[turn].displayName);
-          return currentUpdateUI.playersInfo[turn].displayName+"'s turn";
+    let turn:number = turnStatus;
+    if(turn>-1){
+      if(currentUpdateUI.playersInfo[turn] && currentUpdateUI.playersInfo[turn].displayName &&
+         currentUpdateUI.playersInfo[turn].displayName!=null &&
+          currentUpdateUI.playersInfo[turn].displayName!=''){
+            console.log("Reaching here to display the name"+
+            currentUpdateUI.playersInfo[turn].displayName);
+            return currentUpdateUI.playersInfo[turn].displayName+"'s turn";
       }
       else{
         return "Player "+(turn+1)+"'s turn";
@@ -667,8 +761,9 @@ function animate(animateState:IState,animateDelta:BoardDelta):string[][][]{
     else{
       return "";
     }
+
   }
-export function getTurnStatus():number{
+  export function getTurnStatus():number{
       return turnStatus;
   }
 
@@ -687,6 +782,9 @@ export function getTurnStatus():number{
   }
   export function getSource(rowNo:number,colNo:number,candyNo:number):string{
     let imgsrc:string = state.sourceImages[rowNo][colNo][candyNo];
+    if (imgsrc === ""){
+      return imgsrc;
+    }
     if(!imgsrc || imgsrc==null){
       console.log("Had to rely on default image");
       imgsrc = gameLogic.candy1;
