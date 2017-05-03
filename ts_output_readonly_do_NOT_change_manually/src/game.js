@@ -188,7 +188,7 @@ var game;
         return boardBeforeMove;
     }
     function updateUI(params) {
-        log.info("Game got updateUI:", params);
+        log.info("Game got updateUIII:", params);
         var playerIdToProposal = params.playerIdToProposal;
         // Only one move/proposal per updateUI
         game.didMakeMove = playerIdToProposal && playerIdToProposal[game.yourPlayerInfo.playerId] != undefined;
@@ -203,8 +203,8 @@ var game;
         /*For computer moves, only after animation it should occur */
         var sourceCopy = null;
         game.state = game.currentUpdateUI.state;
-        if (game.currentUpdateUI.playMode === 1 || game.currentUpdateUI.playMode === "pingPongMultiplayer") {
-            if (!game.replayForMultiplayer && game.previousTurnIndex !== game.currentUpdateUI.turnIndex && yourPlayerIndex() !== game.previousTurnIndex) {
+        if (game.currentUpdateUI.playMode === 1 || game.currentUpdateUI.playMode === 0) {
+            if (!game.replayForMultiplayer && game.currentUpdateUI.state && game.currentUpdateUI.state.previousTurnIndex !== game.currentUpdateUI.turnIndex && game.currentUpdateUI.yourPlayerIndex !== game.currentUpdateUI.state.previousTurnIndex) {
                 console.log("Setting replay to true");
                 game.replayForMultiplayer = true;
             }
@@ -280,7 +280,7 @@ var game;
                                 boardArray_1[index] = boardBeforeMove(boardArray_1[index + 1], game.currentUpdateUI.state.deltaArray[index + 1].board);
                             }
                             console.log("Board for: " + index + " loop is: " + boardArray_1[index]);
-                            stateArray_1 = { board: boardArray_1[index], delta: game.currentUpdateUI.state.deltaArray[index], deltaArray: null, nextMoveType: "clickUpdate", lastupdatedcol: -1, lastupdatedrow: -1, sourceImages: game.currentUpdateUI.state.deltaArray[index].sourceImages, previousTurnIndex: game.previousTurnIndex };
+                            stateArray_1 = { board: boardArray_1[index], delta: game.currentUpdateUI.state.deltaArray[index], deltaArray: null, nextMoveType: "clickUpdate", lastupdatedcol: -1, lastupdatedrow: -1, sourceImages: game.currentUpdateUI.state.deltaArray[index].sourceImages, previousTurnIndex: game.currentUpdateUI.turnIndex };
                             moveArray_1[index] = { state: stateArray_1, turnIndex: game.currentUpdateUI.turnIndex, endMatchScores: null };
                         }, 2300 * game.currentUpdateUI.state.deltaArray.length);
                     })(i);
@@ -304,9 +304,10 @@ var game;
                         console.log(ind);
                         game.currentUpdateUI.state.deltaArray = [];
                         game.inReplayLoop = false;
-                        console.log("Setting replay multiplayer to false");
+                        console.log("Setting replay multiplayer to false. Animation ended");
                         game.animationDone = true;
                         game.replayForMultiplayer = false;
+                        setTurnStatus();
                     }, 2500 * game.currentUpdateUI.state.deltaArray.length * 3);
                 })(1);
             }
@@ -355,7 +356,10 @@ var game;
         }
     }
     function setTurnStatus() {
-        game.turnStatus = game.currentUpdateUI.turnIndex;
+        if (!game.inReplayLoop)
+            game.turnStatus = game.currentUpdateUI.turnIndex;
+        else
+            game.turnStatus = 1 - game.currentUpdateUI.turnIndex;
         if (game.currentUpdateUI.state !== null) {
             game.previousTurnIndex = game.currentUpdateUI.state.previousTurnIndex;
             game.currentMoveType = game.currentUpdateUI.state.nextMoveType;
