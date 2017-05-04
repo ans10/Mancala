@@ -23,10 +23,10 @@
 // 3) onlyAIs: this play mode is just for testing purposes, in which the computer plays against itself.
 // 4) multiplayer: human players playing against each other using different devices.
 // The match may have viewers (a viewer can't make moves in the match). The platform
-// is responsible to passing and persisting the match data. Multiplayer matches can be either 
+// is responsible to passing and persisting the match data. Multiplayer matches can be either
 // speed matches (where both players are connected at the same time and there is a time limit per move),
 // or ping-pong matches (where one player makes a move and the opponent gets a push notification).
-// 5) community: a group of players playing another group of players, e.g., US vs. UK, 
+// 5) community: a group of players playing another group of players, e.g., US vs. UK,
 // or male vs female, or beginners vs non-beginners. Each player in a group submits a proposal,
 // and the game decides when to make a move (e.g., once the same proposal is selected 3 times).
 
@@ -52,7 +52,7 @@
 // communicate with the platform.
 // (See all the global objects below, inside the namespace gamingPlatform).
 // IGameService allows the game to make a move (makeMove).
-// The platform will call game.updateUI when the game 
+// The platform will call game.updateUI when the game
 // should change it's UI according to some state.
 // So, in summary, the platform calls game.updateUI and the game then calls makeMove.
 // The game may call makeMove at most once after getting an updateUI,
@@ -95,7 +95,7 @@ interface IGame {
   // That image is also used in the platform HTML in <meta property="og:image" ...>,
   // which is why I called the mechanism to conver a state to an image 'ogImageMaker'.
   // (In the future, the platform may also send push notifications that includes an image of the state.)
-  // This method is optional: if your game doesn't support it, then 
+  // This method is optional: if your game doesn't support it, then
   // you won't be able to share images on Facebook.
   // In the game developer site you can enter a URL (called 'ogImageMaker')
   // that converts a state string to an image.
@@ -105,10 +105,10 @@ interface IGame {
   // * winner: the playerIndex of the winner (either 0/1 or missing).
   // * onlyBoard: either equals to "t" (true) or missing.
   // If onlyBoard=t, then the URL should created
-  // a square image (of size 400x400) that contains just the board. 
+  // a square image (of size 400x400) that contains just the board.
   // If it's missing, then it should create an image
   // that is approximately 1200x630 (that's facebook recommendation for og:image).
-  // E.g., for the game of friendlygo I created an AppEngine that does this conversion, 
+  // E.g., for the game of friendlygo I created an AppEngine that does this conversion,
   // see the code here:
   // https://github.com/yoav-zibin/friendlygo-appengine
   // I uploaded this to AppEngine, and entered this URL for ogImageMaker in the developer site:
@@ -175,7 +175,7 @@ interface IUpdateUI extends IMove {
 
   // You need to know your playerId to make sure you only make one proposal,
   // i.e., if (playerIdToProposal[yourPlayerId]) then you can't make another proposal.
-  yourPlayerInfo: IPlayerInfo; 
+  yourPlayerInfo: IPlayerInfo;
 
   // The array of all players.
   // If it's a community match, then playersInfo will contain some representation of the
@@ -183,9 +183,9 @@ interface IUpdateUI extends IMove {
   playersInfo: IPlayerInfo[];
 
   // Deprecated: you should use matchType.
-  // playMode is either 'passAndPlay', 'playAgainstTheComputer', or 
+  // playMode is either 'passAndPlay', 'playAgainstTheComputer', or
   // (if it's a multiplayer/community match) yourPlayerIndex (e.g., 0 or 1).
-  playMode: PlayMode; 
+  playMode: PlayMode;
 
   // matchType is either:
   // 'passAndPlay', 'playAgainstTheComputer',
@@ -197,14 +197,14 @@ interface IUpdateUI extends IMove {
   // Below are fields set only in community matches.
   // Mapping playerId to their proposal.
   playerIdToProposal: IProposals;
-  
+
   // A move is chosen after a proposal was selected that number of times.
   // If a community match has a small number of players, this number will be small (e.g., 1),
   // and when the match has more players this number will be increased by the platform (e.g., 3 or more).
   numberOfPlayersRequiredToMove: number;
 }
 
-// PlayMode is either 'passAndPlay', 'playAgainstTheComputer', or 
+// PlayMode is either 'passAndPlay', 'playAgainstTheComputer', or
 // (if it's a multiplayer match) yourPlayerIndex (e.g., 0 or 1).
 declare type PlayMode = string | number;
 
@@ -276,7 +276,7 @@ interface IResizeGameAreaService {
     dimensionsChanged?: (gameAreaWidth: number, gameAreaHeight: number)=>void): void;
 }
 
-// <log> is very similar to console, e.g., 
+// <log> is very similar to console, e.g.,
 // log.warn(... args) will both call console.warn(... args)
 // and it will also store the <args> in memory, and if there is an exception
 // then it will pass all the logs to the platform, and the platform will
@@ -316,7 +316,7 @@ interface IDragAndDropService {
 // or import them first, e.g.,
 // import log = gamingPlatform.log;
 // log.warn('some warning');
-declare namespace gamingPlatformREMOVEDWHENCOPIED {
+declare namespace gamingPlatform{
   var gameService: IGameService;
   var alphaBetaService: IAlphaBetaService;
   var translate: ITranslateService;

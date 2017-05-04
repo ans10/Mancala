@@ -3,12 +3,12 @@ var MoveType = {
     2: "emptyHole",
     3: "transferAll"
 };
-var gameService = gamingPlatformREMOVEDWHENCOPIED.gameService;
-var alphaBetaService = gamingPlatformREMOVEDWHENCOPIED.alphaBetaService;
-var translate = gamingPlatformREMOVEDWHENCOPIED.translate;
-var resizeGameAreaService = gamingPlatformREMOVEDWHENCOPIED.resizeGameAreaService;
-var log = gamingPlatformREMOVEDWHENCOPIED.log;
-var dragAndDropService = gamingPlatformREMOVEDWHENCOPIED.dragAndDropService;
+var gameService = gamingPlatform.gameService;
+var alphaBetaService = gamingPlatform.alphaBetaService;
+var translate = gamingPlatform.translate;
+var resizeGameAreaService = gamingPlatform.resizeGameAreaService;
+var log = gamingPlatform.log;
+var dragAndDropService = gamingPlatform.dragAndDropService;
 var gameLogic;
 (function (gameLogic) {
     gameLogic.ROWS = 2;
@@ -115,7 +115,7 @@ var gameLogic;
     gameLogic.getPseudoInitialBoard = getPseudoInitialBoard;
     function getInitialState() {
         console.log("Initial state method called in gameLogic");
-        return { board: getPseudoInitialBoard(), delta: null, deltaArray: null, lastupdatedrow: -1,
+        return { board: getInitialBoard(), delta: null, deltaArray: null, lastupdatedrow: -1,
             lastupdatedcol: -1, nextMoveType: "clickUpdate", sourceImages: getInitialSource(), previousTurnIndex: null };
     }
     gameLogic.getInitialState = getInitialState;

@@ -27,12 +27,12 @@ interface IState {
 }
 
 
-import gameService = gamingPlatformREMOVEDWHENCOPIED.gameService;
-import alphaBetaService = gamingPlatformREMOVEDWHENCOPIED.alphaBetaService;
-import translate = gamingPlatformREMOVEDWHENCOPIED.translate;
-import resizeGameAreaService = gamingPlatformREMOVEDWHENCOPIED.resizeGameAreaService;
-import log = gamingPlatformREMOVEDWHENCOPIED.log;
-import dragAndDropService = gamingPlatformREMOVEDWHENCOPIED.dragAndDropService;
+import gameService = gamingPlatform.gameService;
+import alphaBetaService = gamingPlatform.alphaBetaService;
+import translate = gamingPlatform.translate;
+import resizeGameAreaService = gamingPlatform.resizeGameAreaService;
+import log = gamingPlatform.log;
+import dragAndDropService = gamingPlatform.dragAndDropService;
 
 module gameLogic {
   export const ROWS = 2;
@@ -141,7 +141,7 @@ module gameLogic {
   export function getInitialState(): IState {
     console.log("Initial state method called in gameLogic");
 
-    return {board: getPseudoInitialBoard(), delta: null,deltaArray: null,lastupdatedrow:-1,
+    return {board: getInitialBoard(), delta: null,deltaArray: null,lastupdatedrow:-1,
       lastupdatedcol:-1,nextMoveType:"clickUpdate",sourceImages:getInitialSource(), previousTurnIndex: null};
   }
 
