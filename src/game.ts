@@ -31,7 +31,7 @@ module game {
   export let currentMoveType: string = null;
   export let scores:Board = null;
   export let animationDone = true;
-  export let sourceImages:string[][][] = null;
+  export let globalSourceImages:string[][][] = null;
   export let positionImages:any[][][] = null;
   export let replayForMultiplayer:boolean = false;
   export let inReplayLoop: boolean = false;
@@ -139,7 +139,7 @@ module game {
     });
     console.log("INIT method over");
   }
- 
+
 
   function registerServiceWorker() {
     // I prefer to use appCache over serviceWorker
@@ -205,8 +205,24 @@ module game {
     }
     return boardBeforeMove;
   }
+  function createAllBoards(boardFinalMove:Board,deltaArray:BoardDelta[]):Board[]{
+    let boards:Board[] = [];
+    boards.push(boardFinalMove);
+    for(let deltaNo=deltaArray.length-1;deltaNo>=0;deltaNo--){
+      boards.push(boardBeforeMove(boards[boards.length-1],deltaArray[deltaNo].board));
+    }
+
+    return boards;
+  }
+  function turnHasChanged():boolean{
+    return state.previousTurnIndex!=currentUpdateUI.turnIndex;
+
+  }
+  function isMultiPlayerGame():boolean{
+    return currentUpdateUI.playMode==0 || currentUpdateUI.playMode==1;
+  }
   export function updateUI(params: IUpdateUI): void {
-    log.info("Game got updateUIII:", params);
+    log.info("Game got updateUI:", params);
     let playerIdToProposal = params.playerIdToProposal;
      // Only one move/proposal per updateUI
     didMakeMove = playerIdToProposal && playerIdToProposal[yourPlayerInfo.playerId] != undefined;
@@ -221,123 +237,87 @@ module game {
     /*For computer moves, only after animation it should occur */
     let sourceCopy:string[][][] = null;
     state = currentUpdateUI.state;
-   
-     if(currentUpdateUI.playMode === 1 || currentUpdateUI.playMode === 0){
-        if(!replayForMultiplayer && currentUpdateUI.state && currentUpdateUI.state.previousTurnIndex !== currentUpdateUI.turnIndex && currentUpdateUI.yourPlayerIndex !== currentUpdateUI.state.previousTurnIndex){
-        console.log("Setting replay to true");
-        replayForMultiplayer = true;
-       }
-     }
+    replayForMultiplayer = false;
+    if(state!=null && state.delta!=null){
+      console.log(isMultiPlayerGame());
+      console.log(turnHasChanged());
+      console.log(yourPlayerIndex());
+      console.log(currentUpdateUI.state.previousTurnIndex);
+      replayForMultiplayer = (isMultiPlayerGame() && turnHasChanged()
+      && (isMyTurn() || (currentUpdateUI.turnIndex==-1 && yourPlayerIndex() == (1-currentUpdateUI.state.previousTurnIndex))));
 
-    if(!replayForMultiplayer){
-      console.log("In replay multiplayer false");
-      if(state!=null && state.delta!=null){
-        sourceCopy = angular.copy(state.sourceImages);
-        scores = boardBeforeMove(state.board,state.delta.board);
-        console.log(scores);
-        let animateState:IState = angular.copy(state);
-        let animateDelta:BoardDelta = angular.copy(state.delta);
-        console.log(state.delta);
-        console.log(animateDelta);
-        $timeout(()=>{
-          sourceCopy = animate(animateState,animateDelta);
-          console.log(sourceCopy);
-        }, 0);
+      if(!replayForMultiplayer){
+          console.log("In replay multiplayer false");
+
+          globalSourceImages = angular.copy(state.sourceImages);
+          scores = boardBeforeMove(state.board,state.delta.board);
+          console.log(scores);
+          let animateState:IState = angular.copy(state);
+          let animateDelta:BoardDelta = angular.copy(state.delta);
+          console.log(state.delta);
+          console.log(animateDelta);
+          $timeout(()=>{
+            sourceCopy = animate(animateState,animateDelta);
+            console.log(sourceCopy);
+          }, 0);
+          animationEndedTimeout = $timeout(function(){animationEndedCallback(sourceCopy)},2100);
+
 
       }
-
-      if (isFirstMove()) {
-        console.log("Initialstate method called");
-        state = gameLogic.getInitialState();
-        scores = angular.copy(state.board);
-        sourceCopy = angular.copy(state.sourceImages);
-      }
-
-      setFlipDisplay();
-        // We calculate the AI move only after the animation finishes,
-        // because if we call aiService now
-        // then the animation will be paused until the javascript finishes.
-      animationEndedTimeout = $timeout(function(){animationEndedCallback(sourceCopy)},2100);
-    }
-    else{
+      else{
         console.log("In replay multiplayer true");
-        if(inReplayLoop){
-          if(state!=null && state.delta!=null){
-            sourceCopy = angular.copy(state.delta.sourceImages);
-            scores = boardBeforeMove(state.board,state.delta.board);
-            console.log("Replay scores are : " +scores);
-            let animateState:IState = angular.copy(state);
-            let animateDelta:BoardDelta = angular.copy(state.delta);
-            console.log(animateDelta);         
-            $timeout(()=>{
-              sourceCopy = animate(animateState,animateDelta);
-              console.log(sourceCopy);
-            }, 0);
-          }
+        //accumulate all the boards from the detlas
+        let boardArray:Board[] = createAllBoards(state.board,state.deltaArray);
+        console.log("Board arrays");
+        console.log(boardArray);
 
-          (function(ind) {
-                $timeout(function(){
-                  console.log(ind); 
-                  setFlipDisplay();
-                  setTurnStatus();
-                  updateScores();
-                  setEndState();
-                  updateSourceImages(sourceCopy);
-                  console.log("After replay scores : " +scores);
-                }, 2100);
-            })(1);
-          }
-    
-         if(!inReplayLoop ){
-            console.log("Beginning replay loop");
-            inReplayLoop = true;
-            let boardArray:Board[] = [];
-            let stateArray:IState= null;
-            let moveArray:IMove[] = [];
-            for(var i = currentUpdateUI.state.deltaArray.length-1; i>=0; i--){
-              (function(index) {
-                $timeout(function(){
-                  console.log("Loop: " +index);
-                  if(index === currentUpdateUI.state.deltaArray.length-1){
-                    boardArray[index] = state.board;
-                  }
-                  else{
-                    boardArray[index] = boardBeforeMove(boardArray[index+1],currentUpdateUI.state.deltaArray[index+1].board);
-                  }
-                  console.log("Board for: " +index + " loop is: "+ boardArray[index]);
-                  stateArray = {board: boardArray[index], delta: currentUpdateUI.state.deltaArray[index],deltaArray:null,nextMoveType:"clickUpdate",lastupdatedcol:-1,lastupdatedrow:-1,sourceImages:currentUpdateUI.state.deltaArray[index].sourceImages,previousTurnIndex:currentUpdateUI.turnIndex};
-                  moveArray[index] = {state:stateArray, turnIndex:currentUpdateUI.turnIndex, endMatchScores:null};
-                 },2300*currentUpdateUI.state.deltaArray.length);
-                })(i);        
-              }
-            (function(ind) {
-                $timeout(function(){
-                for(var i = 0; i<moveArray.length; i++){
-                (function(index) {
-                $timeout(function(){
-                console.log("Making move for loop : "+ index + " with move:" + moveArray[index]); 
-                if(moveArray[index]){                 
-                  gameService.makeMove(moveArray[index],null);
-                }
-                }, 2400*index);
-              })(i);
-            }  
-                }, 2300*currentUpdateUI.state.deltaArray.length);
-              })(1);              
-          
-            (function(ind) {
+        for(let animationNo=0;animationNo<state.deltaArray.length;animationNo++){
+          console.log("IN outer function animation for loop: "+animationNo);
+          //scores = angular.copy(boardArray[0]);
+          console.log(state.sourceImages);
+          (function(index){
             $timeout(function(){
-              console.log(ind); 
-              currentUpdateUI.state.deltaArray=[];
-              inReplayLoop=false;
-              console.log("Setting replay multiplayer to false. Animation ended");
-              animationDone=true;
-              replayForMultiplayer = false;
-              setTurnStatus();          
-            }, 2500*currentUpdateUI.state.deltaArray.length*3);
-            })(1);
+                //sourceCopy = angular.copy(state.sourceImages);
+              let currentBoardIndex:number = state.deltaArray.length - animationNo;
+              scores = angular.copy(boardArray[currentBoardIndex]);
+              console.log("IN inner function animation for loop: "+animationNo);
+              console.log("scores");
+              console.log(scores);
+
+              let animateState:IState = angular.copy(state);
+              animateState.board = angular.copy(boardArray[currentBoardIndex-1]);
+              console.log("delta's sourceImages array");
+              console.log(state.deltaArray[animationNo].sourceImages);
+              animateState.sourceImages = angular.copy(state.deltaArray[animationNo].sourceImages);
+              globalSourceImages = angular.copy(animateState.sourceImages);
+              let animateDelta:BoardDelta = angular.copy(state.deltaArray[animationNo]);
+              console.log(animateState);
+              console.log(animateDelta);
+              $timeout(()=>{
+                console.log("Inner timeout");
+                sourceCopy = animate(animateState,animateDelta);
+                console.log(sourceCopy);
+              }, 0);
+
+
+
+            },2100*animationNo+100);
+          })(animationNo);
         }
+        animationEndedTimeout = $timeout(function(){animationEndedCallback(sourceCopy)},2100*state.deltaArray.length+200);
       }
+    }
+
+    if (isFirstMove()) {
+      console.log("Initialstate method called");
+      state = gameLogic.getInitialState();
+      scores = angular.copy(state.board);
+      sourceCopy = angular.copy(state.sourceImages);
+      globalSourceImages = angular.copy(state.sourceImages);
+      animationEndedTimeout = $timeout(function(){animationEndedCallback(sourceCopy)},300);
+    }
+
+    setFlipDisplay();
   }
   function setFlipDisplay():void{
     if (currentUpdateUI.playMode === 1 || currentUpdateUI.playMode === "pingPongMultiplayer" || currentUpdateUI.playMode === "speedMultiplayer"){
@@ -355,8 +335,15 @@ module game {
       isEndState = false;
     }
   }
+  function emptyDeltaArray():void{
+    if(replayForMultiplayer){
+      state.deltaArray = [];
+      replayForMultiplayer = false;
+    }
+  }
   function animationEndedCallback(sourceCopy:string[][][]) {
-    console.log("Aanimation ended");
+    console.log("Animation ended");
+    emptyDeltaArray();
     setTurnStatus();
     updateScores();
     setEndState();
@@ -375,17 +362,15 @@ module game {
   }
   function updateSourceImages(sourceCopy:string[][][]):void{
     if(sourceCopy!=null){
-      //console.log(sourceImages);
+
       state.sourceImages = angular.copy(sourceCopy);
+      globalSourceImages = angular.copy(sourceCopy);
       //state.sourceImages = angular.copy(sourceImages);
     }
 
   }
   function setTurnStatus():void{
-    if(!inReplayLoop)
     turnStatus = currentUpdateUI.turnIndex;
-    else
-    turnStatus=1-currentUpdateUI.turnIndex;
     if(currentUpdateUI.state!==null){
       previousTurnIndex=currentUpdateUI.state.previousTurnIndex;
       currentMoveType=currentUpdateUI.state.nextMoveType;
@@ -423,19 +408,19 @@ module game {
     didMakeMove = true;
 
     if (!proposals) {
-      gameService.makeMove(move, null);
+      gameService.makeMove(move, null, "chat Description");
     } else {
       let delta = move.state.delta;
       let myProposal:IProposal = {
         data: delta,
-        chatDescription: '' + (delta.row + 1) + 'x' + (delta.col + 1),
+        //chatDescription: '' + (delta.row + 1) + 'x' + (delta.col + 1),
         playerInfo: yourPlayerInfo,
       };
       // Decide whether we make a move or not (if we have <currentCommunityUI.numberOfPlayersRequiredToMove-1> other proposals supporting the same thing).
       if (proposals[delta.row][delta.col] < currentUpdateUI.numberOfPlayersRequiredToMove - 1) {
         move = null;
       }
-      gameService.makeMove(move, myProposal);
+      gameService.makeMove(move, myProposal,"chatDescription");
     }
   }
 
@@ -529,10 +514,9 @@ module game {
       return;
     }
 
-    gameService.makeMove(nextMove, null);
+    gameService.makeMove(nextMove, null, "chat Description");
 
     if(nextMove.endMatchScores!==null){
-
       console.info("end state detected to be true " + isEndState);
 
     }
@@ -549,6 +533,7 @@ module game {
   }
   export function updatePosition(destinationElement:HTMLElement,
   currentRow:number,currentCol:number,animateState:IState,animateDelta:BoardDelta):MyPosition{
+  console.log("In update position");
   let newPositionTop = 0;
   let newPositionLeft = 0;
   let stateBoard:Board = animateState.board;
@@ -614,7 +599,7 @@ function putintoDestination(children:HTMLElement[],currentRow:number,
    let deltaBoard:Board = animateDelta.board;
    let parent:HTMLElement = null;
    let stateBoard:Board = animateState.board;
-   let loopCount = -1 * deltaBoard[currentRow][currentCol];
+   let loopCount = children.length;
    console.log("Loop count is: "+loopCount);
    console.log("Children's length is: "+children.length);
 
@@ -667,6 +652,9 @@ function animate(animateState:IState,animateDelta:BoardDelta):string[][][]{
   let col:number = animateDelta.col;
   let deltaBoard:Board = animateDelta.board;
   let sourceCopy = angular.copy(animateState.sourceImages);
+  console.log("In animation sourceCopy");
+  console.log(animateState.sourceImages);
+  console.log(sourceCopy);
   let positionCount = 0;
   let loopCount = 0;
   let resultArray:any[] = [];
@@ -681,7 +669,7 @@ function animate(animateState:IState,animateDelta:BoardDelta):string[][][]{
         console.log("Length of the children is "+children.length);
         let turn = row;
         for(let candyNo=0;candyNo<children.length;candyNo++){
-          sourceCopy[row][col][candyNo] = "";
+          sourceCopy[row][col][candyNo] = null;
         }
         putintoDestination(children,row,col,
           turn,sourceCopy,animateState,animateDelta);
@@ -731,7 +719,7 @@ function animate(animateState:IState,animateDelta:BoardDelta):string[][][]{
     return "Draw!";
   }
   }
- 
+
   export function getPosition(pos: number,store:number) {
 
     if(store==1){
@@ -785,15 +773,31 @@ function animate(animateState:IState,animateDelta:BoardDelta):string[][][]{
     return false;
   }
   export function getSource(rowNo:number,colNo:number,candyNo:number):string{
-    let imgsrc:string = state.sourceImages[rowNo][colNo][candyNo];
-    if (imgsrc === ""){
+      let imgsrc:string = globalSourceImages[rowNo][colNo][candyNo];
+      if (imgsrc === ""){
+        return imgsrc;
+      }
+      if(!imgsrc || imgsrc==null){
+        console.log("Had to rely on default image");
+        imgsrc = gameLogic.candy1;
+      }
       return imgsrc;
-    }
-    if(!imgsrc || imgsrc==null){
-      console.log("Had to rely on default image");
-      imgsrc = gameLogic.candy1;
-    }
-    return imgsrc;
+
+
+    //}
+    // else{
+    //   let imgsrc:string = state.deltaArray[0].sourceImages[rowNo][colNo][candyNo];
+    //   if (imgsrc === ""){
+    //     return imgsrc;
+    //   }
+    //   if(!imgsrc || imgsrc==null){
+    //     console.log("Had to rely on default image");
+    //     imgsrc = gameLogic.candy1;
+    //   }
+    //   return imgsrc;
+    //
+    //
+    // }
   }
 
 }

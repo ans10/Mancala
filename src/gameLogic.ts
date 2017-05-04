@@ -27,12 +27,12 @@ interface IState {
 }
 
 
-import gameService = gamingPlatform.gameService;
-import alphaBetaService = gamingPlatform.alphaBetaService;
-import translate = gamingPlatform.translate;
-import resizeGameAreaService = gamingPlatform.resizeGameAreaService;
-import log = gamingPlatform.log;
-import dragAndDropService = gamingPlatform.dragAndDropService;
+import gameService = gamingPlatformREMOVEDWHENCOPIED.gameService;
+import alphaBetaService = gamingPlatformREMOVEDWHENCOPIED.alphaBetaService;
+import translate = gamingPlatformREMOVEDWHENCOPIED.translate;
+import resizeGameAreaService = gamingPlatformREMOVEDWHENCOPIED.resizeGameAreaService;
+import log = gamingPlatformREMOVEDWHENCOPIED.log;
+import dragAndDropService = gamingPlatformREMOVEDWHENCOPIED.dragAndDropService;
 
 module gameLogic {
   export const ROWS = 2;
@@ -67,6 +67,46 @@ module gameLogic {
     }
     return sourceImages;
   }
+  // function getpseudoInitialSource():string[][][]{
+  //   console.log("In initialize source method");
+  //   board[1][5] = 0;
+  //   board[1][4] = 3;
+  //   board[0][0] = 20;
+  //   board[1][6] = 24;
+  //   board[0][1] = 1;
+  //
+  //   let sourceImages:string[][][];
+  //   sourceImages = [];
+  //   let rowNo = 1;
+  //   let colNo = 5;
+  //   sourceImages[rowNo][colNo] = [];
+  //   rowNo = 1;
+  //   colNo = 4;
+  //   for(int i=0;i<3;i++){
+  //     sourceImages
+  //   }
+  //   for(let rowNo=0;rowNo<2;rowNo++){
+  //     sourceImages[rowNo]=[];
+  //     for(let colNo=0;colNo<7;colNo++){
+  //       sourceImages[rowNo][colNo]=[];
+  //       for(let candyNo=0;candyNo<48;candyNo++){
+  //          sourceImages[rowNo][colNo][candyNo] = candy1;
+  //       }
+  //     }
+  //   }
+  //   for(let rowNo=0;rowNo<2;rowNo++){
+  //     for(let colNo=0;colNo<7;colNo++){
+  //       if(!((rowNo==0 && colNo==0) || (rowNo==1 && colNo==6))){
+  //         sourceImages[rowNo][colNo][0] = candy1;
+  //         sourceImages[rowNo][colNo][1] = candy2;
+  //         sourceImages[rowNo][colNo][2] = candy3;
+  //         sourceImages[rowNo][colNo][3] = candy4;
+  //
+  //       }
+  //     }
+  //   }
+  //   return sourceImages;
+  // }
 
   export function getInitialBoard(): Board {
     let board: Board = [];
@@ -92,15 +132,16 @@ module gameLogic {
     board[1][5] = 0;
     board[1][4] = 3;
     board[0][0] = 20;
-    board[1][6] = 24;
-    board[0][1] = 1;
+    board[1][1] = 2;
+    board[0][2] = 13;
+    board[0][1] = 2;
     return board;
   }
-  
+
   export function getInitialState(): IState {
     console.log("Initial state method called in gameLogic");
 
-    return {board: getInitialBoard(), delta: null,deltaArray: null,lastupdatedrow:-1,
+    return {board: getPseudoInitialBoard(), delta: null,deltaArray: null,lastupdatedrow:-1,
       lastupdatedcol:-1,nextMoveType:"clickUpdate",sourceImages:getInitialSource(), previousTurnIndex: null};
   }
 
@@ -300,6 +341,7 @@ module gameLogic {
 
     console.log("Turnindexbeforemove: "+turnIndexBeforeMove+"row: "+row);
     let updatedState:IState = null;
+
     if(nextMoveType=="clickUpdate"){
       console.log("Click movement happening");
       if(row!==turnIndexBeforeMove || board[row][col] === 0
@@ -307,7 +349,7 @@ module gameLogic {
         throw new Error("Making an invalid move!");
       }
       updatedState = updateBoard(board,row,col);
-      
+
       if(updatedState.nextMoveType!="transferAll"){
         turnIndex = nextTurn(turnIndexBeforeMove, updatedState.lastupdatedrow,
           updatedState.lastupdatedcol, updatedState.nextMoveType);
@@ -331,28 +373,29 @@ module gameLogic {
       updatedState = transferAllLeft(board);
       let boardAfterMove:Board = updatedState.board;
       let winner = getWinner(boardAfterMove);
-      turnIndexBeforeMove = -1;
-      turnIndex = turnIndexBeforeMove;
+      //turnIndexBeforeMove = -1;
+      turnIndex = -1;
       endMatchScores = winner === 0 ? [1, 0] : winner === 1 ? [0, 1] : [0, 0];
     }
+
     else{
       throw new Error("Invalid movetype");
     }
 
     console.log("TurnIndex value is: "+turnIndex);
-    
+
     updatedState.sourceImages = angular.copy(sourceImages);
     updatedState.delta.sourceImages = angular.copy(sourceImages);
     if(updatedState.previousTurnIndex === null){
       updatedState.previousTurnIndex=turnIndexBeforeMove;
     }
-    updatedState.deltaArray = [];    
+    updatedState.deltaArray = [];
     if(stateBeforeMove.deltaArray !== null){
       let tempDeltaArray:BoardDelta[] = angular.copy(stateBeforeMove.deltaArray);
       updatedState.deltaArray=tempDeltaArray;
     }
     updatedState.deltaArray.push(updatedState.delta);
-    
+
     let state: IState = updatedState;
     console.info("Returning createMove successfully" );
 

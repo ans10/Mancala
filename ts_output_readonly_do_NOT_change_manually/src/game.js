@@ -21,7 +21,7 @@ var game;
     game.currentMoveType = null;
     game.scores = null;
     game.animationDone = true;
-    game.sourceImages = null;
+    game.globalSourceImages = null;
     game.positionImages = null;
     game.replayForMultiplayer = false;
     game.inReplayLoop = false;
@@ -187,8 +187,22 @@ var game;
         }
         return boardBeforeMove;
     }
+    function createAllBoards(boardFinalMove, deltaArray) {
+        var boards = [];
+        boards.push(boardFinalMove);
+        for (var deltaNo = deltaArray.length - 1; deltaNo >= 0; deltaNo--) {
+            boards.push(boardBeforeMove(boards[boards.length - 1], deltaArray[deltaNo].board));
+        }
+        return boards;
+    }
+    function turnHasChanged() {
+        return game.state.previousTurnIndex != game.currentUpdateUI.turnIndex;
+    }
+    function isMultiPlayerGame() {
+        return game.currentUpdateUI.playMode == 0 || game.currentUpdateUI.playMode == 1;
+    }
     function updateUI(params) {
-        log.info("Game got updateUIII:", params);
+        log.info("Game got updateUI:", params);
         var playerIdToProposal = params.playerIdToProposal;
         // Only one move/proposal per updateUI
         game.didMakeMove = playerIdToProposal && playerIdToProposal[game.yourPlayerInfo.playerId] != undefined;
@@ -203,16 +217,17 @@ var game;
         /*For computer moves, only after animation it should occur */
         var sourceCopy = null;
         game.state = game.currentUpdateUI.state;
-        if (game.currentUpdateUI.playMode === 1 || game.currentUpdateUI.playMode === 0) {
-            if (!game.replayForMultiplayer && game.currentUpdateUI.state && game.currentUpdateUI.state.previousTurnIndex !== game.currentUpdateUI.turnIndex && game.currentUpdateUI.yourPlayerIndex !== game.currentUpdateUI.state.previousTurnIndex) {
-                console.log("Setting replay to true");
-                game.replayForMultiplayer = true;
-            }
-        }
-        if (!game.replayForMultiplayer) {
-            console.log("In replay multiplayer false");
-            if (game.state != null && game.state.delta != null) {
-                sourceCopy = angular.copy(game.state.sourceImages);
+        game.replayForMultiplayer = false;
+        if (game.state != null && game.state.delta != null) {
+            console.log(isMultiPlayerGame());
+            console.log(turnHasChanged());
+            console.log(yourPlayerIndex());
+            console.log(game.currentUpdateUI.state.previousTurnIndex);
+            game.replayForMultiplayer = (isMultiPlayerGame() && turnHasChanged()
+                && (isMyTurn() || (game.currentUpdateUI.turnIndex == -1 && yourPlayerIndex() == (1 - game.currentUpdateUI.state.previousTurnIndex))));
+            if (!game.replayForMultiplayer) {
+                console.log("In replay multiplayer false");
+                game.globalSourceImages = angular.copy(game.state.sourceImages);
                 game.scores = boardBeforeMove(game.state.board, game.state.delta.board);
                 console.log(game.scores);
                 var animateState_1 = angular.copy(game.state);
@@ -223,95 +238,58 @@ var game;
                     sourceCopy = animate(animateState_1, animateDelta_1);
                     console.log(sourceCopy);
                 }, 0);
+                game.animationEndedTimeout = game.$timeout(function () { animationEndedCallback(sourceCopy); }, 2100);
             }
-            if (isFirstMove()) {
-                console.log("Initialstate method called");
-                game.state = gameLogic.getInitialState();
-                game.scores = angular.copy(game.state.board);
-                sourceCopy = angular.copy(game.state.sourceImages);
-            }
-            setFlipDisplay();
-            // We calculate the AI move only after the animation finishes,
-            // because if we call aiService now
-            // then the animation will be paused until the javascript finishes.
-            game.animationEndedTimeout = game.$timeout(function () { animationEndedCallback(sourceCopy); }, 2100);
-        }
-        else {
-            console.log("In replay multiplayer true");
-            if (game.inReplayLoop) {
-                if (game.state != null && game.state.delta != null) {
-                    sourceCopy = angular.copy(game.state.delta.sourceImages);
-                    game.scores = boardBeforeMove(game.state.board, game.state.delta.board);
-                    console.log("Replay scores are : " + game.scores);
-                    var animateState_2 = angular.copy(game.state);
-                    var animateDelta_2 = angular.copy(game.state.delta);
-                    console.log(animateDelta_2);
-                    game.$timeout(function () {
-                        sourceCopy = animate(animateState_2, animateDelta_2);
-                        console.log(sourceCopy);
-                    }, 0);
-                }
-                (function (ind) {
-                    game.$timeout(function () {
-                        console.log(ind);
-                        setFlipDisplay();
-                        setTurnStatus();
-                        updateScores();
-                        setEndState();
-                        updateSourceImages(sourceCopy);
-                        console.log("After replay scores : " + game.scores);
-                    }, 2100);
-                })(1);
-            }
-            if (!game.inReplayLoop) {
-                console.log("Beginning replay loop");
-                game.inReplayLoop = true;
-                var boardArray_1 = [];
-                var stateArray_1 = null;
-                var moveArray_1 = [];
-                for (var i = game.currentUpdateUI.state.deltaArray.length - 1; i >= 0; i--) {
+            else {
+                console.log("In replay multiplayer true");
+                //accumulate all the boards from the detlas
+                var boardArray_1 = createAllBoards(game.state.board, game.state.deltaArray);
+                console.log("Board arrays");
+                console.log(boardArray_1);
+                var _loop_1 = function (animationNo) {
+                    console.log("IN outer function animation for loop: " + animationNo);
+                    //scores = angular.copy(boardArray[0]);
+                    console.log(game.state.sourceImages);
                     (function (index) {
                         game.$timeout(function () {
-                            console.log("Loop: " + index);
-                            if (index === game.currentUpdateUI.state.deltaArray.length - 1) {
-                                boardArray_1[index] = game.state.board;
-                            }
-                            else {
-                                boardArray_1[index] = boardBeforeMove(boardArray_1[index + 1], game.currentUpdateUI.state.deltaArray[index + 1].board);
-                            }
-                            console.log("Board for: " + index + " loop is: " + boardArray_1[index]);
-                            stateArray_1 = { board: boardArray_1[index], delta: game.currentUpdateUI.state.deltaArray[index], deltaArray: null, nextMoveType: "clickUpdate", lastupdatedcol: -1, lastupdatedrow: -1, sourceImages: game.currentUpdateUI.state.deltaArray[index].sourceImages, previousTurnIndex: game.currentUpdateUI.turnIndex };
-                            moveArray_1[index] = { state: stateArray_1, turnIndex: game.currentUpdateUI.turnIndex, endMatchScores: null };
-                        }, 2300 * game.currentUpdateUI.state.deltaArray.length);
-                    })(i);
+                            //sourceCopy = angular.copy(state.sourceImages);
+                            var currentBoardIndex = game.state.deltaArray.length - animationNo;
+                            game.scores = angular.copy(boardArray_1[currentBoardIndex]);
+                            console.log("IN inner function animation for loop: " + animationNo);
+                            console.log("scores");
+                            console.log(game.scores);
+                            var animateState = angular.copy(game.state);
+                            animateState.board = angular.copy(boardArray_1[currentBoardIndex - 1]);
+                            console.log("delta's sourceImages array");
+                            console.log(game.state.deltaArray[animationNo].sourceImages);
+                            animateState.sourceImages = angular.copy(game.state.deltaArray[animationNo].sourceImages);
+                            game.globalSourceImages = angular.copy(animateState.sourceImages);
+                            var animateDelta = angular.copy(game.state.deltaArray[animationNo]);
+                            console.log(animateState);
+                            console.log(animateDelta);
+                            game.$timeout(function () {
+                                console.log("Inner timeout");
+                                sourceCopy = animate(animateState, animateDelta);
+                                console.log(sourceCopy);
+                            }, 0);
+                        }, 2100 * animationNo + 100);
+                    })(animationNo);
+                };
+                for (var animationNo = 0; animationNo < game.state.deltaArray.length; animationNo++) {
+                    _loop_1(animationNo);
                 }
-                (function (ind) {
-                    game.$timeout(function () {
-                        for (var i = 0; i < moveArray_1.length; i++) {
-                            (function (index) {
-                                game.$timeout(function () {
-                                    console.log("Making move for loop : " + index + " with move:" + moveArray_1[index]);
-                                    if (moveArray_1[index]) {
-                                        gameService.makeMove(moveArray_1[index], null);
-                                    }
-                                }, 2400 * index);
-                            })(i);
-                        }
-                    }, 2300 * game.currentUpdateUI.state.deltaArray.length);
-                })(1);
-                (function (ind) {
-                    game.$timeout(function () {
-                        console.log(ind);
-                        game.currentUpdateUI.state.deltaArray = [];
-                        game.inReplayLoop = false;
-                        console.log("Setting replay multiplayer to false. Animation ended");
-                        game.animationDone = true;
-                        game.replayForMultiplayer = false;
-                        setTurnStatus();
-                    }, 2500 * game.currentUpdateUI.state.deltaArray.length * 3);
-                })(1);
+                game.animationEndedTimeout = game.$timeout(function () { animationEndedCallback(sourceCopy); }, 2100 * game.state.deltaArray.length + 200);
             }
         }
+        if (isFirstMove()) {
+            console.log("Initialstate method called");
+            game.state = gameLogic.getInitialState();
+            game.scores = angular.copy(game.state.board);
+            sourceCopy = angular.copy(game.state.sourceImages);
+            game.globalSourceImages = angular.copy(game.state.sourceImages);
+            game.animationEndedTimeout = game.$timeout(function () { animationEndedCallback(sourceCopy); }, 300);
+        }
+        setFlipDisplay();
     }
     game.updateUI = updateUI;
     function setFlipDisplay() {
@@ -330,8 +308,15 @@ var game;
             game.isEndState = false;
         }
     }
+    function emptyDeltaArray() {
+        if (game.replayForMultiplayer) {
+            game.state.deltaArray = [];
+            game.replayForMultiplayer = false;
+        }
+    }
     function animationEndedCallback(sourceCopy) {
-        console.log("Aanimation ended");
+        console.log("Animation ended");
+        emptyDeltaArray();
         setTurnStatus();
         updateScores();
         setEndState();
@@ -350,16 +335,12 @@ var game;
     }
     function updateSourceImages(sourceCopy) {
         if (sourceCopy != null) {
-            //console.log(sourceImages);
             game.state.sourceImages = angular.copy(sourceCopy);
-            //state.sourceImages = angular.copy(sourceImages);
+            game.globalSourceImages = angular.copy(sourceCopy);
         }
     }
     function setTurnStatus() {
-        if (!game.inReplayLoop)
-            game.turnStatus = game.currentUpdateUI.turnIndex;
-        else
-            game.turnStatus = 1 - game.currentUpdateUI.turnIndex;
+        game.turnStatus = game.currentUpdateUI.turnIndex;
         if (game.currentUpdateUI.state !== null) {
             game.previousTurnIndex = game.currentUpdateUI.state.previousTurnIndex;
             game.currentMoveType = game.currentUpdateUI.state.nextMoveType;
@@ -396,20 +377,20 @@ var game;
         }
         game.didMakeMove = true;
         if (!game.proposals) {
-            gameService.makeMove(move, null);
+            gameService.makeMove(move, null, "chat Description");
         }
         else {
             var delta = move.state.delta;
             var myProposal = {
                 data: delta,
-                chatDescription: '' + (delta.row + 1) + 'x' + (delta.col + 1),
+                //chatDescription: '' + (delta.row + 1) + 'x' + (delta.col + 1),
                 playerInfo: game.yourPlayerInfo,
             };
             // Decide whether we make a move or not (if we have <currentCommunityUI.numberOfPlayersRequiredToMove-1> other proposals supporting the same thing).
             if (game.proposals[delta.row][delta.col] < game.currentUpdateUI.numberOfPlayersRequiredToMove - 1) {
                 move = null;
             }
-            gameService.makeMove(move, myProposal);
+            gameService.makeMove(move, myProposal, "chatDescription");
         }
     }
     function isFirstMove() {
@@ -496,7 +477,7 @@ var game;
             console.info("Problem in createMove: " + exception);
             return;
         }
-        gameService.makeMove(nextMove, null);
+        gameService.makeMove(nextMove, null, "chat Description");
         if (nextMove.endMatchScores !== null) {
             console.info("end state detected to be true " + game.isEndState);
         }
@@ -509,6 +490,7 @@ var game;
     }
     game.pitClicked = pitClicked;
     function updatePosition(destinationElement, currentRow, currentCol, animateState, animateDelta) {
+        console.log("In update position");
         var newPositionTop = 0;
         var newPositionLeft = 0;
         var stateBoard = animateState.board;
@@ -563,7 +545,7 @@ var game;
         var deltaBoard = animateDelta.board;
         var parent = null;
         var stateBoard = animateState.board;
-        var loopCount = -1 * deltaBoard[currentRow][currentCol];
+        var loopCount = children.length;
         console.log("Loop count is: " + loopCount);
         console.log("Children's length is: " + children.length);
         for (var loopNo = 0; loopNo < loopCount; loopNo++) {
@@ -606,6 +588,9 @@ var game;
         var col = animateDelta.col;
         var deltaBoard = animateDelta.board;
         var sourceCopy = angular.copy(animateState.sourceImages);
+        console.log("In animation sourceCopy");
+        console.log(animateState.sourceImages);
+        console.log(sourceCopy);
         var positionCount = 0;
         var loopCount = 0;
         var resultArray = [];
@@ -619,7 +604,7 @@ var game;
                     console.log("Length of the children is " + children.length);
                     var turn = row_1;
                     for (var candyNo = 0; candyNo < children.length; candyNo++) {
-                        sourceCopy[row_1][col_1][candyNo] = "";
+                        sourceCopy[row_1][col_1][candyNo] = null;
                     }
                     putintoDestination(children, row_1, col_1, turn, sourceCopy, animateState, animateDelta);
                 }
@@ -723,7 +708,7 @@ var game;
     }
     game.isCapture = isCapture;
     function getSource(rowNo, colNo, candyNo) {
-        var imgsrc = game.state.sourceImages[rowNo][colNo][candyNo];
+        var imgsrc = game.globalSourceImages[rowNo][colNo][candyNo];
         if (imgsrc === "") {
             return imgsrc;
         }
@@ -732,6 +717,20 @@ var game;
             imgsrc = gameLogic.candy1;
         }
         return imgsrc;
+        //}
+        // else{
+        //   let imgsrc:string = state.deltaArray[0].sourceImages[rowNo][colNo][candyNo];
+        //   if (imgsrc === ""){
+        //     return imgsrc;
+        //   }
+        //   if(!imgsrc || imgsrc==null){
+        //     console.log("Had to rely on default image");
+        //     imgsrc = gameLogic.candy1;
+        //   }
+        //   return imgsrc;
+        //
+        //
+        // }
     }
     game.getSource = getSource;
 })(game || (game = {}));

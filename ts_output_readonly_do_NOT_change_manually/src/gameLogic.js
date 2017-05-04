@@ -3,12 +3,12 @@ var MoveType = {
     2: "emptyHole",
     3: "transferAll"
 };
-var gameService = gamingPlatform.gameService;
-var alphaBetaService = gamingPlatform.alphaBetaService;
-var translate = gamingPlatform.translate;
-var resizeGameAreaService = gamingPlatform.resizeGameAreaService;
-var log = gamingPlatform.log;
-var dragAndDropService = gamingPlatform.dragAndDropService;
+var gameService = gamingPlatformREMOVEDWHENCOPIED.gameService;
+var alphaBetaService = gamingPlatformREMOVEDWHENCOPIED.alphaBetaService;
+var translate = gamingPlatformREMOVEDWHENCOPIED.translate;
+var resizeGameAreaService = gamingPlatformREMOVEDWHENCOPIED.resizeGameAreaService;
+var log = gamingPlatformREMOVEDWHENCOPIED.log;
+var dragAndDropService = gamingPlatformREMOVEDWHENCOPIED.dragAndDropService;
 var gameLogic;
 (function (gameLogic) {
     gameLogic.ROWS = 2;
@@ -42,6 +42,46 @@ var gameLogic;
         }
         return sourceImages;
     }
+    // function getpseudoInitialSource():string[][][]{
+    //   console.log("In initialize source method");
+    //   board[1][5] = 0;
+    //   board[1][4] = 3;
+    //   board[0][0] = 20;
+    //   board[1][6] = 24;
+    //   board[0][1] = 1;
+    //
+    //   let sourceImages:string[][][];
+    //   sourceImages = [];
+    //   let rowNo = 1;
+    //   let colNo = 5;
+    //   sourceImages[rowNo][colNo] = [];
+    //   rowNo = 1;
+    //   colNo = 4;
+    //   for(int i=0;i<3;i++){
+    //     sourceImages
+    //   }
+    //   for(let rowNo=0;rowNo<2;rowNo++){
+    //     sourceImages[rowNo]=[];
+    //     for(let colNo=0;colNo<7;colNo++){
+    //       sourceImages[rowNo][colNo]=[];
+    //       for(let candyNo=0;candyNo<48;candyNo++){
+    //          sourceImages[rowNo][colNo][candyNo] = candy1;
+    //       }
+    //     }
+    //   }
+    //   for(let rowNo=0;rowNo<2;rowNo++){
+    //     for(let colNo=0;colNo<7;colNo++){
+    //       if(!((rowNo==0 && colNo==0) || (rowNo==1 && colNo==6))){
+    //         sourceImages[rowNo][colNo][0] = candy1;
+    //         sourceImages[rowNo][colNo][1] = candy2;
+    //         sourceImages[rowNo][colNo][2] = candy3;
+    //         sourceImages[rowNo][colNo][3] = candy4;
+    //
+    //       }
+    //     }
+    //   }
+    //   return sourceImages;
+    // }
     function getInitialBoard() {
         var board = [];
         for (var i = 0; i < gameLogic.ROWS; i++) {
@@ -67,14 +107,15 @@ var gameLogic;
         board[1][5] = 0;
         board[1][4] = 3;
         board[0][0] = 20;
-        board[1][6] = 24;
-        board[0][1] = 1;
+        board[1][1] = 2;
+        board[0][2] = 13;
+        board[0][1] = 2;
         return board;
     }
     gameLogic.getPseudoInitialBoard = getPseudoInitialBoard;
     function getInitialState() {
         console.log("Initial state method called in gameLogic");
-        return { board: getInitialBoard(), delta: null, deltaArray: null, lastupdatedrow: -1,
+        return { board: getPseudoInitialBoard(), delta: null, deltaArray: null, lastupdatedrow: -1,
             lastupdatedcol: -1, nextMoveType: "clickUpdate", sourceImages: getInitialSource(), previousTurnIndex: null };
     }
     gameLogic.getInitialState = getInitialState;
@@ -287,8 +328,8 @@ var gameLogic;
             updatedState = transferAllLeft(board);
             var boardAfterMove = updatedState.board;
             var winner = getWinner(boardAfterMove);
-            turnIndexBeforeMove = -1;
-            turnIndex = turnIndexBeforeMove;
+            //turnIndexBeforeMove = -1;
+            turnIndex = -1;
             endMatchScores = winner === 0 ? [1, 0] : winner === 1 ? [0, 1] : [0, 0];
         }
         else {
