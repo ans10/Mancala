@@ -165,7 +165,7 @@ p{
   margin-bottom: 10px;
 }
 
-@-webkit-keyframes wiggle
+/*@-webkit-keyframes wiggle
 {
     0% {-webkit-transform: rotateZ(2deg);}
     50% {-webkit-transform: rotateZ(-2deg);}
@@ -188,7 +188,7 @@ p{
     0% {transform: rotateZ(5deg);}
     50% {transform: rotateZ(-5deg);}
     100% {transform: rotateZ(5deg);}
-}
+}*/
 
 .parent{
 	flex:1;
@@ -235,7 +235,6 @@ p{
 	margin-left:5px;
 	margin-bottom: 7px;
 	margin-right:5px;
-	/*padding:2px;*/
 	display:flex;
 	flex-direction: column;
 	opacity: 1;
@@ -250,12 +249,6 @@ p{
 	-o-box-shadow: inset 0px 0px 15px 5px #480205;
 	box-shadow:  inset 0px 0px 10px 1px #480205;
   cursor: default;
-
-	/*-webkit-animation: wiggle 0.5s ease infinite;
-    -moz-animation: wiggle 0.5s ease infinite;
-    -o-animation: wiggle 0.5s ease infinite;
-    animation: wiggle 0.5s ease infinite;*/
-
 }
 
 .store {
@@ -265,15 +258,8 @@ p{
 	justify-content: center;
 	align-items: center;
 	cursor: default;
-	/* -webkit-box-shadow: 2px 2px 1px #888;
-  -moz-box-shadow: 2px 2px 1px #888;
-	box-shadow: 2px 2px 1px #888;*/
 	width: 100%;
 	height: auto;
-	/*max-width: 100%;
-	max-height: 80%;
-	min-width: 100%;
-	min-height: 80%;*/
 	position: relative;
 }
 
@@ -284,39 +270,18 @@ p{
 	flex:1;
 	justify-content: center;
 	align-items: center;
-/*	background-color: rgba(0,0,0,.2);
-	*/cursor: default;
-/*	-webkit-box-shadow: 2px 2px 1px #888;
-  -moz-box-shadow: 2px 2px 1px #888;
-	box-shadow: 2px 2px 1px #888;
-	*/border-radius: 40%;
-	/*max-width: 100%;
-	min-width: 100%;*/
+	cursor: default;
+  border-radius: 40%;
 }
 
 .score{
-	/*margin: 10px;
-	padding:0px;*/
+
 	display: flex;
 	flex:1;
 	justify-content: center;
 	align-items: center;
   font-weight: bold;
-	/*background-color: rgba(0,0,0,.2);
-	/*border-radius: 40%;*/
 	cursor: default;
-	/*width: 5%;
-	height: 5%;*/
-/*	 -webkit-box-shadow: 2px 2px 1px #888;
-  -moz-box-shadow: 2px 2px 1px #888;
-	box-shadow: 2px 2px 1px #888;
-/*	margin: 20px;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	background-color:white;
-	box-shadow: inset 0 0 2px rgba(0,0,0,.1);
-	cursor: default;*/
 }
 
 .status{

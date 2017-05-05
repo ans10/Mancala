@@ -261,7 +261,7 @@ module game {
             sourceCopy = animate(animateState,animateDelta);
             console.log(sourceCopy);
           }, 0);
-          animationEndedTimeout = $timeout(function(){animationEndedCallback(sourceCopy)},time_out);
+          animationEndedTimeout = $timeout(function(){animationEndedCallback(sourceCopy)},time_out+200);
 
 
       }

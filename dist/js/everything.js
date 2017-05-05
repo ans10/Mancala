@@ -32262,7 +32262,7 @@ var game;
                     sourceCopy = animate(animateState_1, animateDelta_1);
                     console.log(sourceCopy);
                 }, 0);
-                game.animationEndedTimeout = game.$timeout(function () { animationEndedCallback(sourceCopy); }, time_out);
+                game.animationEndedTimeout = game.$timeout(function () { animationEndedCallback(sourceCopy); }, time_out + 200);
             }
             else {
                 console.log("In replay multiplayer true");
