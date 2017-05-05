@@ -32261,7 +32261,7 @@ var game;
                     sourceCopy = animate(animateState_1, animateDelta_1);
                     console.log(sourceCopy);
                 }, 0);
-                game.animationEndedTimeout = game.$timeout(function () { animationEndedCallback(sourceCopy); }, 2100);
+                game.animationEndedTimeout = game.$timeout(function () { animationEndedCallback(sourceCopy); }, 1100);
             }
             else {
                 console.log("In replay multiplayer true");
@@ -32295,7 +32295,7 @@ var game;
                                 sourceCopy = animate(animateState, animateDelta);
                                 console.log(sourceCopy);
                             }, 0);
-                        }, 2100 * animationNo + 100);
+                        }, 1100 * animationNo + 100);
                     })(animationNo);
                 };
                 for (var animationNo = 0; animationNo < game.state.deltaArray.length; animationNo++) {
@@ -32611,7 +32611,8 @@ var game;
             var newPosition = updatePosition(parent, currentRow, currentCol, animateState, animateDelta);
             var newPositionLefttext = newPosition.left - currentPositionLeft + 'px';
             var newPositionToptext = newPosition.top - currentPositionTop + 'px';
-            candyImage.style.transform = "translate(" + newPositionLefttext + "," + newPositionToptext + ")";
+            //candyImage.style.transform = "translate("+newPositionLefttext+","+newPositionToptext+")";
+            candyImage.style.transform = "translateX(" + newPositionLefttext + ")" + " translateY(" + newPositionToptext + ")";
             sourceCopy[currentRow][currentCol][stateBoard[currentRow][currentCol] - deltaBoard[currentRow][currentCol] - 1] =
                 candyImage.src;
         }

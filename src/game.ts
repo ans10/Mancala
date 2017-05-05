@@ -260,7 +260,7 @@ module game {
             sourceCopy = animate(animateState,animateDelta);
             console.log(sourceCopy);
           }, 0);
-          animationEndedTimeout = $timeout(function(){animationEndedCallback(sourceCopy)},2100);
+          animationEndedTimeout = $timeout(function(){animationEndedCallback(sourceCopy)},1100);
 
 
       }
@@ -301,7 +301,7 @@ module game {
 
 
 
-            },2100*animationNo+100);
+            },1100*animationNo+100);
           })(animationNo);
         }
         animationEndedTimeout = $timeout(function(){animationEndedCallback(sourceCopy)},2100*state.deltaArray.length+200);
@@ -648,7 +648,8 @@ function putintoDestination(children:HTMLElement[],currentRow:number,
       currentRow,currentCol,animateState,animateDelta);
       let newPositionLefttext = newPosition.left-currentPositionLeft + 'px';
       let newPositionToptext = newPosition.top-currentPositionTop + 'px';
-      candyImage.style.transform = "translate("+newPositionLefttext+","+newPositionToptext+")";
+      //candyImage.style.transform = "translate("+newPositionLefttext+","+newPositionToptext+")";
+      candyImage.style.transform = "translateX("+newPositionLefttext+")"+" translateY("+newPositionToptext+")";
       sourceCopy[currentRow][currentCol][stateBoard[currentRow][currentCol]-deltaBoard[currentRow][currentCol]-1] =
       candyImage.src;
 

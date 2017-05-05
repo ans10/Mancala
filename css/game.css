@@ -149,14 +149,13 @@ p{
   height : 40%;
   min-width: 30%;
   min-height: 40%;
-  animation: none !important;
-  -webkit-animation: none !important;
-  -moz-animation: none !important;
-  -o-animation: none !important;
-  transition: all 2s ease-in-out;
- -webkit-transition: all 2s ease-in-out; /** Chrome & Safari **/
- -moz-transition: all 2s ease-in-out; /** Firefox **/
- -o-transition: all 2s ease-in-out; /** Opera **/
+  transition: all 1s ease-in-out;
+ -webkit-transition: all 1s ease-in-out; /** Chrome & Safari **/
+ -moz-transition: all 1s ease-in-out; /** Firefox **/
+ -o-transition: all 1s ease-in-out; /** Opera **/
+ /*-webkit-transition: all 1s linear;
+ -moz-transition: all 1s linear;
+ -o-transition: all 2s linear;*/
 }
  .imgClassStore{
 	 width: 25%;
@@ -329,4 +328,3 @@ align-items: center;
 margin-top: 15px;
 margin-bottom: 15px;
 }
-
