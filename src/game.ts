@@ -588,22 +588,30 @@ function isStore(row:number,col:number):boolean{
 
   return isStore;
 }
+
 function putintoDestination(children:HTMLElement[],currentRow:number,
   currentCol:number,turn:number,sourceCopy:string[][][],animateState:IState,
   animateDelta:BoardDelta):void{
    let sourceCellRow = currentRow;
    let sourceCellCol = currentCol;
+   console.log("Source cell information");
+   console.log(sourceCellRow);
+   console.log(sourceCellCol);
    let oldParentArray:HTMLElement[] = [];
    let newParentArray : HTMLElement[] = [];
    let childArray : HTMLElement[] = [];
    let deltaBoard:Board = animateDelta.board;
    let parent:HTMLElement = null;
    let stateBoard:Board = animateState.board;
-   let loopCount = children.length;
+   let loopCount = children.length;//<13?children.length:12;
+   let initialLoopNo = 0;
    console.log("Loop count is: "+loopCount);
    console.log("Children's length is: "+children.length);
-
-   for(let loopNo=0; loopNo<loopCount; loopNo++){
+   let visitedSource:boolean = false;
+   if(children.length>=13){
+     initialLoopNo = 1;
+   }
+   for(let loopNo=initialLoopNo; loopNo<loopCount; loopNo++){
       console.log("Loop No is:"+loopNo);
       let candyImage = children[loopNo].getElementsByTagName("img")[0];
       let currentPositionLeft = candyImage.getBoundingClientRect().left;
@@ -611,6 +619,7 @@ function putintoDestination(children:HTMLElement[],currentRow:number,
 
       // Find the destination cells
       while(deltaBoard[currentRow][currentCol]<1){
+          console.log("In while loop");
           if(currentRow == 1){
             currentCol++;
             if(currentCol>=7){
@@ -663,7 +672,6 @@ function animate(animateState:IState,animateDelta:BoardDelta):string[][][]{
     for( let col=0;col<7;col++){
 
       if(deltaBoard[row][col]<0){
-        loopCount = -1 * deltaBoard[row][col];
         let children:HTMLElement[] = <HTMLElement[]><any>document.getElementById('pit-'+row+col).children;
         console.log("Deparature cell selected is pit-"+row+col);
         console.log("Length of the children is "+children.length);

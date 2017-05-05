@@ -129,12 +129,12 @@ module gameLogic {
         board[i][j] =0;
       }
     }
-    board[1][5] = 0;
+    board[1][5] = 1;
     board[1][4] = 3;
     board[0][0] = 20;
     board[1][1] = 2;
-    board[0][2] = 13;
-    board[0][1] = 2;
+    board[0][2] = 14;
+    board[0][1] = 0;
     return board;
   }
 
