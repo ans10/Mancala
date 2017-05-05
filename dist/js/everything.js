@@ -32709,8 +32709,6 @@ var game;
             if (game.currentUpdateUI.playersInfo[turn] && game.currentUpdateUI.playersInfo[turn].displayName &&
                 game.currentUpdateUI.playersInfo[turn].displayName != null &&
                 game.currentUpdateUI.playersInfo[turn].displayName != '') {
-                console.log("Reaching here to display the name" +
-                    game.currentUpdateUI.playersInfo[turn].displayName);
                 return game.currentUpdateUI.playersInfo[turn].displayName + "'s turn";
             }
             else {

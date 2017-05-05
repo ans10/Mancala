@@ -752,8 +752,6 @@ function animate(animateState:IState,animateDelta:BoardDelta):string[][][]{
       if(currentUpdateUI.playersInfo[turn] && currentUpdateUI.playersInfo[turn].displayName &&
          currentUpdateUI.playersInfo[turn].displayName!=null &&
           currentUpdateUI.playersInfo[turn].displayName!=''){
-            console.log("Reaching here to display the name"+
-            currentUpdateUI.playersInfo[turn].displayName);
             return currentUpdateUI.playersInfo[turn].displayName+"'s turn";
       }
       else{
