@@ -337,6 +337,7 @@ var game;
         if (sourceCopy != null) {
             game.state.sourceImages = angular.copy(sourceCopy);
             game.globalSourceImages = angular.copy(sourceCopy);
+            //state.sourceImages = angular.copy(sourceImages);
         }
     }
     function setTurnStatus() {

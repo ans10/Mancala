@@ -31756,12 +31756,12 @@ var gameLogic;
                 board[i][j] = 0;
             }
         }
-        board[1][5] = 0;
+        board[1][5] = 1;
         board[1][4] = 3;
         board[0][0] = 20;
         board[1][1] = 2;
-        board[0][2] = 13;
-        board[0][1] = 2;
+        board[0][2] = 14;
+        board[0][1] = 0;
         return board;
     }
     gameLogic.getPseudoInitialBoard = getPseudoInitialBoard;
@@ -32563,22 +32563,31 @@ var game;
     function putintoDestination(children, currentRow, currentCol, turn, sourceCopy, animateState, animateDelta) {
         var sourceCellRow = currentRow;
         var sourceCellCol = currentCol;
+        console.log("Source cell information");
+        console.log(sourceCellRow);
+        console.log(sourceCellCol);
         var oldParentArray = [];
         var newParentArray = [];
         var childArray = [];
         var deltaBoard = animateDelta.board;
         var parent = null;
         var stateBoard = animateState.board;
-        var loopCount = children.length;
+        var loopCount = children.length; //<13?children.length:12;
+        var initialLoopNo = 0;
         console.log("Loop count is: " + loopCount);
         console.log("Children's length is: " + children.length);
-        for (var loopNo = 0; loopNo < loopCount; loopNo++) {
+        var visitedSource = false;
+        if (children.length >= 13) {
+            initialLoopNo = 1;
+        }
+        for (var loopNo = initialLoopNo; loopNo < loopCount; loopNo++) {
             console.log("Loop No is:" + loopNo);
             var candyImage = children[loopNo].getElementsByTagName("img")[0];
             var currentPositionLeft = candyImage.getBoundingClientRect().left;
             var currentPositionTop = candyImage.getBoundingClientRect().top;
             // Find the destination cells
             while (deltaBoard[currentRow][currentCol] < 1) {
+                console.log("In while loop");
                 if (currentRow == 1) {
                     currentCol++;
                     if (currentCol >= 7) {
@@ -32622,7 +32631,6 @@ var game;
         for (var row_1 = 0; row_1 < 2; row_1++) {
             for (var col_1 = 0; col_1 < 7; col_1++) {
                 if (deltaBoard[row_1][col_1] < 0) {
-                    loopCount = -1 * deltaBoard[row_1][col_1];
                     var children = document.getElementById('pit-' + row_1 + col_1).children;
                     console.log("Deparature cell selected is pit-" + row_1 + col_1);
                     console.log("Length of the children is " + children.length);
