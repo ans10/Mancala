@@ -224,6 +224,7 @@ module game {
   export function updateUI(params: IUpdateUI): void {
     log.info("Game got updateUI:", params);
     let playerIdToProposal = params.playerIdToProposal;
+    let time_out = 1100;
      // Only one move/proposal per updateUI
     didMakeMove = playerIdToProposal && playerIdToProposal[yourPlayerInfo.playerId] != undefined;
     yourPlayerInfo = params.yourPlayerInfo;
@@ -260,7 +261,7 @@ module game {
             sourceCopy = animate(animateState,animateDelta);
             console.log(sourceCopy);
           }, 0);
-          animationEndedTimeout = $timeout(function(){animationEndedCallback(sourceCopy)},1100);
+          animationEndedTimeout = $timeout(function(){animationEndedCallback(sourceCopy)},time_out);
 
 
       }
@@ -301,10 +302,10 @@ module game {
 
 
 
-            },1100*animationNo+100);
+            },time_out*animationNo);
           })(animationNo);
         }
-        animationEndedTimeout = $timeout(function(){animationEndedCallback(sourceCopy)},2100*state.deltaArray.length+200);
+        animationEndedTimeout = $timeout(function(){animationEndedCallback(sourceCopy)},time_out*state.deltaArray.length);
       }
     }
 

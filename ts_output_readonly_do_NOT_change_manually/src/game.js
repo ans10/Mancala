@@ -204,6 +204,7 @@ var game;
     function updateUI(params) {
         log.info("Game got updateUI:", params);
         var playerIdToProposal = params.playerIdToProposal;
+        var time_out = 1100;
         // Only one move/proposal per updateUI
         game.didMakeMove = playerIdToProposal && playerIdToProposal[game.yourPlayerInfo.playerId] != undefined;
         game.yourPlayerInfo = params.yourPlayerInfo;
@@ -238,7 +239,7 @@ var game;
                     sourceCopy = animate(animateState_1, animateDelta_1);
                     console.log(sourceCopy);
                 }, 0);
-                game.animationEndedTimeout = game.$timeout(function () { animationEndedCallback(sourceCopy); }, 1100);
+                game.animationEndedTimeout = game.$timeout(function () { animationEndedCallback(sourceCopy); }, time_out);
             }
             else {
                 console.log("In replay multiplayer true");
@@ -272,13 +273,13 @@ var game;
                                 sourceCopy = animate(animateState, animateDelta);
                                 console.log(sourceCopy);
                             }, 0);
-                        }, 1100 * animationNo + 100);
+                        }, time_out * animationNo);
                     })(animationNo);
                 };
                 for (var animationNo = 0; animationNo < game.state.deltaArray.length; animationNo++) {
                     _loop_1(animationNo);
                 }
-                game.animationEndedTimeout = game.$timeout(function () { animationEndedCallback(sourceCopy); }, 2100 * game.state.deltaArray.length + 200);
+                game.animationEndedTimeout = game.$timeout(function () { animationEndedCallback(sourceCopy); }, time_out * game.state.deltaArray.length);
             }
         }
         if (isFirstMove()) {
