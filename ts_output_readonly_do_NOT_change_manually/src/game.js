@@ -273,13 +273,13 @@ var game;
                                 sourceCopy = animate(animateState, animateDelta);
                                 console.log(sourceCopy);
                             }, 0);
-                        }, time_out * animationNo);
+                        }, time_out * animationNo + time_out);
                     })(animationNo);
                 };
                 for (var animationNo = 0; animationNo < game.state.deltaArray.length; animationNo++) {
                     _loop_1(animationNo);
                 }
-                game.animationEndedTimeout = game.$timeout(function () { animationEndedCallback(sourceCopy); }, time_out * game.state.deltaArray.length);
+                game.animationEndedTimeout = game.$timeout(function () { animationEndedCallback(sourceCopy); }, time_out * game.state.deltaArray.length + time_out);
             }
         }
         if (isFirstMove()) {
@@ -338,7 +338,6 @@ var game;
         if (sourceCopy != null) {
             game.state.sourceImages = angular.copy(sourceCopy);
             game.globalSourceImages = angular.copy(sourceCopy);
-            //state.sourceImages = angular.copy(sourceImages);
         }
     }
     function setTurnStatus() {
