@@ -603,7 +603,7 @@ function putintoDestination(children:HTMLElement[],currentRow:number,
    let deltaBoard:Board = animateDelta.board;
    let parent:HTMLElement = null;
    let stateBoard:Board = animateState.board;
-   let loopCount = children.length;//<13?children.length:12;
+   let loopCount = children.length;
    let initialLoopNo = 0;
    console.log("Loop count is: "+loopCount);
    console.log("Children's length is: "+children.length);

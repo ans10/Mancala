@@ -549,7 +549,7 @@ var game;
         var deltaBoard = animateDelta.board;
         var parent = null;
         var stateBoard = animateState.board;
-        var loopCount = children.length; //<13?children.length:12;
+        var loopCount = children.length;
         var initialLoopNo = 0;
         console.log("Loop count is: " + loopCount);
         console.log("Children's length is: " + children.length);
