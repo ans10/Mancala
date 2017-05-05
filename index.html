@@ -62,9 +62,8 @@
           </div>
   			</div>
 
-        <!-- <p ng-if ="game.isEndState" ng-class="{status: true}">{{game.getWinner()}}</p>
-        <p ng-if ="!game.isEndState" ng-class="{status: true}">{{game.printStatus()}}</p> -->
-        <p ng-class="{status: true}">Mancala Game</p>
+        <p ng-if ="game.isEndState" ng-class="{status: true}">{{game.getWinner()}}</p>
+        <p ng-if ="!game.isEndState" ng-class="{status: true}">{{game.printStatus()}}</p>
 
        	<div ng-class="{row:true}">
           <div ng-repeat="pitIndex in [6,5,4,3,2,1]"   ng-class="{'parentWiggle': game.getTurnStatus() == 0,
