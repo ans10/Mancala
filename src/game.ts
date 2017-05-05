@@ -302,10 +302,10 @@ module game {
 
 
 
-            },time_out*animationNo+time_out);
+            },time_out*animationNo+time_out+200);
           })(animationNo);
         }
-        animationEndedTimeout = $timeout(function(){animationEndedCallback(sourceCopy)},time_out*state.deltaArray.length+time_out);
+        animationEndedTimeout = $timeout(function(){animationEndedCallback(sourceCopy)},time_out*state.deltaArray.length+time_out+200);
       }
     }
 

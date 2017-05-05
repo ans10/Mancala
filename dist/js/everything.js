@@ -32296,13 +32296,13 @@ var game;
                                 sourceCopy = animate(animateState, animateDelta);
                                 console.log(sourceCopy);
                             }, 0);
-                        }, time_out * animationNo + time_out);
+                        }, time_out * animationNo + time_out + 200);
                     })(animationNo);
                 };
                 for (var animationNo = 0; animationNo < game.state.deltaArray.length; animationNo++) {
                     _loop_1(animationNo);
                 }
-                game.animationEndedTimeout = game.$timeout(function () { animationEndedCallback(sourceCopy); }, time_out * game.state.deltaArray.length + time_out);
+                game.animationEndedTimeout = game.$timeout(function () { animationEndedCallback(sourceCopy); }, time_out * game.state.deltaArray.length + time_out + 200);
             }
         }
         if (isFirstMove()) {
