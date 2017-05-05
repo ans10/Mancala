@@ -204,7 +204,7 @@ var game;
     function updateUI(params) {
         log.info("Game got updateUI:", params);
         var playerIdToProposal = params.playerIdToProposal;
-        var time_out = 1100;
+        var time_out = 2100;
         // Only one move/proposal per updateUI
         game.didMakeMove = playerIdToProposal && playerIdToProposal[game.yourPlayerInfo.playerId] != undefined;
         game.yourPlayerInfo = params.yourPlayerInfo;

@@ -149,14 +149,11 @@ p{
   height : 40%;
   min-width: 30%;
   min-height: 40%;
-  transition: all 1s ease-in-out;
- -webkit-transition: all 1s ease-in-out; /** Chrome & Safari **/
- -moz-transition: all 1s ease-in-out; /** Firefox **/
- -o-transition: all 1s ease-in-out; /** Opera **/
- /*-webkit-transition: all 1s linear;
- -moz-transition: all 1s linear;
- -o-transition: all 2s linear;*/
-}
+  transition: all 2s ease-in-out;
+ -webkit-transition: all 2s ease-in-out; /** Chrome & Safari **/
+ -moz-transition: all 2s ease-in-out; /** Firefox **/
+ -o-transition: all 2s ease-in-out; /** Opera **/
+ }
  .imgClassStore{
 	 width: 25%;
 	 height: 15%;

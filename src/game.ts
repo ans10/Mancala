@@ -224,7 +224,7 @@ module game {
   export function updateUI(params: IUpdateUI): void {
     log.info("Game got updateUI:", params);
     let playerIdToProposal = params.playerIdToProposal;
-    let time_out = 1100;
+    let time_out = 2100;
      // Only one move/proposal per updateUI
     didMakeMove = playerIdToProposal && playerIdToProposal[yourPlayerInfo.playerId] != undefined;
     yourPlayerInfo = params.yourPlayerInfo;
