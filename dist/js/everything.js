@@ -32612,8 +32612,8 @@ var game;
             var newPosition = updatePosition(parent, currentRow, currentCol, animateState, animateDelta);
             var newPositionLefttext = newPosition.left - currentPositionLeft + 'px';
             var newPositionToptext = newPosition.top - currentPositionTop + 'px';
-            //candyImage.style.transform = "translate("+newPositionLefttext+","+newPositionToptext+")";
-            candyImage.style.transform = "translateX(" + newPositionLefttext + ")" + " translateY(" + newPositionToptext + ")";
+            candyImage.style.transform = "translate(" + newPositionLefttext + "," + newPositionToptext + ")";
+            //candyImage.style.transform = "translateX("+newPositionLefttext+")"+" translateY("+newPositionToptext+")";
             sourceCopy[currentRow][currentCol][stateBoard[currentRow][currentCol] - deltaBoard[currentRow][currentCol] - 1] =
                 candyImage.src;
         }

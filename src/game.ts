@@ -649,8 +649,8 @@ function putintoDestination(children:HTMLElement[],currentRow:number,
       currentRow,currentCol,animateState,animateDelta);
       let newPositionLefttext = newPosition.left-currentPositionLeft + 'px';
       let newPositionToptext = newPosition.top-currentPositionTop + 'px';
-      //candyImage.style.transform = "translate("+newPositionLefttext+","+newPositionToptext+")";
-      candyImage.style.transform = "translateX("+newPositionLefttext+")"+" translateY("+newPositionToptext+")";
+      candyImage.style.transform = "translate("+newPositionLefttext+","+newPositionToptext+")";
+      //candyImage.style.transform = "translateX("+newPositionLefttext+")"+" translateY("+newPositionToptext+")";
       sourceCopy[currentRow][currentCol][stateBoard[currentRow][currentCol]-deltaBoard[currentRow][currentCol]-1] =
       candyImage.src;
 
