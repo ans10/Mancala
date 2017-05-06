@@ -203,6 +203,7 @@ var game;
     }
     function updateUI(params) {
         log.info("Game got updateUI:", params);
+        console.log(JSON.stringify(params));
         var playerIdToProposal = params.playerIdToProposal;
         var time_out = 2100;
         // Only one move/proposal per updateUI
