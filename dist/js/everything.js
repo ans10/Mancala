@@ -32222,7 +32222,7 @@ var game;
         return game.state.previousTurnIndex != game.currentUpdateUI.turnIndex;
     }
     function isMultiPlayerGame() {
-        return game.currentUpdateUI.playMode == 0 || game.currentUpdateUI.playMode == 1;
+        return (game.currentUpdateUI.playMode == 0 || game.currentUpdateUI.playMode == 1) && game.currentUpdateUI.matchType == "pingPongMultiplayer";
     }
     function updateUI(params) {
         log.info("Game got updateUI:", params);
@@ -32247,6 +32247,8 @@ var game;
             console.log(turnHasChanged());
             console.log(yourPlayerIndex());
             console.log(game.currentUpdateUI.state.previousTurnIndex);
+            console.log("Match type");
+            console.log();
             game.replayForMultiplayer = (isMultiPlayerGame() && turnHasChanged()
                 && (isMyTurn() || (game.currentUpdateUI.turnIndex == -1 && yourPlayerIndex() == (1 - game.currentUpdateUI.state.previousTurnIndex))));
             if (!game.replayForMultiplayer) {
