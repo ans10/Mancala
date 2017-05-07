@@ -9,5 +9,6 @@ imgs/board102.jpg
 imgs/bg102.jpg
 
 NETWORK:
+service-worker.js
 js/everything.min.js.map
 js/everything.js

@@ -39,7 +39,7 @@
     				  	{{game.currentCount = game.givePreviousCounts(1,6)}}
     				</div>
     				<div class="store" id='store-1'>
-              <div ng-repeat="x in game.makeArray(game.currentCount)" ng-class="{candyStore: true}">
+              <div ng-repeat="x in game.makeArray(game.currentCount) track by $index" ng-class="{candyStore: true}">
                   <img ng-src = "{{game.getSource(1,6,x)}}" onerror="this.src='imgs/redcandy.png'" alt ="candy" ng-class = "{imgClassStore: true}" ng-style="{{game.getPosition(x,1)}}" >
               </div>
     			</div>
@@ -49,13 +49,13 @@
   		<div ng-class="{rows:true}">
 
           <div ng-class="{row:true}">
-           <div ng-repeat="pitIndex in [5,4,3,2,1,0]"  ng-class="{'parentWiggle': game.getTurnStatus() == 1, 'parentStill': game.getTurnStatus() == 0 || -1 }"
+           <div ng-repeat="pitIndex in [5,4,3,2,1,0] track by $index"  ng-class="{'parentWiggle': game.getTurnStatus() == 1, 'parentStill': game.getTurnStatus() == 0 || -1 }"
            ng-click="game.pitClicked($event,1,pitIndex)">
   					 <div ng-class ="{score: true}">
                {{game.currentCount = game.givePreviousCounts(1,pitIndex)}}
   						</div>
   						<div ng-class="{pit: true}" ng-attr-id="{{'pit-1' + pitIndex}}">
-                <div ng-repeat="x in game.makeArray(game.currentCount)" ng-class="{candyPit: true}">
+                <div ng-repeat="x in game.makeArray(game.currentCount) track by $index" ng-class="{candyPit: true}">
   							    <img ng-src = "{{game.getSource(1,pitIndex,x)}}" onerror="this.src='imgs/redcandy.png'" alt ="candy" ng-class = "{imgClassPit: true}" ng-style="{{game.getPosition(x,0)}}">
                 </div>
   		        </div>
@@ -66,13 +66,13 @@
         <p ng-if ="!game.isEndState" ng-class="{status: true}">{{game.printStatus()}}</p>
 
        	<div ng-class="{row:true}">
-          <div ng-repeat="pitIndex in [6,5,4,3,2,1]"   ng-class="{'parentWiggle': game.getTurnStatus() == 0,
+          <div ng-repeat="pitIndex in [6,5,4,3,2,1] track by $index"   ng-class="{'parentWiggle': game.getTurnStatus() == 0,
           'parentStill': game.getTurnStatus() == 1 || -1 }" ng-click=game.pitClicked($event,0,pitIndex)>
               <div ng-class ="{score: true}">
   							{{game.currentCount = game.givePreviousCounts(0,pitIndex)}}
   						</div>
   						<div ng-class="{pit: true}" ng-attr-id="{{'pit-0'+pitIndex}}">
-                <div ng-repeat="x in game.makeArray(game.currentCount)" ng-class="{candyPit: true}">
+                <div ng-repeat="x in game.makeArray(game.currentCount) track by $index" ng-class="{candyPit: true}">
   							    <img ng-src = "{{game.getSource(0,pitIndex,x)}}" onerror="this.src='imgs/redcandy.png'" alt ="candy" ng-class = "{imgClassPit: true}" ng-style="{{game.getPosition(x,0)}}">
   						  </div>
   		        </div>
@@ -85,7 +85,7 @@
   			   {{game.currentCount = game.givePreviousCounts(0,0)}}
   			</div>
   			<div class="store" id="store-0">
-          <div ng-repeat="x in game.makeArray(game.currentCount)" ng-class="{candyStore: true}">
+          <div ng-repeat="x in game.makeArray(game.currentCount) track by $index" ng-class="{candyStore: true}">
             <img ng-src = "{{game.getSource(0,0,x)}}" onerror="this.src='imgs/redcandy.png'" alt ="candy" ng-class = "{imgClassStore: true}" ng-style="{{game.getPosition(x,1)}}">
           </div>
   			</div>
@@ -99,7 +99,7 @@
   				  	{{game.currentCount = game.givePreviousCounts(0,0)}}
   				</div>
   				<div ng-class="{store:true}" id='store-0'>
-            <div ng-repeat="x in game.makeArray(game.currentCount)" ng-class="{candyStore: true}">
+            <div ng-repeat="x in game.makeArray(game.currentCount) track by $index" ng-class="{candyStore: true}">
                 <img ng-src = "{{game.getSource(0,0,x)}}" onerror="this.src='imgs/redcandy.png'" alt ="candy" ng-class = "{imgClassStore: true}" ng-style="{{game.getPosition(x,1)}}">
             </div>
   			</div>
@@ -107,13 +107,13 @@
 
      	<div ng-class="{rows:true}">
           <div ng-class="{row:true}">
-          <div ng-repeat="pitIndex in [1,2,3,4,5,6]"  ng-class="{'parentWiggle': game.getTurnStatus() == 0,
+          <div ng-repeat="pitIndex in [1,2,3,4,5,6] track by $index"  ng-class="{'parentWiggle': game.getTurnStatus() == 0,
           'parentStill': game.getTurnStatus() == 1 || -1 }" ng-click=game.pitClicked($event,0,pitIndex)>
             <div ng-class ="{score: true}">
               {{game.currentCount = game.givePreviousCounts(0,pitIndex)}}
             </div>
             <div ng-class="{pit: true}" ng-attr-id="{{'pit-0'+pitIndex}}">
-              <div ng-repeat="x in game.makeArray(game.currentCount)" ng-class="{candyPit: true}">
+              <div ng-repeat="x in game.makeArray(game.currentCount) track by $index" ng-class="{candyPit: true}">
                 <img ng-src = "{{game.getSource(0,pitIndex,x)}}" onerror="this.src='imgs/redcandy.png'" alt ="candy" ng-class = "{imgClassPit: true}" ng-style="{{game.getPosition(x,0)}}">
               </div>
             </div>
@@ -125,14 +125,14 @@
 
 
 <div ng-class="{row:true}">
-          <div ng-repeat="pitIndex in [0,1,2,3,4,5]" ng-class="{'parentWiggle': game.getTurnStatus() == 1,
+          <div ng-repeat="pitIndex in [0,1,2,3,4,5] track by $index" ng-class="{'parentWiggle': game.getTurnStatus() == 1,
           'parentStill': game.getTurnStatus() == 0 || -1 }"
            ng-click="game.pitClicked($event,1,pitIndex)">
   					  <div ng-class ="{score: true}">
                 {{game.currentCount = game.givePreviousCounts(1,pitIndex)}}
   						</div>
   						<div ng-class="{pit: true}" ng-attr-id="{{'pit-1'+pitIndex}}">
-                <div ng-repeat="x in game.makeArray(game.currentCount)" ng-class="{candyPit: true}">
+                <div ng-repeat="x in game.makeArray(game.currentCount) track by $index" ng-class="{candyPit: true}">
   							    <img ng-src = "{{game.getSource(1,pitIndex,x)}}" onerror="this.src='imgs/redcandy.png'" alt ="candy" ng-class = "{imgClassPit: true}" ng-style="{{game.getPosition(x,0)}}">
                 </div>
   		        </div>
@@ -145,7 +145,7 @@
     				  {{game.currentCount = game.givePreviousCounts(1,6)}}
     				</div>
     				<div ng-class="{store:true}" id='store-1'>
-              <div ng-repeat="x in game.makeArray(game.currentCount)" ng-class="{candyStore: true}">
+              <div ng-repeat="x in game.makeArray(game.currentCount) track by $index" ng-class="{candyStore: true}">
                   <img ng-src = "{{game.getSource(1,6,x)}}" onerror="this.src='imgs/redcandy.png'" alt ="candy" ng-class = "{imgClassStore: true}" ng-style="{{game.getPosition(x,1)}}" >
               </div>
 
