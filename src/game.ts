@@ -223,7 +223,7 @@ module game {
   }
   export function updateUI(params: IUpdateUI): void {
     log.info("Game got updateUI:", params);
-    console.log(JSON.stringify(params));
+    //console.log(JSON.stringify(params));
     let playerIdToProposal = params.playerIdToProposal;
     let time_out = 2100;
      // Only one move/proposal per updateUI

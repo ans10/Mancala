@@ -35,11 +35,12 @@ html {
 }
 
 body {
-	font-family: 'Love Ya Like A Sister', cursive;
+	font-family: cursive;
 	color: #480205;
 	text-align: center;
 	font-size: 2.0vw;
 	margin-top: 1em;
+  font-weight: bold;
 }
 
 h1 {
@@ -52,7 +53,8 @@ p{
 	font-size: 2.8vw;
 	line-height: 20px;
 	color: brown;
-  font-family: 'Love Ya Like A Sister', cursive;
+  font-family: cursive;
+  font-weight: bold;
  }
 
 .displayLeft {
