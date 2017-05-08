@@ -361,7 +361,11 @@ module game {
       animationDone = true;
     else{
       console.log("In automatic move type");
-      if(currentUpdateUI.matchType == 'speedMultiplayer' && (currentUpdateUI.yourPlayerIndex === currentUpdateUI.turnIndex))
+      if(currentUpdateUI.matchType == 'speedMultiplayer'){
+        if(currentUpdateUI.yourPlayerIndex === currentUpdateUI.turnIndex)
+          referLogic(state.lastupdatedrow,state.lastupdatedcol);
+      }
+      else
         referLogic(state.lastupdatedrow,state.lastupdatedcol);
     }
     $timeout(function(){maybeSendComputerMove()},0);
