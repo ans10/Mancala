@@ -352,6 +352,7 @@ module game {
     updateScores();
     setEndState();
     updateSourceImages(sourceCopy);
+    console.log("All functions called");
     if(state.nextMoveType==null){
         isEndState = true;
         animationDone = true;
@@ -360,9 +361,10 @@ module game {
       animationDone = true;
     else{
       console.log("In automatic move type");
-      referLogic(state.lastupdatedrow,state.lastupdatedcol);
+      if(currentUpdateUI.matchType == 'speedMultiplayer' && (currentUpdateUI.yourPlayerIndex === currentUpdateUI.turnIndex))
+        referLogic(state.lastupdatedrow,state.lastupdatedcol);
     }
-    $timeout(function(){maybeSendComputerMove()},100);
+    $timeout(function(){maybeSendComputerMove()},0);
   }
   function updateSourceImages(sourceCopy:string[][][]):void{
     if(sourceCopy!=null){
